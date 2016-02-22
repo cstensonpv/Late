@@ -1,0 +1,86 @@
+{
+  "name": "Red Line",
+  "lineNr": 14,
+  "children": [
+    {
+      "name": "Fruängen",
+      //"id": 
+    },
+    {
+      "name": "Västertorp",
+      //"id": 
+    },
+    {
+      "name": "Hägerstensåsen",
+      //"id": 
+    },
+    {
+      "name": "Telefoplan",
+      //"id": 
+    },
+    {
+      "name": "Midsommarkransen",
+      //"id": 
+    },
+    {
+      "name": "Liljeholmen",
+      "junction" : "true",
+      //"id": 
+    },
+    {
+      "name": "Hornstull",
+      //"id": 
+    },
+    {
+      "name": "Zinkensdamm",
+      //"id": 
+    },
+    {
+      "name": "Mariatorget",
+      //"id": 
+    },
+    {
+      "name": "Slussen",
+      "junction" : "true",
+      //"id": 
+    },
+    {
+      "name": "Gamla stan",
+      //"id": 
+    },
+    {
+      "name": "T-Centralen",
+      "junction" : "true",
+      //"id": 
+    },
+    {
+      "name": "Östermalmstorg",
+      "junction" : "true",
+      //"id": 
+    },
+    {
+      "name": "Stadion",
+      //"id": 
+    },
+    {
+      "name": "Tekniska Högskolan",
+      //"id": 
+    },
+    {
+      "name": "Universitetet",
+      //"id": 
+    },
+    {
+      "name": "Bergshamra",
+      //"id": 
+    },
+    {
+      "name": "Danderyds sjukhus",
+      //"id": 
+    },
+    {
+      "name": "Mörby centrum",
+      //"id": 
+    }
+  ]
+}
