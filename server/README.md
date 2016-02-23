@@ -14,14 +14,14 @@ Start the server by typing 'node main.js' in the server root folder. The server 
 Documentation
 -------------
 
-/realtimedata?siteid=<SITEID>
+`/realtimedata?siteid=<SITEID>`
 
 returns realtime data for the station that corresponds to siteid
 
-/delaydata
+`/delaydata`
 
 returns the delaytime for all the stations
 
-/delaydata?siteid=<SITEID>
+`/delaydata?siteid=<SITEID>`
 
 returns the delaytime for the specified station
