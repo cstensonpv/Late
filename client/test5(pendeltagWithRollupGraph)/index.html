@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>PivotGraph (Rollup) Layout</title>
+<style>
+
+body {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .25;
+}
+
+.node {
+  fill: #fff;
+  stroke: steelblue;
+}
+
+.axis path,
+.axis line {
+  display: none;
+}
+
+</style>
+<body>
+<div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div>
+<script src="lib/d3.min.js"></script>
+<script src="lib/rollup.js"></script>
+<script>
+
+var margin = {top: 90, right: 240, bottom: 90, left: 240},
+    width = 960 - margin.left - margin.right,
+    t = .5,
+    height = 1000 - margin.top - margin.bottom;
+
+function fx(d) { return d.x; }
+function fy(d) { return d.y; }
+
+var x = d3.scale.ordinal()
+    .rangePoints([256, width - 6]);
+
+var y = d3.scale.ordinal()
+    .rangePoints([6, height - 6]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("top");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var rollup = d3.rollup()
+    .x(function(d) { return x(fx(d)); })
+    .y(function(d) { return y(fy(d)); });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var data = null;
+d3.json("data/pendeltag.json", function(error, social) {
+  if (error) throw error;
+
+  x.domain(social.nodes.map(fx));
+  y.domain(social.nodes.map(fy));
+  var graph = rollup(social);
+  data = graph;
+
+  //Append the links between circles
+  svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", function(d,i) {
+        var startX = d.source.x.toFixed(0), 
+            startY = d.source.y.toFixed(0),
+            stopX = d.target.x.toFixed(0); 
+            stopY = d.target.y.toFixed(0); 
+        //console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
+        console.log(d.source.x + " -- " + d.source.y);
+        return "M "+startX+" "+startY + " "+stopX+" "+stopY;
+      })
+      .style("stroke-width", function(d) { return d.value * 4; });
+
+
+  // Append nodes (circles)
+  var stations = svg.selectAll(".station")
+      .data(graph.nodes)
+      .enter()
+      .append("g")
+      .attr("id",function(d,i){
+        var str = graph.nodes[i].nodes[0].name;
+        str = str.replace(/\s+/g, '');
+        str = str.toLowerCase();
+        console.log(str);
+        return str;
+      })
+      .classed("station", true);
+
+var station = stations.append("circle")
+      .attr("class", "node")
+      .attr("r", function(d) { return 8;/*Math.sqrt(d.nodes.length * 40);*/ })
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+
+var label = stations.append("text")
+      .attr("class", "word")
+      .attr("dy", function(d) {return d.y })
+      .attr("dx", function(d) {return d.x + 10 })
+      .text( function(d) {
+        return d.nodes[0].name;
+      })
+
+  svg.append("g")
+      .attr("class", "x axis");
+
+  svg.append("g")
+      .attr("class", "y axis");
+
+});
+
+function updateCircle(clicked_id)
+{
+  console.log(clicked_id);
+ var last = 0;
+  d3.timer(function(elapsed) {
+    t = (t + (elapsed - last) / 5000) % 1;
+    last = elapsed;
+    var factor = last/100;
+    if(factor < 20)
+      update(last/100,clicked_id);
+  });    
+
+}
+
+ function update(x,selected) {
+    var slct = "#"+selected;
+    d3.select(".stations").remove();
+    var stations = svg.selectAll(".station")
+      .data(data.nodes)
+      .enter()
+      .append("g")
+      .attr("id",function(d,i){
+        var str = data.nodes[i].nodes[0].name;
+        str = str.replace(/\s+/g, '');
+        str = str.toLowerCase();
+        
+        return str;
+      })
+      .classed("station", true);
+
+    var station = svg.select(slct).append("circle")
+      .attr("class", "node")
+      .style("fill","red")
+      .attr("r", function(d) { return 8 + x;/*Math.sqrt(d.nodes.length * 40);*/ })
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+    var label = stations.append("text")
+      .attr("class", "word")
+      .attr("dy", function(d) {return d.y })
+      .attr("dx", function(d) {return d.x + 10 })
+      .text( function(d) {
+      return d.nodes[0].name;
+    });
+      
+  }
+</script>
