@@ -1,4 +1,4 @@
-var http = require('http');
+// var http = require('http');
 var express = require('express');
 var httprequest = require('./httprequest');
 var app = express();
@@ -35,23 +35,14 @@ var fetchInterval = 10000;
 var siteids = [
 	9000, // Stockholm C
 	9510, // Karlberg
-	9509, // Solna
-	9508, // Ulriksdal
-	9507, // Helenelund
-	9506, // Sollentuna
-	9505, // häggvik
-	9504, // Norrviken
-	9503, // Rotebro
+	// 9509, // Solna
+	// 9508, // Ulriksdal
+	// 9507, // Helenelund
+	// 9506, // Sollentuna
+	// 9505, // häggvik
+	// 9504, // Norrviken
+	// 9503, // Rotebro
 ];
-
-
-
-// var train = {
-// 	lastStation: 9000,
-// 	nextStation: 9510,
-// 	leftMinAgo: 2,
-// 	arriveMin: 3
-// };
 
 app.get('/test', function(req, res) {
 	res.send("Hello");
@@ -59,21 +50,21 @@ app.get('/test', function(req, res) {
 
 app.get('/realtimedata', function(req, res) {
 	if (req.query.siteid) {
-		res.sendStatus(httprequest.getRealTimeData(req.query.siteid));
+		res.send(httprequest.getRealTimeData(req.query.siteid));
 	} else {
-		res.sendStatus("No siteid");
+		res.send("No siteid");
 	}
 });
 
 app.get('/locationdata', function(req, res) {
-	res.sendStatus(httprequest.getLocationData(res.query.siteid));
+	res.send(httprequest.getLocationData(res.query.siteid));
 });
 
 app.get('/delaydata', function(req, res) {
 	if (req.query.siteid) {
-		res.sendStatus(httprequest.getDelayData(req.query.siteid));
+		res.send(httprequest.getDelayDataSiteid(req.query.siteid));
 	} else {
-		res.sendStatus("No siteid");
+		res.send(httprequest.getDelayData());
 	}
 });
 
@@ -85,4 +76,4 @@ httprequest.requestRealTimeData(siteids);
 // 	httprequest.requestRealTimeData();
 // }, fetchInterval);
 
-var server = app.listen(8081);
+var server = app.listen(3000);

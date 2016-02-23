@@ -34,7 +34,7 @@ var sl = new SL({
 							var tempDelay = expected.getTime() - timetable.getTime(); 
 							if (tempDelay > 0) {
 								delay += tempDelay;
-							} 
+							}
 						}
 						console.log(siteid + " " + delay);
 						totalDelays.push({
@@ -49,13 +49,18 @@ var sl = new SL({
 		}
 	};
 
-	module.exports.getDelayData = function(siteid) {
+	module.exports.getDelayDataSiteid = function(siteid) {
 		for (var i = 0; i < totalDelays.length; i++) {
 			if (totalDelays[i].siteid == siteid) {
-				return totalDelays[i].delayMS;
+				return totalDelays[i];
 			}
 		}
 		return "No data found";
+	};
+
+	module.exports.getDelayData = function() {
+		console.log(totalDelays);
+		return totalDelays;
 	};
 
 	module.exports.getRealTimeData = function(siteid) {
