@@ -1,0 +1,24 @@
+{"nodes": [{"gender": "M", "group": "Fruängen"},
+    {"gender": "F", "group": "Västertorp"},
+    {"gender": "M", "group": "Hägerstensåsen"},
+    {"gender": "M", "group": "Telefoplan"},
+    {"gender": "F", "group": "Midsommarkransen"},
+    {"gender": "M", "group": "Liljeholmen"},
+    {"gender": "F", "group": "Hornstull"},
+    {"gender": "M", "group": "Zinkensdamm"},
+    {"gender": "F", "group": "Mariatorget"},
+    {"gender": "F", "group": "Slussen"}
+  ],
+  "links": [
+    {"source": 0, "target": 1},
+    {"source": 1, "target": 2},
+    {"source": 2, "target": 3},
+    {"source": 3, "target": 4},
+    {"source": 4, "target": 5},
+    {"source": 5, "target": 6},
+    {"source": 6, "target": 7},
+    {"source": 7, "target": 8},
+    {"source": 8, "target": 9},
+    {"source": 1, "target": 9}
+  ]
+}

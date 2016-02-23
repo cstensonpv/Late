@@ -1,0 +1,156 @@
+{
+  "nodes": [
+    {"name": "Fruängen",
+    "x" : "100",
+    "y" : "11"},
+
+    {"name": "Västertorp",
+    "x" : "100",
+    "y" : "10"},
+
+    {"name": "Hägerstensåsen",
+    "x" : "100",
+    "y" : "9"},
+
+    {"name": "Telefoplan",
+    "x" : "100",
+    "y" : "8"},
+
+    {"name": "Midsommarkransen",
+    "x" : "100",
+    "y" : "7"},
+
+    {"name": "Liljeholmen",
+    "junction" : "true",
+    "x" : "100",
+    "y" : "6"},
+
+    {"name": "Hornstull",
+    "x" : "100",
+    "y" : "5"},
+
+    {"name": "Zinkensdamm",
+    "x" : "100",
+    "y" : "4"},
+
+    {"name": "Mariatorget",
+    "x" : "100",
+    "y" : "3"},
+
+    {"name": "Slussen",
+    "junction" : "true",
+    "x" : "100",
+    "y" : "2"},
+
+    {"name": "Gamla stan",
+    "x" : "100",
+    "y" : "1"},
+
+    {"name": "T-Centralen",
+    "junction" : "true",
+    "x" : "100",
+    "y" : "0"},
+
+    {"name": "Östermalmstorg",
+    "junction" : "true",
+    "x" : "100",
+    "y" : "-1"},
+
+    {"name": "Stadion",
+    "x" : "100",
+    "y" : "-2"},
+
+    {"name": "Tekniska Högskolan",
+    "x" : "100",
+    "y" : "-3"},
+
+    {"name": "Universitetet",
+    "x" : "100",
+    "y" : "-4"},
+
+    {"name": "Bergshamra",
+    "x" : "100",
+    "y" : "-5"},
+
+    {"name": "Danderyds sjukhus",
+    "x" : "100",
+    "y" : "-6"},
+
+    {"name": "Mörby centrum",
+    "x" : "100",
+    "y" : "-7"},
+
+    {"name": "Norsborg",
+    "x" : "0",
+    "y" : "19"},
+
+    {"name": "Hallunda",
+    "x" : "0",
+    "y" : "18"},
+
+    {"name": "Alby",
+    "x" : "0",
+    "y" : "17"},
+
+    {"name": "Fittja",
+    "x" : "0",
+    "y" : "16"},
+
+    {"name": "Masmo",
+    "x" : "0",
+    "y" : "15"},
+
+    {"name": "Vårby Gård",
+    "x" : "0",
+    "y" : "14"},
+
+    {"name": "Vårberg",
+    "x" : "0",
+    "y" : "13"},
+
+    {"name": "Skärholmen",
+    "x" : "0",
+    "y" : "12"},
+
+    {"name": "Sätra",
+    "x" : "0",
+    "y" : "11"},
+
+    {"name": "Bredäng",
+    "x" : "0",
+    "y" : "10"},
+
+    {"name": "Mälarhöjden",
+    "x" : "0",
+    "y" : "9"},
+
+    {"name": "Axelsberg",
+    "x" : "0",
+    "y" : "9"
+    },
+
+    {"name": "Örnsberg",
+    "x" : "0",
+    "y" : "8"},
+
+    {"name": "Aspudden",
+    "x" : "0",
+    "y" : "7"}
+  ],
+  "links": [
+    {"source": 0, "target": 1},
+    {"source": 1, "target": 2},
+    {"source": 2, "target": 3},
+    {"source": 2, "target": 4},
+    {"source": 4, "target": 5},
+    {"source": 5, "target": 6},
+    {"source": 6, "target": 7},
+    {"source": 7, "target": 8},
+    {"source": 3, "target": 7},
+    {"source": 7, "target": 8},
+    {"source": 8, "target": 6},
+    {"source": 6, "target": 9},
+    {"source": 5, "target": 32},
+    {"source": 31, "target": 32}
+  ]
+}
