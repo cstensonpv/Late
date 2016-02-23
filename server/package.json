@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
-    "request": "^2.69.0"
+    "sl-api": "^1.0.3"
   }
 }
