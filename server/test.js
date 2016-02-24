@@ -7,8 +7,20 @@ function getData() {
 		}
 	};
 
-	xhttp.open("GET", "http://127.0.0.1:8081/realtimedata?test=2", true);
+	xhttp.open("GET", "http://localhost:3000/delaydata", true);
 	xhttp.send();
 }
 
-getData();
+$.ajax({
+	url: "http://localhost:3000/delaydata",
+	type: "GET",
+	dataType: "jsonp",
+	success: function(result){
+       console.log(result);
+	},
+	error: function(xhr, status, error) {
+		console.log(error);
+	}
+});
+
+// getData();
