@@ -70,14 +70,14 @@ returns the delaytime for all the stations
 ]
 ```
 
-#### Example
+___
 
 ```
 /delaydata?siteid=<SITEID>
 ```
 returns the delaytime for the specified station
 
-example:
+#### Example
 ```
 /delaydata?siteid=9000
 ```
