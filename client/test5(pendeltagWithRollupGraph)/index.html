@@ -85,6 +85,7 @@ d3.json("data/pendeltag.json", function(error, social) {
       .data(graph.links)
     .enter().append("path")
       .attr("class", "link")
+      .attr("id", function(d,i) {return i;})
       .attr("d", function(d,i) {
         var startX = d.source.x.toFixed(0),
             startY = d.source.y.toFixed(0),
@@ -131,10 +132,6 @@ var station = stations.append("circle")
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; });
 
-var shape = stations.append("polygon")
-      .attr("id","poly")
-      .attr("fill","red")
-      .attr("points",generatePolygonPoints(0,0));
 
 var label = stations.append("text")
       .attr("class", "word")
@@ -157,25 +154,39 @@ $.ajax({
   url: "http://localhost:3000/delaydata/",
   dataType: "jsonp",
   success: function(result){
+    console.log(result);
+      for(res in result){
+        
+        var stationId = result[res].siteid;
+        var count = 0;
 
-      var stationId = result[0].siteid;
-      var count = 0;
-      //to get stations that are not Stockholm C or Marsta
-      while(result[count].siteid == 9500 || result[count].siteid == 9000)
-      {
-        count++;
+        //to get stations that are not Stockholm C or Marsta
+        if(result[res].siteid != 9500 && result[res].siteid != 9000){
+          console.log(result[res].siteid);
+          var str = "" + result[res].siteid;
+
+          var isNorthMoving = null;//is the delay to the north or to the south.
+
+          if(result[count].delayNorth > result[count].delaySouth)
+            isNorthMoving = true;
+          else
+            isNorthMoving = false;
+          //second parameter is about scaling the movement. Absolute value of the delay between north and
+          //the south.
+          console.log(result[count]);
+          updateCircle(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
+
+        }
+        //to get stations that are not Stockholm C or Marsta
+        while(result[count].siteid == 9500 || result[count].siteid == 9000)
+        {
+          count++;
+        }
+        
       }
-      var str = "" + result[count].siteid;
 
-      var isNorthMoving = null;//is the delay to the north or to the south.
+      
 
-      if(result[count].delayNorth > result[count].delaySouth)
-        isNorthMoving = true;
-      else
-        isNorthMoving = false;
-      //second parameter is about scaling the movement. Absolute value of the delay between north and
-      //the south.
-      updateCircle(str,Math.abs(result[count].delayNorth-result[count].delaySouth),isNorthMoving);
 },
 error:function(jqXHR,status,error){
       if (jqXHR.status === 0) {
@@ -199,6 +210,7 @@ function updateCircle(clicked_id,delayTime,isMovingNorth)
 {
   var last = 0;
   console.log(delayTime);
+  console.log(clicked_id);
   d3.timer(function(elapsed) {
     t = (t + (elapsed - last) / 5000) % 1;
     last = elapsed;
@@ -211,32 +223,12 @@ function updateCircle(clicked_id,delayTime,isMovingNorth)
 
 }
 
-function generatePolygonPoints(length, width,x,y){
-  var points = "";
-  //top
-  points +=y+width/2 +",0 ";
-
-  length = length+width/2;
-  //left
-  points +=y+width/10+","+length*0.4+" ";
-  points +=y+","+length*0.7+" ";
-  points +=y+width/10+ ","+length*0.8+" ";
-  points +=y+width/5+ ","+length*0.9+" ";
-  //bottom
-  points +=x+width/2 +","+length+" ";
-  //right
-  points +=x+width - width/5+ ","+length*0.9+" ";
-  points +=x+width-width/10+","+length*0.8+" ";
-  points +=x+width+","+length*0.7+" ";
-  points +=x+width - width/10+","+length*0.4+" ";
-  //console.log(points);
-
-  return points;
-}
 
 function update(x,selected,isMovingNorth) {
 
   var slct = "#station_" + selected;
+
+  //console.log("Updates "+ selected);
 
   d3.select(".stations").remove();
   var stations = svg.selectAll(".station")
@@ -269,9 +261,31 @@ function update(x,selected,isMovingNorth) {
     .attr("dy", function(d) {return d.y+x})
     .attr("dx", function(d) {return d.x + 10})
     .text( function(d) {
-    return d.nodes[0].name;
+    return d.nodes[0].name + " : " + d.nodes[0].id;
   });
-  //console.log(xCircle + " ------ " + yCircle);
+
+  for(station in data.nodes) {
+    //console.log(data.nodes[station].nodes[0].id);
+    if(data.nodes[station].nodes[0].id == selected){
+      var northLink = $("#"+data.nodes[station].nodes[0].north);
+      var southLink = $("#"+data.nodes[station].nodes[0].south);
+      if(!isMovingNorth){
+        //console.log("changing south");
+        var southPath = southLink.d;
+        //southLink.attr("stroke","red");
+        southLink.attr("style","stroke-width: 8; stroke: red;");
+        southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,x, "north")})
+
+        northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,x, "south")})
+
+      }
+
+    }
+
+  }
+
+
+   //console.log(xCircle + " ------ " + yCircle);
   //M 474 168 256 6
   //M 474
   //"M "+startX+" "+startY + " "+stopX+" "+stopY;
@@ -283,5 +297,19 @@ function update(x,selected,isMovingNorth) {
       var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
       return str;
     });*/
+}
+
+function calcPath(source,target,x,dir) {
+  var startX = source.x.toFixed(0),
+    startY = parseInt(source.y.toFixed(0)),
+    stopX = target.x.toFixed(0);
+    stopY = parseInt(target.y.toFixed(0));
+
+    if(dir === "north"){
+      stopY += x;
+    }else if(dir === "south"){
+      startY += x;
+    }
+  return "M "+startX+" "+startY + " "+stopX+" "+stopY;
 }
 </script>

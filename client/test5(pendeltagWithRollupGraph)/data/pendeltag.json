@@ -39,27 +39,38 @@
     {"id":9507,
       "name": "Helenelund",
       "x" : "100",
-      "y" : "1"},
+      "y" : "1",
+      "north" : 4,
+      "south" : 3},
 
     {"id":9508,
       "name": "Ulriksdal",
       "x" : "100",
-      "y" : "0"},
+      "y" : "0",
+      "north" : 3,
+      "south" : 2},
 
     {"id":9509,
       "name": "Solna",
       "x" : "100",
-      "y" : "-1"},
+      "y" : "-1",
+      "north" : 2,
+      "south" : 1},
 
     {"id":9510,
       "name": "Karlberg",
       "x" : "100",
-      "y" : "-2"},
+      "y" : "-2",
+      "north" : 1,
+      "south" : 0
+      },
 
     {"id":9000,
-      "name": "Stockholm C",
-      "x" : "100",
-      "y" : "-3"}
+        "name": "Stockholm C",
+        "x" : "100",
+        "y" : "-3",
+        "north" : 0
+    }
   ],
   "links": [
     {"source": 11, "target": 10},
