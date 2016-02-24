@@ -32,7 +32,7 @@
 
 </style>
 <body>
-<div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div>
+<!-- <div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div> -->
 <script src="lib/d3.min.js"></script>
 <script src="lib/rollup.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
@@ -70,29 +70,6 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-$.ajax({
-  url: "http://localhost:3000/delaydata/",
-  dataType: "jsonp",
-  success: function(result){
-      console.log(result);
-},
-error:function(jqXHR,status,error){
-            if (jqXHR.status === 0) {
-                console.log('Not connect.\n Verify Network.');
-            } else if (jqXHR.status == 404) {
-                console.log('Requested page not found. [404]');
-            } else if (jqXHR.status == 500) {
-                console.log('Internal Server Error [500].');
-            } else if (exception === 'parsererror') {
-                console.log('Requested JSON parse failed.');
-            } else if (exception === 'timeout') {
-                console.log('Time out error.');
-            } else if (exception === 'abort') {
-                console.log('Ajax request aborted.');
-            } else {
-                console.log('Uncaught Error.\n' + jqXHR.responseText);
-            }
-}});
 
 var data = null;
 d3.json("data/pendeltag.json", function(error, social) {
@@ -113,8 +90,6 @@ d3.json("data/pendeltag.json", function(error, social) {
             startY = d.source.y.toFixed(0),
             stopX = d.target.x.toFixed(0);
             stopY = d.target.y.toFixed(0);
-        console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
-        console.log(d);
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return d.value * 4; });
@@ -129,7 +104,7 @@ d3.json("data/pendeltag.json", function(error, social) {
       .enter()
       .append("g")
       .attr("id",function(d,i){
-        return d.nodes[0].id;
+        return "station_" + d.nodes[0].id;
       })
       .classed("station", true);
 
@@ -177,91 +152,136 @@ var label = stations.append("text")
 
 });
 
-function updateCircle(clicked_id)
+
+$.ajax({
+  url: "http://localhost:3000/delaydata/",
+  dataType: "jsonp",
+  success: function(result){
+
+      var stationId = result[0].siteid;
+      var count = 0;
+      //to get stations that are not Stockholm C or Marsta
+      while(result[count].siteid == 9500 || result[count].siteid == 9000)
+      {
+        count++;
+      }
+      var str = "" + result[count].siteid;
+
+      var isNorthMoving = null;//is the delay to the north or to the south.
+
+      if(result[count].delayNorth > result[count].delaySouth)
+        isNorthMoving = true;
+      else
+        isNorthMoving = false;
+      //second parameter is about scaling the movement. Absolute value of the delay between north and
+      //the south.
+      updateCircle(str,Math.abs(result[count].delayNorth-result[count].delaySouth),isNorthMoving);
+},
+error:function(jqXHR,status,error){
+      if (jqXHR.status === 0) {
+          console.log('Not connect.\n Verify Network.');
+      } else if (jqXHR.status == 404) {
+          console.log('Requested page not found. [404]');
+      } else if (jqXHR.status == 500) {
+          console.log('Internal Server Error [500].');
+      } else if (exception === 'parsererror') {
+          console.log('Requested JSON parse failed.');
+      } else if (exception === 'timeout') {
+          console.log('Time out error.');
+      } else if (exception === 'abort') {
+          console.log('Ajax request aborted.');
+      } else {
+          console.log('Uncaught Error.\n' + jqXHR.responseText);
+      }
+}});
+
+function updateCircle(clicked_id,delayTime,isMovingNorth)
 {
-
-
-  //console.log(clicked_id);
- var last = 0;
+  var last = 0;
+  console.log(delayTime);
   d3.timer(function(elapsed) {
     t = (t + (elapsed - last) / 5000) % 1;
     last = elapsed;
     var factor = last/100;
-    if(factor < 20)
-      update(last/100,clicked_id);//redraw the selected circle and the path
+
+    if(factor < 20){//temporary measurement.
+      update(last/100,clicked_id,isMovingNorth);//redraw the selected circle and the path
+    }
   });
 
 }
 
-  function generatePolygonPoints(length, width,x,y){
-    var points = "";
-    //top
-    points +=y+width/2 +",0 ";
+function generatePolygonPoints(length, width,x,y){
+  var points = "";
+  //top
+  points +=y+width/2 +",0 ";
 
-    length = length+width/2;
-    //left
-    points +=y+width/10+","+length*0.4+" ";
-    points +=y+","+length*0.7+" ";
-    points +=y+width/10+ ","+length*0.8+" ";
-    points +=y+width/5+ ","+length*0.9+" ";
-    //bottom
-    points +=x+width/2 +","+length+" ";
-    //right
-    points +=x+width - width/5+ ","+length*0.9+" ";
-    points +=x+width-width/10+","+length*0.8+" ";
-    points +=x+width+","+length*0.7+" ";
-    points +=x+width - width/10+","+length*0.4+" ";
-    //console.log(points);
+  length = length+width/2;
+  //left
+  points +=y+width/10+","+length*0.4+" ";
+  points +=y+","+length*0.7+" ";
+  points +=y+width/10+ ","+length*0.8+" ";
+  points +=y+width/5+ ","+length*0.9+" ";
+  //bottom
+  points +=x+width/2 +","+length+" ";
+  //right
+  points +=x+width - width/5+ ","+length*0.9+" ";
+  points +=x+width-width/10+","+length*0.8+" ";
+  points +=x+width+","+length*0.7+" ";
+  points +=x+width - width/10+","+length*0.4+" ";
+  //console.log(points);
 
-    return points;
-  }
+  return points;
+}
 
- function update(x,selected) {
-    var slct = "#"+selected;
-    d3.select(".stations").remove();
-    var stations = svg.selectAll(".station")
-      .data(data.nodes)
-      .enter()
-      .append("g")
-      .attr("id",function(d,i){
-        var str = data.nodes[i].nodes[0].name;
-        str = str.replace(/\s+/g, '');
-        str = str.toLowerCase();
-        return str;
-      })
-      .classed("station", true);
+function update(x,selected,isMovingNorth) {
 
-    var station = svg.select(slct);
-    var xCircle,yCircle = 0;
+  var slct = "#station_" + selected;
 
-    station.select("circle")
-      .attr("class", "node")
-      .attr("r", function(d) { return 8; })
-      .attr("cx", function(d) { xCircle = d.x;return d.x; })
-      .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
+  d3.select(".stations").remove();
+  var stations = svg.selectAll(".station")
+    .data(data.nodes)
+    .enter()
+    .append("g")
+    .attr("id",function(d,i){
+      return "station_" + d.nodes[0].id;
+    })
+    .classed("station", true);
 
-     /*station.select("#poly")
-      .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
+  var station = svg.select(slct);
 
-    var label = station.select("text")
-      .attr("class", "word")
-      .attr("dy", function(d) {return d.y+x})
-      .attr("dx", function(d) {return d.x + 10})
-      .text( function(d) {
-      return d.nodes[0].name;
-    });
+  var xCircle,yCircle = 0;
 
-    //console.log(xCircle + " ------ " + yCircle);
-    //M 474 168 256 6
-    //M 474
-    //"M "+startX+" "+startY + " "+stopX+" "+stopY;
-   /* var busyLine = svg.select("#busyLine")
-      .attr("d",function(d){
-        var stopx = xCircle + x;
-        var stopy = yCircle + x;
+  if(!isMovingNorth)//change direction of the circle moving
+    x *= -1;
 
-        var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
-        return str;
-      });*/
-  }
+  station.select("circle")
+    .attr("class", "node")
+    .attr("r", function(d) { return 8; })
+    .attr("cx", function(d) { xCircle = d.x;return d.x; })
+    .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
+
+   /*station.select("#poly")
+    .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
+
+  var label = station.select("text")
+    .attr("class", "word")
+    .attr("dy", function(d) {return d.y+x})
+    .attr("dx", function(d) {return d.x + 10})
+    .text( function(d) {
+    return d.nodes[0].name;
+  });
+  //console.log(xCircle + " ------ " + yCircle);
+  //M 474 168 256 6
+  //M 474
+  //"M "+startX+" "+startY + " "+stopX+" "+stopY;
+ /* var busyLine = svg.select("#busyLine")
+    .attr("d",function(d){
+      var stopx = xCircle + x;
+      var stopy = yCircle + x;
+
+      var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
+      return str;
+    });*/
+}
 </script>
