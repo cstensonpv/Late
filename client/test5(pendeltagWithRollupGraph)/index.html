@@ -3,32 +3,39 @@
 <title>PivotGraph (Rollup) Layout</title>
 <style>
 
-body {
+  body {
   font-family: sans-serif;
   font-size: 10px;
-}
+  }
 
-.link {
+  .link {
   fill: none;
   stroke: #000;
   stroke-opacity: .25;
-}
+  }
 
-.node {
+  .busyline{
+  fill:red;
+  stroke: #DB2525;
+  stroke-opacity: .5;
+  }
+
+  .node {
   fill: #fff;
   stroke: steelblue;
-}
+  }
 
-.axis path,
-.axis line {
+  .axis path,
+  .axis line {
   display: none;
-}
+  }
 
 </style>
 <body>
 <div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div>
 <script src="lib/d3.min.js"></script>
 <script src="lib/rollup.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
 
 var margin = {top: 90, right: 240, bottom: 90, left: 240},
@@ -63,6 +70,30 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+$.ajax({
+  url: "http://localhost:3000/delaydata/",
+  dataType: "jsonp",
+  success: function(result){
+      console.log(result);
+},
+error:function(jqXHR,status,error){
+            if (jqXHR.status === 0) {
+                console.log('Not connect.\n Verify Network.');
+            } else if (jqXHR.status == 404) {
+                console.log('Requested page not found. [404]');
+            } else if (jqXHR.status == 500) {
+                console.log('Internal Server Error [500].');
+            } else if (exception === 'parsererror') {
+                console.log('Requested JSON parse failed.');
+            } else if (exception === 'timeout') {
+                console.log('Time out error.');
+            } else if (exception === 'abort') {
+                console.log('Ajax request aborted.');
+            } else {
+                console.log('Uncaught Error.\n' + jqXHR.responseText);
+            }
+}});
+
 var data = null;
 d3.json("data/pendeltag.json", function(error, social) {
   if (error) throw error;
@@ -78,16 +109,19 @@ d3.json("data/pendeltag.json", function(error, social) {
     .enter().append("path")
       .attr("class", "link")
       .attr("d", function(d,i) {
-        var startX = d.source.x.toFixed(0), 
+        var startX = d.source.x.toFixed(0),
             startY = d.source.y.toFixed(0),
-            stopX = d.target.x.toFixed(0); 
-            stopY = d.target.y.toFixed(0); 
+            stopX = d.target.x.toFixed(0);
+            stopY = d.target.y.toFixed(0);
         //console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
-        console.log(d.source.x + " -- " + d.source.y);
+        console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return d.value * 4; });
 
+  var busyLine = svg.append("path")
+      .attr("id","busyLine")
+      .attr("class","busyline");
 
   // Append nodes (circles)
   var stations = svg.selectAll(".station")
@@ -109,6 +143,11 @@ var station = stations.append("circle")
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; });
 
+var shape = stations.append("polygon")
+      .attr("id","poly")
+      .attr("fill","red")
+      .attr("points",generatePolygonPoints(0,0));
+
 var label = stations.append("text")
       .attr("class", "word")
       .attr("dy", function(d) {return d.y })
@@ -127,6 +166,8 @@ var label = stations.append("text")
 
 function updateCircle(clicked_id)
 {
+
+
   console.log(clicked_id);
  var last = 0;
   d3.timer(function(elapsed) {
@@ -134,10 +175,33 @@ function updateCircle(clicked_id)
     last = elapsed;
     var factor = last/100;
     if(factor < 20)
-      update(last/100,clicked_id);
-  });    
+      update(last/100,clicked_id);//redraw the selected circle and the path
+  });
 
 }
+
+  function generatePolygonPoints(length, width,x,y){
+    var points = "";
+    //top
+    points +=width/2 +",0 ";
+
+    length = length+width/2;
+    //left
+    points +=width/10+","+length*0.4+" ";
+    points +="0,"+length*0.7+" ";
+    points +=width/10+ ","+length*0.8+" ";
+    points +=width/5+ ","+length*0.9+" ";
+    //bottom
+    points +=width/2 +","+length+" ";
+    //right
+    points +=width - width/5+ ","+length*0.9+" ";
+    points +=width-width/10+","+length*0.8+" ";
+    points +=width+","+length*0.7+" ";
+    points +=width - width/10+","+length*0.4+" ";
+    console.log(points);
+
+    return points;
+  }
 
  function update(x,selected) {
     var slct = "#"+selected;
@@ -150,24 +214,43 @@ function updateCircle(clicked_id)
         var str = data.nodes[i].nodes[0].name;
         str = str.replace(/\s+/g, '');
         str = str.toLowerCase();
-        
         return str;
       })
       .classed("station", true);
 
-    var station = svg.select(slct).append("circle")
+    var station = svg.select(slct);
+    var xCircle,yCircle = 0;
+
+    station.select("#poly")
+      .attr("points",function(d){console.log("asd: " + d.x + d.y);generatePolygonPoints(0,x,d.x,d.y);});
+
+
+    station.select("circle")
       .attr("class", "node")
       .style("fill","red")
-      .attr("r", function(d) { return 8 + x;/*Math.sqrt(d.nodes.length * 40);*/ })
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-    var label = stations.append("text")
+      .attr("r", function(d) { return 8 + x; })
+      .attr("cx", function(d) { xCircle = d.x;return d.x; })
+      .attr("cy", function(d) { yCircle = d.y;return d.y; });
+
+   /* var label = stations.append("text")
       .attr("class", "word")
-      .attr("dy", function(d) {return d.y })
-      .attr("dx", function(d) {return d.x + 10 })
+      .attr("dy", function(d) {return d.y})
+      .attr("dx", function(d) {return d.x + 10})
       .text( function(d) {
       return d.nodes[0].name;
-    });
-      
+    });*/
+
+    console.log(xCircle + " ------ " + yCircle);
+    //M 474 168 256 6
+    //M 474
+    //"M "+startX+" "+startY + " "+stopX+" "+stopY;
+    var busyLine = svg.select("#busyLine")
+      .attr("d",function(d){
+        var stopx = xCircle + x;
+        var stopy = yCircle + x;
+
+        var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
+        return str;
+      });
   }
 </script>
