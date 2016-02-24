@@ -113,8 +113,8 @@ d3.json("data/pendeltag.json", function(error, social) {
             startY = d.source.y.toFixed(0),
             stopX = d.target.x.toFixed(0);
             stopY = d.target.y.toFixed(0);
-        //console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
         console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
+        console.log(d);
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return d.value * 4; });
@@ -129,13 +129,26 @@ d3.json("data/pendeltag.json", function(error, social) {
       .enter()
       .append("g")
       .attr("id",function(d,i){
-        var str = graph.nodes[i].nodes[0].name;
-        str = str.replace(/\s+/g, '');
-        str = str.toLowerCase();
-        console.log(str);
-        return str;
+        return d.nodes[0].id;
       })
       .classed("station", true);
+
+/*var paths = stations.selectAll(".station")
+      .data(graph.links)
+      .enter()
+      .append("path")
+      .attr("class", "link")
+      .attr("d", function(d,i) {
+        console.log(d);
+        var startX = d.source.x.toFixed(0),
+        startY = d.source.y.toFixed(0),
+        stopX = d.target.x.toFixed(0);
+        stopY = d.target.y.toFixed(0);
+        //console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
+        console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
+        return "M "+startX+" "+startY + " "+stopX+" "+stopY;
+       })
+      .style("stroke-width", function(d) { return d.value * 4; });*/
 
 var station = stations.append("circle")
       .attr("class", "node")
@@ -168,7 +181,7 @@ function updateCircle(clicked_id)
 {
 
 
-  console.log(clicked_id);
+  //console.log(clicked_id);
  var last = 0;
   d3.timer(function(elapsed) {
     t = (t + (elapsed - last) / 5000) % 1;
@@ -183,22 +196,22 @@ function updateCircle(clicked_id)
   function generatePolygonPoints(length, width,x,y){
     var points = "";
     //top
-    points +=width/2 +",0 ";
+    points +=y+width/2 +",0 ";
 
     length = length+width/2;
     //left
-    points +=width/10+","+length*0.4+" ";
-    points +="0,"+length*0.7+" ";
-    points +=width/10+ ","+length*0.8+" ";
-    points +=width/5+ ","+length*0.9+" ";
+    points +=y+width/10+","+length*0.4+" ";
+    points +=y+","+length*0.7+" ";
+    points +=y+width/10+ ","+length*0.8+" ";
+    points +=y+width/5+ ","+length*0.9+" ";
     //bottom
-    points +=width/2 +","+length+" ";
+    points +=x+width/2 +","+length+" ";
     //right
-    points +=width - width/5+ ","+length*0.9+" ";
-    points +=width-width/10+","+length*0.8+" ";
-    points +=width+","+length*0.7+" ";
-    points +=width - width/10+","+length*0.4+" ";
-    console.log(points);
+    points +=x+width - width/5+ ","+length*0.9+" ";
+    points +=x+width-width/10+","+length*0.8+" ";
+    points +=x+width+","+length*0.7+" ";
+    points +=x+width - width/10+","+length*0.4+" ";
+    //console.log(points);
 
     return points;
   }
@@ -221,36 +234,34 @@ function updateCircle(clicked_id)
     var station = svg.select(slct);
     var xCircle,yCircle = 0;
 
-    station.select("#poly")
-      .attr("points",function(d){console.log("asd: " + d.x + d.y);generatePolygonPoints(0,x,d.x,d.y);});
-
-
     station.select("circle")
       .attr("class", "node")
-      .style("fill","red")
-      .attr("r", function(d) { return 8 + x; })
+      .attr("r", function(d) { return 8; })
       .attr("cx", function(d) { xCircle = d.x;return d.x; })
-      .attr("cy", function(d) { yCircle = d.y;return d.y; });
+      .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
 
-   /* var label = stations.append("text")
+     /*station.select("#poly")
+      .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
+
+    var label = station.select("text")
       .attr("class", "word")
-      .attr("dy", function(d) {return d.y})
+      .attr("dy", function(d) {return d.y+x})
       .attr("dx", function(d) {return d.x + 10})
       .text( function(d) {
       return d.nodes[0].name;
-    });*/
+    });
 
-    console.log(xCircle + " ------ " + yCircle);
+    //console.log(xCircle + " ------ " + yCircle);
     //M 474 168 256 6
     //M 474
     //"M "+startX+" "+startY + " "+stopX+" "+stopY;
-    var busyLine = svg.select("#busyLine")
+   /* var busyLine = svg.select("#busyLine")
       .attr("d",function(d){
         var stopx = xCircle + x;
         var stopy = yCircle + x;
 
         var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
         return str;
-      });
+      });*/
   }
 </script>
