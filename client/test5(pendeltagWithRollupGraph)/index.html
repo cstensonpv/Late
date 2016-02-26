@@ -43,6 +43,8 @@ var margin = {top: 90, right: 240, bottom: 90, left: 240},
     t = .5,
     height = 1000 - margin.top - margin.bottom;
 
+var currentPosStations = {};
+
 function fx(d) { return d.x; }
 function fy(d) { return d.y; }
 
@@ -74,12 +76,11 @@ var svg = d3.select("body").append("svg")
 var data = null;
 d3.json("data/pendeltag.json", function(error, social) {
   if (error) throw error;
-
+  currentPosStations = social.nodes;
   x.domain(social.nodes.map(fx));
   y.domain(social.nodes.map(fy));
   var graph = rollup(social);
   data = graph;
-
   //Append the links between circles
   svg.selectAll(".link")
       .data(graph.links)
@@ -109,23 +110,6 @@ d3.json("data/pendeltag.json", function(error, social) {
       })
       .classed("station", true);
 
-/*var paths = stations.selectAll(".station")
-      .data(graph.links)
-      .enter()
-      .append("path")
-      .attr("class", "link")
-      .attr("d", function(d,i) {
-        console.log(d);
-        var startX = d.source.x.toFixed(0),
-        startY = d.source.y.toFixed(0),
-        stopX = d.target.x.toFixed(0);
-        stopY = d.target.y.toFixed(0);
-        //console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
-        console.log("M "+startX+" "+startY + " "+stopX+" "+stopY);
-        return "M "+startX+" "+startY + " "+stopX+" "+stopY;
-       })
-      .style("stroke-width", function(d) { return d.value * 4; });*/
-
 var station = stations.append("circle")
       .attr("class", "node")
       .attr("r", function(d) { return 8;/*Math.sqrt(d.nodes.length * 40);*/ })
@@ -150,45 +134,52 @@ var label = stations.append("text")
 });
 
 
+var nrcalls = 0;
+ajaxCall();
+window.setInterval(function(){
+  ajaxCall();
+  nrcalls++;
+  console.log(nrcalls);
+}, 4000);
+
+
+
+
+
+
+function ajaxCall(){
 $.ajax({
   url: "http://localhost:3000/delaydata/",
   dataType: "jsonp",
   success: function(result){
-    console.log(result);
-      for(res in result){
+    console.log("Did ajax call");
+    for(res in result){
+      var stationId = result[res].siteid;
+      var count = 0;
+
+      //to get stations that are not Stockholm C or Marsta
+      if(result[res].siteid != 9500 && result[res].siteid != 9000){
+        //console.log(result[res].siteid);
+        var str = "" + result[res].siteid;
+        var isNorthMoving = null;//is the delay to the north or to the south.
+        if(result[count].delayNorth > result[count].delaySouth)
+          isNorthMoving = true;
+        else
+          isNorthMoving = false;
+        //second parameter is about scaling the movement. Absolute value of the delay between north and
+        //the south.
         
-        var stationId = result[res].siteid;
-        var count = 0;
+        updateCircle(str,result[res].delayNorth,isNorthMoving);
 
-        //to get stations that are not Stockholm C or Marsta
-        if(result[res].siteid != 9500 && result[res].siteid != 9000){
-          console.log(result[res].siteid);
-          var str = "" + result[res].siteid;
-
-          var isNorthMoving = null;//is the delay to the north or to the south.
-
-          if(result[count].delayNorth > result[count].delaySouth)
-            isNorthMoving = true;
-          else
-            isNorthMoving = false;
-          //second parameter is about scaling the movement. Absolute value of the delay between north and
-          //the south.
-          console.log(result[count]);
-          updateCircle(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
-
-        }
-        //to get stations that are not Stockholm C or Marsta
-        while(result[count].siteid == 9500 || result[count].siteid == 9000)
-        {
-          count++;
-        }
-        
       }
+      
+    }
+
 
       
 
-},
-error:function(jqXHR,status,error){
+    },
+    error:function(jqXHR,status,error){
       if (jqXHR.status === 0) {
           console.log('Not connect.\n Verify Network.');
       } else if (jqXHR.status == 404) {
@@ -204,32 +195,35 @@ error:function(jqXHR,status,error){
       } else {
           console.log('Uncaught Error.\n' + jqXHR.responseText);
       }
-}});
+    }
+  });
+}
+
 
 function updateCircle(clicked_id,delayTime,isMovingNorth)
 {
   var last = 0;
-  console.log(delayTime);
-  console.log(clicked_id);
+  //console.log(delayTime);
+  //console.log(clicked_id);
   d3.timer(function(elapsed) {
     t = (t + (elapsed - last) / 5000) % 1;
     last = elapsed;
     var factor = last/100;
 
     if(factor < 20){//temporary measurement.
-      update(last/100,clicked_id,isMovingNorth);//redraw the selected circle and the path
+      update(delayTime/60000,clicked_id,isMovingNorth);//redraw the selected circle and the path
     }
   });
 
 }
 
 
-function update(x,selected,isMovingNorth) {
+function update(delay,selected,isMovingNorth) {
 
   var slct = "#station_" + selected;
-
+  delay = delay * 2; //to see it better
   //console.log("Updates "+ selected);
-
+  /*
   d3.select(".stations").remove();
   var stations = svg.selectAll(".station")
     .data(data.nodes)
@@ -239,7 +233,8 @@ function update(x,selected,isMovingNorth) {
       return "station_" + d.nodes[0].id;
     })
     .classed("station", true);
-
+*/
+  var currentIndex = getStationIndex(selected);
   var station = svg.select(slct);
 
   var xCircle,yCircle = 0;
@@ -250,65 +245,70 @@ function update(x,selected,isMovingNorth) {
   station.select("circle")
     .attr("class", "node")
     .attr("r", function(d) { return 8; })
-    .attr("cx", function(d) { xCircle = d.x;return d.x; })
-    .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
+    .attr("cx", function(d,i) { xCircle = d.x; return d.x; })
+    .attr("cy", function(d,i) { currentPosStations[currentIndex]["y"] = (d.y - delay); yCircle = d.y; return d.y - delay; });
 
    /*station.select("#poly")
     .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
 
   var label = station.select("text")
     .attr("class", "word")
-    .attr("dy", function(d) {return d.y+x})
+    .attr("dy", function(d) {return d.y - delay})
     .attr("dx", function(d) {return d.x + 10})
     .text( function(d) {
-    return d.nodes[0].name + " : " + d.nodes[0].id;
+    return d.nodes[0].name + " : " + d.nodes[0].id +" northDelay: "+delay.toFixed(1) +"min";
   });
 
-  for(station in data.nodes) {
-    //console.log(data.nodes[station].nodes[0].id);
-    if(data.nodes[station].nodes[0].id == selected){
-      var northLink = $("#"+data.nodes[station].nodes[0].north);
-      var southLink = $("#"+data.nodes[station].nodes[0].south);
-      if(!isMovingNorth){
-        //console.log("changing south");
-        var southPath = southLink.d;
-        //southLink.attr("stroke","red");
-        southLink.attr("style","stroke-width: 8; stroke: red;");
-        southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,x, "north")})
+  var currentStation = getStation(selected);
 
-        northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,x, "south")})
+  //Gets the corresponding patrhs through id
+  var northLink = $("#"+currentStation.north);
+  var southLink = $("#"+currentStation.south);
+  //console.log(southLink[0].__data__);
 
-      }
-
+    //console.log("delay: "+delay);
+    if(delay > 0){
+      southLink.attr("style","stroke-width: 8; stroke: red;");
+    }else{
+      southLink.attr("style","stroke-width: 4;");
     }
+    // should be using the currentPosition of D´Sattions tio draw instead of the __data__.source etc
+    southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,delay, "north")})
 
+    northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,delay, "south")})
+
+}
+function getStation(selected){
+  for(station in data.nodes){
+    if(data.nodes[station].nodes[0].id == selected){
+      return data.nodes[station].nodes[0];
+    }
   }
-
-
-   //console.log(xCircle + " ------ " + yCircle);
-  //M 474 168 256 6
-  //M 474
-  //"M "+startX+" "+startY + " "+stopX+" "+stopY;
- /* var busyLine = svg.select("#busyLine")
-    .attr("d",function(d){
-      var stopx = xCircle + x;
-      var stopy = yCircle + x;
-
-      var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
-      return str;
-    });*/
+  return "";
+}
+function getStationIndex(selected){
+  for(station in data.nodes){
+    if(data.nodes[station].nodes[0].id == selected){
+      return station;
+    }
+  }
+  return "";
 }
 
+
 function calcPath(source,target,x,dir) {
+  //console.log(source);
   var startX = source.x.toFixed(0),
     startY = parseInt(source.y.toFixed(0)),
     stopX = target.x.toFixed(0);
     stopY = parseInt(target.y.toFixed(0));
 
     if(dir === "north"){
-      stopY += x;
+      stopY -= x;
+      //console.log("stopY: "+stopY);
     }else if(dir === "south"){
-      startY += x;
+      startY -= x;
+      //console.log("StartY :"+startY);
     }
   return "M "+startX+" "+startY + " "+stopX+" "+stopY;
 }
