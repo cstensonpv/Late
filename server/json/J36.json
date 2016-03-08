@@ -1,0 +1,26 @@
+[
+	9500, // Märsta
+	9501, // Rosersberg
+	9502, // Upplands väsby
+	9503, // Rotebro
+	9504, // Norrviken
+	9505, // häggvik
+	9506, // Sollentuna
+	9507, // Helenelund
+	9508, // Ulriksdal
+	9509, // Solna
+	9510, // Karlberg
+	9000, // Stockholm C
+	9530, // Stockholm södra
+	9531, // Årstaberg
+	9529, // Älvsjö
+	9528, // Stuvsta
+	9527, // Huddinge
+	9526, // Flemingsberg
+	9525, // Tullinge
+	9524, // Tumba
+	9523, // Rönninge
+	9522, // Östertälje
+	9521, // Södertälje hamn
+	9520, // Södertälje centrum
+]

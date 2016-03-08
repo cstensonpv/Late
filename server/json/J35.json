@@ -1,0 +1,29 @@
+[
+	9710, // Bålsta
+	9711, // Bro
+	9700, // Kungsängen
+	9701, // Kallhäll
+	9702, // Jakobsberg
+	9703, // Barkarby
+	9704, // Spånga
+	9325, // Sundbyberg
+	9510, // Karlberg
+	9000, // Stockholm C
+	9530, // Stockholm södra
+	9531, // Årstaberg
+	9529, // Älvsjö
+	9180, // Farsta strand
+	9732, // Trångsund
+	9731, // Skogås
+	9730, // Handen
+	9729, // Jordbro
+	9728, // Västerhaninge
+	9727, // Krigslida
+	9726, // tungelsta
+	9725, // Hemfosa
+	9724, // Segersäng
+	9723, // Ösmo
+	9722, // Nynäsgård
+	9721, // Gröndalsviken
+	9720, // Nynäshamn
+]
