@@ -14,16 +14,16 @@ Start the server by typing 'node main.js' in the server root folder. The server 
 ### Real-time data
 
 ```
-/realtimedata?siteid=<SITEID>
+/realtimedata/<SITEID>
 ```
 returns realtime data for the station that corresponds to siteid
 
 #### Example
 
 ```
-/realtimedata?siteid=9000
+/realtimedata/9000
 ```
-returns...
+could return...
 
 ```javascript
 [
@@ -46,48 +46,54 @@ returns...
 ]
 ```
 
-### Delay data
+### Next departure
 
 ```
-/delaydata
-```
-returns the delaytime for all the stations
-
-#### Example
-
-```javscript
-[
-	{
-		"siteid": 9000,
-		"delayNorth": 131000,
-		"delaySouth": 0
-	},
-	{
-		"siteid": 9510,
-		"delayNorth": 135000,
-		"delaySouth": 0
-	}
-]
+/realtime/next/<SITEID>
 ```
 
-___
-
-```
-/delaydata?siteid=<SITEID>
-```
-returns the delaytime for the specified station
+returns the next train going south and north
 
 #### Example
-```
-/delaydata?siteid=9000
-```
 
-returns...
+```
+/realtime/next/9000
+```
+could return...
+
 ```javascript
 {
-	"siteid": 9000,
-	"delayNorth": 131000,
-	"delaySouth": 0
+  "south": {
+    "JourneyDirection": 1,
+    "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5013,
+    "StopPointDesignation": "S",
+    "TimeTabledDateTime": "2016-03-07T00:34:00",
+    "ExpectedDateTime": "2016-03-07T00:34:00",
+    "DisplayTime": "8 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "V\u00e4sterhaninge",
+    "SiteId": 9000
+  },
+  "north": {
+    "JourneyDirection": 2,
+    "SecondaryDestinationName": null,
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5014,
+    "StopPointDesignation": "N",
+    "TimeTabledDateTime": "2016-03-07T00:28:00",
+    "ExpectedDateTime": "2016-03-07T00:28:00",
+    "DisplayTime": "2 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "B\u00e5lsta",
+    "SiteId": 9000
+  }
 }
 ```
-

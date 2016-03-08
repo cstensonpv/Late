@@ -2,7 +2,7 @@
 var SL = require('sl-api');
 var fs = require('fs');
 var siteids = require('./siteids');
- 
+
 var sl = new SL({
   realtimeInformation: "a759eafc14934dd681cb2f542e99330b",
   locationLookup: "fb98d1b0f1f841b2bfe48b43e48f77e4",
@@ -15,6 +15,7 @@ var sl = new SL({
 	var data = [];
 	var totalDelays = [];
 	var currentMinute = 0;
+  var lineNames = ['J35', 'J36', 'J37'];
 	var lineids = [];
 
 	// Load the data
@@ -22,7 +23,10 @@ var sl = new SL({
 	for (var i = 0; i < siteids.length; i++) {
 		data['id_' + siteids[i]] = JSON.parse(fs.readFileSync('./data/' + siteids[i] + '.json', 'utf8'));
 	}
-	lineids['J35'] = JSON.parse(fs.readFileSync('./json/J35.json', 'utf8'));
+
+  for (var i = 0; i < lineNames.length; i++) {
+    lineids[lineNames[i]] = JSON.parse(fs.readFileSync('./json/' + lineNames[i] + '.json', 'utf8'));
+  }
 	console.log("done.");
 
 	function addRealtimeData(d) {
@@ -102,6 +106,46 @@ var sl = new SL({
 	module.exports.setCurrentMinute = function(n) {
 		currentMinute = n;
 	};
+
+  module.exports.getNextTrainFrom = function(siteid) {
+    var d = getRealTimeData(siteid);
+    // var isInLine = [];
+    var values = {
+      "south": null,
+      "north": null
+    };
+
+    for (var i = 0; i < d.length; i++) {
+      console.log(d[i].JourneyDirection === 1);
+      if (d[i].JourneyDirection === 1 && values.south === null) {
+        values.south = d[i];
+      }
+      else if (d[i].JourneyDirection === 2 && values.north === null) {
+        values.north = d[i];
+      }
+    }
+
+    if (values.south === null) {
+      values.south = "No train going south";
+    }
+    if (values.north === null) {
+      values.north = "No train going north";
+    }
+
+    return values;
+
+   // TODO: return for all the directions on y-shaped stations.
+    // Go trough all the lines to find the line we need to look at and
+    // the direction it's going.
+    // for (var i = 0; i < lineids.length; i++) {
+    //   // If fid and tid is in lineids[i]
+    //   if (lineids[i].indexOf(fid) > -1 && lineids[i].indexOf(tid) > -1) {
+    //     isInLine.push(lineNames[i]);
+    //   }
+    // }
+
+    // Figure out the supposed direction of the train.
+  }
 }());
 
 // Location data
@@ -134,7 +178,3 @@ var sl = new SL({
 		});
 	};
 }());
-
-
-
-

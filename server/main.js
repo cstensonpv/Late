@@ -10,12 +10,12 @@ app.get('/test', function(req, res) {
 	res.send("Hello");
 });
 
-app.get('/realtimedata', function(req, res) {
-	if (req.query.siteid) {
-		res.jsonp(httprequest.getRealTimeData(req.query.siteid));
-	} else {
-		res.jsonp("No siteid");
-	}
+app.get('/realtimedata/:siteid', function(req, res) {
+	res.jsonp(httprequest.getRealTimeData(req.params.siteid));
+});
+
+app.get('/realtime/next/:siteid', function(req, res) {
+	res.jsonp(httprequest.getNextTrainFrom(req.params.siteid));
 });
 
 app.get('/locationdata', function(req, res) {
