@@ -3,7 +3,8 @@ var express = require('express');
 var httprequest = require('./httprequest');
 var app = express();
 
-var fetchInterval = 500;
+var fetchInterval = 60000;
+var currentDate = new Date();
 
 // ];
 app.get('/test', function(req, res) {
@@ -39,9 +40,13 @@ app.get('/delaydatafrom', function(req, res) {
 });
 
 var cm = -1;
+var hours = currentDate.getHours();
+var minutes = currentDate.getMinutes();
+cm = hours * 60 + minutes - 1;
+
 var setMinute = function() {
 	cm++;
-	if (cm >= 35) {
+	if (cm >= 1440) {
 		cm = 0;
 	}
 	// console.log("Current minute: " + cm);
@@ -52,3 +57,4 @@ setMinute();
 setInterval(setMinute, fetchInterval);
 
 var server = app.listen(3000);
+console.log("Server is now listening on port 3000");

@@ -59,7 +59,7 @@ var sl = new SL({
 				}
 			}
 		}
-		return "No data found";
+		return "Error: no data found";
 	}
 
 	module.exports.requestRealTimeData = function(siteid) {
@@ -111,12 +111,12 @@ var sl = new SL({
     var d = getRealTimeData(siteid);
     // var isInLine = [];
     var values = {
+      "time": currentMinute,
       "south": null,
       "north": null
     };
 
     for (var i = 0; i < d.length; i++) {
-      console.log(d[i].JourneyDirection === 1);
       if (d[i].JourneyDirection === 1 && values.south === null) {
         values.south = d[i];
       }
