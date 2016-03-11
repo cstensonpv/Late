@@ -1,0 +1,10 @@
+.path--background {
+  fill: none;
+  stroke: #000;
+  stroke-width: 4px;
+}
+
+.label {
+  font: 24px sans-serif;
+  text-anchor: middle;
+}

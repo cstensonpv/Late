@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>PivotGraph (Rollup) Layout</title>
+<link rel="stylesheet" href="css/d3.slider.css"/>
+<link rel="stylesheet" href="css/arcstyle.css"/>
 <style>
 
   body {
@@ -32,12 +34,35 @@
 
 </style>
 <body>
+<div>
+  <div id="startButton"><button type="button" onclick="startAnimate()">Start</button></div>
+  <div id="rewindButton"><button type="button" onclick="rewind()">Rewind</button></div>
+  <div id="stopButton"><button type="button" onclick="stop()">Stop</button></div>
+</div>
+<div id="slider6"></div>
+
+
 <!-- <div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div> -->
+<script src="lib/drawArc.js"></script>
 <script src="lib/d3.min.js"></script>
 <script src="lib/rollup.js"></script>
+<script type="text/javascript" src="lib/d3.slider.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
 
+var timer_ret_val = false;
+var continueTimerVal = false;
+var isContinue = false;
+var timerCurrentValue = 0;
+var last = 0;
+
+var slider = d3.slider().on("slide", function(event, value) {
+    animationTest(value);
+}).axis(true).min(0).max(100);
+
+var sliderPlace = d3.select('#slider6').call(slider);
+
+var sliderHandle = d3.select("#handle-one");
 var margin = {top: 90, right: 240, bottom: 90, left: 240},
     width = 960 - margin.left - margin.right,
     t = .5,
@@ -45,30 +70,43 @@ var margin = {top: 90, right: 240, bottom: 90, left: 240},
 
 var currentPosStations = {};
 
-function fx(d) { return d.x; }
-function fy(d) { return d.y; }
+function fx(d) {
+  if(typeof data === 'number'){
+    return d.x;
+  }else{
+    return parseInt(d.x);
+  }
+}
 
-var x = d3.scale.ordinal()
-    .rangePoints([256, width - 6]);
+function fy(d) {
+  if(typeof data === 'number'){
+    return d.y;
+  }else{
+    return parseInt(d.y);
+  }
+}
 
-var y = d3.scale.ordinal()
-    .rangePoints([6, height - 6]);
+var x = d3.scale.linear();
+
+var y = d3.scale.linear();
 
 var xAxis = d3.svg.axis()
     .scale(x)
-    .orient("top");
+    .orient("top")
+    .ticks(20);
 
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 
-var rollup = d3.rollup()
+/*var rollup = d3.rollup()
     .x(function(d) { return x(fx(d)); })
-    .y(function(d) { return y(fy(d)); });
+    .y(function(d) { return y(fy(d)); });*/
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .attr("id","outerSvg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -76,25 +114,28 @@ var svg = d3.select("body").append("svg")
 var data = null;
 d3.json("data/pendeltag.json", function(error, social) {
   if (error) throw error;
-  currentPosStations = social.nodes;
-  x.domain(social.nodes.map(fx));
-  y.domain(social.nodes.map(fy));
-  var graph = rollup(social);
-  data = graph;
+
+  x.domain([getMinOfArray(social.nodes.map(fx)),getMaxOfArray(social.nodes.map(fx))])
+  x.range([0, width]);
+  y.domain([getMaxOfArray(social.nodes.map(fy)),getMinOfArray(social.nodes.map(fy))]);
+  y.range([0,height]);
+
   //Append the links between circles
   svg.selectAll(".link")
-      .data(graph.links)
+      .data(social.links)
     .enter().append("path")
       .attr("class", "link")
-      .attr("id", function(d,i) {return i;})
+      .attr("id", function(d,i) {return "path_"+social.nodes[d.source].id+"_"+social.nodes[d.target].id;})
       .attr("d", function(d,i) {
-        var startX = d.source.x.toFixed(0),
-            startY = d.source.y.toFixed(0),
-            stopX = d.target.x.toFixed(0);
-            stopY = d.target.y.toFixed(0);
+        var source = social.nodes[d.source];
+        var target = social.nodes[d.target];
+        var startX = x(parseFloat(source.x).toFixed(0)),
+          startY = y(parseFloat(source.y).toFixed(0)),
+          stopX = x(parseFloat(target.x).toFixed(0));
+          stopY = y(parseFloat(target.y).toFixed(0));
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
-      .style("stroke-width", function(d) { return d.value * 4; });
+      .style("stroke-width", function(d) { return 4; });
 
   var busyLine = svg.append("path")
       .attr("id","busyLine")
@@ -102,28 +143,54 @@ d3.json("data/pendeltag.json", function(error, social) {
 
   // Append nodes (circles)
   var stations = svg.selectAll(".station")
-      .data(graph.nodes)
+      .data(social.nodes)
       .enter()
       .append("g")
       .attr("id",function(d,i){
-        return "station_" + d.nodes[0].id;
+
+        return "station_" + d.id;
       })
       .classed("station", true);
 
-var station = stations.append("circle")
+
+/*
+  To get the map back to the way it was, un-comment
+    "station" and "label" variables and comment out the
+    for loop with "stationNode" in it.
+*/
+/*var station = stations.append("circle")
       .attr("class", "node")
-      .attr("r", function(d) { return 8;/*Math.sqrt(d.nodes.length * 40);*/ })
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
+      .attr("r", function(d) { return 8; })
+      .attr("cx", function(d) { return x(fx(d)); })
+      .attr("cy", function(d) { return y(fy(d)); });*/
 
 
-var label = stations.append("text")
-      .attr("class", "word")
-      .attr("dy", function(d) {return d.y })
-      .attr("dx", function(d) {return d.x + 10 })
-      .text( function(d) {
-        return d.nodes[0].name;
-      })
+  var label = stations.append("text")
+    .attr("class", "word")
+    .attr("dy", function(d) {return 5 })
+    .attr("dx", function(d) {return 10 })
+    .attr("id", function(d) {return "text"+d.id })
+    .text( function(d) {
+      return d.name;
+    });
+
+//stationNode("#station_9501",480,60.740740740,"asd");
+
+  /*
+    This part adds the interactive circles to the "map". First parameter is the
+    id of the station. Second paramter is the "cy" parameter.
+    Third parameter is the name of the station
+  */
+  for(var i = 0; i < social.nodes.length; i++)
+  {
+    console.log(x(social.nodes[i].x));
+    console.log(y(social.nodes[i].y));
+    console.log("#station_"+social.nodes[i].id);
+    var one = x(social.nodes[i].x);
+    var two = y(social.nodes[i].y);
+    stationNode("#station_"+social.nodes[i].id, x(social.nodes[i].x) , y(social.nodes[i].y), social.nodes[i].name);
+  }
+
 
   svg.append("g")
       .attr("class", "x axis");
@@ -133,53 +200,53 @@ var label = stations.append("text")
 
 });
 
+function getMaxOfArray(numArray) {
+  return Math.max.apply(null, numArray);
+}
+function getMinOfArray(numArray) {
+  return Math.min.apply(null, numArray);
+}
 
-var nrcalls = 0;
-ajaxCall();
-window.setInterval(function(){
-  ajaxCall();
-  nrcalls++;
-  console.log(nrcalls);
-}, 4000);
-
-
-
-
-
-
-function ajaxCall(){
+/*
 $.ajax({
   url: "http://localhost:3000/delaydata/",
   dataType: "jsonp",
   success: function(result){
-    console.log("Did ajax call");
-    for(res in result){
-      var stationId = result[res].siteid;
-      var count = 0;
+    console.log(result);
+      for(res in result){
 
-      //to get stations that are not Stockholm C or Marsta
-      if(result[res].siteid != 9500 && result[res].siteid != 9000){
-        //console.log(result[res].siteid);
-        var str = "" + result[res].siteid;
-        var isNorthMoving = null;//is the delay to the north or to the south.
-        if(result[count].delayNorth > result[count].delaySouth)
-          isNorthMoving = true;
-        else
-          isNorthMoving = false;
-        //second parameter is about scaling the movement. Absolute value of the delay between north and
-        //the south.
-        
-        updateCircle(str,result[res].delayNorth,isNorthMoving);
+        var stationId = result[res].siteid;
+        var count = 0;
+
+        //to get stations that are not Stockholm C or Marsta
+        if(result[res].siteid != 9500 && result[res].siteid != 9000){
+          console.log(result[res].siteid);
+          var str = "" + result[res].siteid;
+
+          var isNorthMoving = null;//is the delay to the north or to the south.
+
+          if(result[count].delayNorth > result[count].delaySouth)
+            isNorthMoving = true;
+          else
+            isNorthMoving = false;
+          //second parameter is about scaling the movement. Absolute value of the delay between north and
+          //the south.
+          console.log(result[count]);
+          updateCircle(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
+
+        }
+        //to get stations that are not Stockholm C or Marsta
+        while(result[count].siteid == 9500 || result[count].siteid == 9000)
+        {
+          count++;
+        }
 
       }
-      
-    }
 
 
-      
 
-    },
-    error:function(jqXHR,status,error){
+},
+error:function(jqXHR,status,error){
       if (jqXHR.status === 0) {
           console.log('Not connect.\n Verify Network.');
       } else if (jqXHR.status == 404) {
@@ -195,35 +262,174 @@ $.ajax({
       } else {
           console.log('Uncaught Error.\n' + jqXHR.responseText);
       }
-    }
-  });
+}});
+*/
+
+
+
+updateCircle(9504,122000,false,213);
+/*updateCircle(9503,122000,true);
+updateCircle(9508,122000,false);
+updateCircle(9509,122000,true);
+updateCircle(9501,122000,false);*/
+
+function stop(){
+  timer_ret_val = true;
+  continueTimerVal = true;
+  last = timerCurrentValue;
+  last *= 100;
+  //console.log("push stop: "  + timerCurrentValue);
 }
 
+function startAnimate(){
+  timer_ret_val = false;
+  isContinue = true;
+  //console.log("last:" + last);
+  var cntVal = d3.select("#path_9502_9511").attr("T");
+  updateCircle(9504,122000,false,cntVal);
+  //console.log("push start: "  + timerCurrentValue);
+}
 
-function updateCircle(clicked_id,delayTime,isMovingNorth)
+function rewind()
 {
-  var last = 0;
+  //var cntVal = d3.select("#path_9").attr("T");
+}
+
+function transitionFunction(value){
+
+}
+
+function animationTest(value){
+  //console.log("value: " + value);
+  var selectPath = d3.select("#path_9502_9511");
+  selectPath.attr("T",value);
+  var strokeStr = "rgba(255,0,0," + (value/100) + ")";
+
+  var tmp = 0.25 + (value/100);
+  selectPath
+    .transition()
+    .duration(0)
+    .style("stroke","rgb(255,0,0)")
+    .style("stroke-opacity","."+tmp)
+    .attr("T",value);
+
+  var selectPath2 = d3.select("#path_9502_9501");
+  selectPath2.attr("T",value);
+  if(value >= 50)
+  {
+    var tmp2 = 0.25 + (value-50)/100;
+    selectPath2
+      .transition()
+      .delay(0)
+      .duration(0)
+      .style("stroke","rgb(255,0,0)")
+      .style("stroke-opacity","."+tmp2)
+      .attr("T",value);
+  }
+
+
+
+
+  //console.log("called it. " + tmp);
+  /*selectPath
+    .transition()
+    .duration(0)
+    .style("stroke",strokeStr);*/
+}
+var asdf = 0;
+
+var globalVar = [];
+function assignGlobal(pathHtmlId,delayTime)
+{
+  globalVar.push({"pathid":pathHtmlId,"delay":delayTime});
+
+}
+
+function updateCircle(clicked_id,delayTime,isMovingNorth,timerCur)
+{
+
   //console.log(delayTime);
   //console.log(clicked_id);
-  d3.timer(function(elapsed) {
-    t = (t + (elapsed - last) / 5000) % 1;
+  asdf = timerCur;
+    //console.log(asdf);
+  if(!isContinue)
+    d3.timer(timerTick);
+  else
+    d3.timer(continueTimer);
+}
+
+function continueTimer(elapsed)
+{
+  var normalTime = asdf;
+  var x = elapsed/100;
+  normalTime += x;
+    //console.log("normal:" + asdf + " ------- " + x);
+  var test = +asdf + +x;
+   // console.log(test);
+  if(test <= 100)
+  {
+    sliderHandle.transition().duration(0).style("left",test+"%");
+    animationTest(test);
+    timerCurrentValue = test;
+  }
+  return timer_ret_val;
+}
+
+function timerTick(elapsed)
+{
+  var normalTime = elapsed/100;
+  //console.log(timerCurrentValue);
+  if(normalTime <= 100)
+  {
+    sliderHandle.transition().duration(0).style("left",normalTime+"%");
+    animationTest(normalTime);
+    timerCurrentValue = normalTime;
+  }
+  return timer_ret_val;
+}
+
+/*function timerTick(elapsed,clicked_id,isMovingNorth,isPaused){
+    console.log("elapsed: " + timerCurrentValue);
+
+    if(!timer_ret_val)
+    {
+      console.log("I pushed continue: " + timerCurrentValue);
+      t = (t + (timerCurrentValue - last) / 5000) % 1;
+    }
+    else{
+      console.log("I did not pushed shit: " + timerCurrentValue);
+      t = (t + (elapsed - last) / 5000) % 1;
+    }
     last = elapsed;
+
     var factor = last/100;
 
     if(factor < 20){//temporary measurement.
-      update(delayTime/60000,clicked_id,isMovingNorth);//redraw the selected circle and the path
+      update(last/100,clicked_id,isMovingNorth);//redraw the selected circle and the path
     }
-  });
 
-}
+    var tmpVar = last/100;
+
+    if(tmpVar <= 100)
+    {
+      sliderHandle.transition().duration(0).style("left",timerCurrentValue+"%");
+      animationTest(tmpVar);
+      timerCurrentValue = tmpVar;
+    }
+    else{
+      //console.log("yarrak:" + tmpVar);
+    }
+
+    return timer_ret_val;
+}*/
 
 
-function update(delay,selected,isMovingNorth) {
+function update(x,selected,isMovingNorth) {
 
   var slct = "#station_" + selected;
-  delay = delay * 2; //to see it better
+
   //console.log("Updates "+ selected);
-  /*
+
   d3.select(".stations").remove();
   var stations = svg.selectAll(".station")
     .data(data.nodes)
@@ -233,8 +439,7 @@ function update(delay,selected,isMovingNorth) {
       return "station_" + d.nodes[0].id;
     })
     .classed("station", true);
-*/
-  var currentIndex = getStationIndex(selected);
+
   var station = svg.select(slct);
 
   var xCircle,yCircle = 0;
@@ -245,39 +450,56 @@ function update(delay,selected,isMovingNorth) {
   station.select("circle")
     .attr("class", "node")
     .attr("r", function(d) { return 8; })
-    .attr("cx", function(d,i) { xCircle = d.x; return d.x; })
-    .attr("cy", function(d,i) { currentPosStations[currentIndex]["y"] = (d.y - delay); yCircle = d.y; return d.y - delay; });
+    .attr("cx", function(d) { xCircle = d.x;return d.x; })
+    .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
 
    /*station.select("#poly")
     .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
 
   var label = station.select("text")
     .attr("class", "word")
-    .attr("dy", function(d) {return d.y - delay})
+    .attr("dy", function(d) {return d.y+x})
     .attr("dx", function(d) {return d.x + 10})
     .text( function(d) {
-    return d.nodes[0].name + " : " + d.nodes[0].id +" northDelay: "+delay.toFixed(1) +"min";
+    return d.nodes[0].name + " : " + d.nodes[0].id;
   });
 
-  var currentStation = getStation(selected);
+  for(station in data.nodes) {
+    //console.log(data.nodes[station].nodes[0].id);
+    if(data.nodes[station].nodes[0].id == selected){
+      var northLink = $("#"+data.nodes[station].nodes[0].north);
+      var southLink = $("#"+data.nodes[station].nodes[0].south);
+      if(!isMovingNorth){
 
-  //Gets the corresponding patrhs through id
-  var northLink = $("#"+currentStation.north);
-  var southLink = $("#"+currentStation.south);
-  //console.log(southLink[0].__data__);
+        var southPath = southLink.d;
+        //console.log("#"+data.nodes[station].nodes[0].south);
+        //southLink.attr("stroke","red");
+        southLink.attr("style","stroke-width: 8; stroke: red;");
+        southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,x, "north");})
 
-    //console.log("delay: "+delay);
-    if(delay > 0){
-      southLink.attr("style","stroke-width: 8; stroke: red;");
-    }else{
-      southLink.attr("style","stroke-width: 4;");
+        northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,x, "south");})
+
+      }
+
     }
-    // should be using the currentPosition of D´Sattions tio draw instead of the __data__.source etc
-    southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,delay, "north")})
 
-    northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,delay, "south")})
+  }
 
+
+   //console.log(xCircle + " ------ " + yCircle);
+  //M 474 168 256 6
+  //M 474
+  //"M "+startX+" "+startY + " "+stopX+" "+stopY;
+ /* var busyLine = svg.select("#busyLine")
+    .attr("d",function(d){
+      var stopx = xCircle + x;
+      var stopy = yCircle + x;
+
+      var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
+      return str;
+    });*/
 }
+
 function getStation(selected){
   for(station in data.nodes){
     if(data.nodes[station].nodes[0].id == selected){
@@ -286,6 +508,7 @@ function getStation(selected){
   }
   return "";
 }
+
 function getStationIndex(selected){
   for(station in data.nodes){
     if(data.nodes[station].nodes[0].id == selected){
@@ -295,20 +518,16 @@ function getStationIndex(selected){
   return "";
 }
 
-
 function calcPath(source,target,x,dir) {
-  //console.log(source);
   var startX = source.x.toFixed(0),
     startY = parseInt(source.y.toFixed(0)),
     stopX = target.x.toFixed(0);
     stopY = parseInt(target.y.toFixed(0));
 
     if(dir === "north"){
-      stopY -= x;
-      //console.log("stopY: "+stopY);
+      stopY += x;
     }else if(dir === "south"){
-      startY -= x;
-      //console.log("StartY :"+startY);
+      startY += x;
     }
   return "M "+startX+" "+startY + " "+stopX+" "+stopY;
 }
