@@ -35,6 +35,7 @@
 </style>
 <body>
 <div>
+  <div><h2>Slider with slide event: <span id="slider3text">0</span></h2></div>
   <div id="startButton"><button type="button" onclick="startAnimate()">Start</button></div>
   <div id="rewindButton"><button type="button" onclick="rewind()">Rewind</button></div>
   <div id="stopButton"><button type="button" onclick="stop()">Stop</button></div>
@@ -42,7 +43,7 @@
 <div id="slider6"></div>
 
 
-<!-- <div><button id="rotebro" type="button" onclick="updateCircle(this.id)">Click Me!</button></div> -->
+<!-- <div><button id="rotebro" type="button" onclick="startTransition(this.id)">Click Me!</button></div> -->
 <script src="lib/drawArc.js"></script>
 <script src="lib/d3.min.js"></script>
 <script src="lib/rollup.js"></script>
@@ -56,9 +57,11 @@ var isContinue = false;
 var timerCurrentValue = 0;
 var last = 0;
 
+var maxScaleofSlider = 1400
+
 var slider = d3.slider().on("slide", function(event, value) {
-    animationTest(value);
-}).axis(true).min(0).max(100);
+    animationUpdate(value,true);
+}).axis(true).min(0).max(24);
 
 var sliderPlace = d3.select('#slider6').call(slider);
 
@@ -232,7 +235,7 @@ $.ajax({
           //second parameter is about scaling the movement. Absolute value of the delay between north and
           //the south.
           console.log(result[count]);
-          updateCircle(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
+          startTransition(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
 
         }
         //to get stations that are not Stockholm C or Marsta
@@ -267,11 +270,11 @@ error:function(jqXHR,status,error){
 
 
 
-updateCircle(9504,122000,false,213);
-/*updateCircle(9503,122000,true);
-updateCircle(9508,122000,false);
-updateCircle(9509,122000,true);
-updateCircle(9501,122000,false);*/
+startTransition(9504,122000,false,213);
+/*startTransition(9503,122000,true);
+startTransition(9508,122000,false);
+startTransition(9509,122000,true);
+startTransition(9501,122000,false);*/
 
 function stop(){
   timer_ret_val = true;
@@ -286,7 +289,7 @@ function startAnimate(){
   isContinue = true;
   //console.log("last:" + last);
   var cntVal = d3.select("#path_9502_9511").attr("T");
-  updateCircle(9504,122000,false,cntVal);
+  startTransition(9504,122000,false,cntVal);
   //console.log("push start: "  + timerCurrentValue);
 }
 
@@ -299,10 +302,24 @@ function transitionFunction(value){
 
 }
 
-function animationTest(value){
+function percentageToMinutes(percentage){
+  return percentage*14.4;
+}
+
+function animationUpdate(value,isDragged){
+
+  var calculatedTimeValue = 0;
+
+  if(!isDragged)
+    calculatedTimeValue = percentageToMinutes(value);
+  else
+    calculatedTimeValue = value*60;
+
+  d3.select('#slider3text').text(calculatedTimeValue);//*60);
+
   //console.log("value: " + value);
   var selectPath = d3.select("#path_9502_9511");
-  selectPath.attr("T",value);
+  selectPath.attr("T",calculatedTimeValue);
   var strokeStr = "rgba(255,0,0," + (value/100) + ")";
 
   var tmp = 0.25 + (value/100);
@@ -311,10 +328,10 @@ function animationTest(value){
     .duration(0)
     .style("stroke","rgb(255,0,0)")
     .style("stroke-opacity","."+tmp)
-    .attr("T",value);
+    .attr("T",calculatedTimeValue);
 
   var selectPath2 = d3.select("#path_9502_9501");
-  selectPath2.attr("T",value);
+  selectPath2.attr("T",calculatedTimeValue);
   if(value >= 50)
   {
     var tmp2 = 0.25 + (value-50)/100;
@@ -324,7 +341,7 @@ function animationTest(value){
       .duration(0)
       .style("stroke","rgb(255,0,0)")
       .style("stroke-opacity","."+tmp2)
-      .attr("T",value);
+      .attr("T",calculatedTimeValue);
   }
 
 
@@ -336,7 +353,7 @@ function animationTest(value){
     .duration(0)
     .style("stroke",strokeStr);*/
 }
-var asdf = 0;
+var currentPositionOfSlider = 0;
 
 var globalVar = [];
 function assignGlobal(pathHtmlId,delayTime)
@@ -345,13 +362,9 @@ function assignGlobal(pathHtmlId,delayTime)
 
 }
 
-function updateCircle(clicked_id,delayTime,isMovingNorth,timerCur)
+function startTransition(clicked_id,delayTime,isMovingNorth,timerCur)
 {
-
-  //console.log(delayTime);
-  //console.log(clicked_id);
-  asdf = timerCur;
-    //console.log(asdf);
+  currentPositionOfSlider = timerCur;//value of T tag
   if(!isContinue)
     d3.timer(timerTick);
   else
@@ -360,31 +373,29 @@ function updateCircle(clicked_id,delayTime,isMovingNorth,timerCur)
 
 function continueTimer(elapsed)
 {
-  var normalTime = asdf;
-  var x = elapsed/100;
-  normalTime += x;
-    //console.log("normal:" + asdf + " ------- " + x);
-  var test = +asdf + +x;
-   // console.log(test);
-  if(test <= 100)
-  {
-    sliderHandle.transition().duration(0).style("left",test+"%");
-    animationTest(test);
-    timerCurrentValue = test;
-  }
+  var normalTime = currentPositionOfSlider/14.4;
+  var x = elapsed/maxScaleofSlider;
+  var test = +currentPositionOfSlider + +x;
+
+  console.log(currentPositionOfSlider + " ----- " + x);
+
+  sliderHandle.transition().duration(0).style("left",test+"%");
+  animationUpdate(test,false);
+  timerCurrentValue = test;
+
   return timer_ret_val;
 }
 
 function timerTick(elapsed)
 {
-  var normalTime = elapsed/100;
+  var normalTime = elapsed/maxScaleofSlider;
   //console.log(timerCurrentValue);
-  if(normalTime <= 100)
-  {
-    sliderHandle.transition().duration(0).style("left",normalTime+"%");
-    animationTest(normalTime);
-    timerCurrentValue = normalTime;
-  }
+
+  //d3.select('#slider3text').text("");
+  sliderHandle.transition().duration(0).style("left",normalTime+"%");
+  animationUpdate(normalTime,false);
+  timerCurrentValue = normalTime;
+
   return timer_ret_val;
 }
 
@@ -413,7 +424,7 @@ function timerTick(elapsed)
     if(tmpVar <= 100)
     {
       sliderHandle.transition().duration(0).style("left",timerCurrentValue+"%");
-      animationTest(tmpVar);
+      animationUpdate(tmpVar);
       timerCurrentValue = tmpVar;
     }
     else{
