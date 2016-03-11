@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "data collector",
   "version": "1.0.0",
-  "description": "Late server",
+  "description": "Late data collector",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,11 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.13.4",
     "sl-api": "^1.0.3"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cstensonpv/Late.git"
+  "repository" :
+  { 
+    "type" : "git", 
+    "url" : "https://github.com/cstensonpv/Late.git"
   }
 }

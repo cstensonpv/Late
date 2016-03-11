@@ -1,9 +1,12 @@
 // var request = require("request");
 var SL = require('sl-api');
- 
+var fs = require('fs');
+var siteids = require('./siteids');
+
 var sl = new SL({
   realtimeInformation: "a759eafc14934dd681cb2f542e99330b",
-  locationLookup: "fb98d1b0f1f841b2bfe48b43e48f77e4"
+  locationLookup: "fb98d1b0f1f841b2bfe48b43e48f77e4",
+  tripPlanner: "4b570251388b4e33afeb139f007952b7"
 }, 'json');
 
 
@@ -11,6 +14,20 @@ var sl = new SL({
 (function() {
 	var data = [];
 	var totalDelays = [];
+	var currentMinute = 0;
+  var lineNames = ['J35', 'J36', 'J37'];
+	var lineids = [];
+
+	// Load the data
+	console.log("loading data...");
+	for (var i = 0; i < siteids.length; i++) {
+		data['id_' + siteids[i]] = JSON.parse(fs.readFileSync('./data/' + siteids[i] + '.json', 'utf8'));
+	}
+
+  for (var i = 0; i < lineNames.length; i++) {
+    lineids[lineNames[i]] = JSON.parse(fs.readFileSync('./json/' + lineNames[i] + '.json', 'utf8'));
+  }
+	console.log("done.");
 
 	function addRealtimeData(d) {
 		for (var i = 0; i < data.length; i++) {
@@ -33,47 +50,39 @@ var sl = new SL({
 		totalDelays.push(d);
 	}
 
-	module.exports.requestRealTimeData = function(siteid) {
-		sl.realtimeInformation({siteid: siteid, timewindow: 20}, function(err, results) {
-			if(err) {
-				console.log("Error: " + err);
-			}
-			if (results) {
-				var d = JSON.parse(results);
-				var trains = d.ResponseData.Trains;
-				addRealtimeData(trains);
-				var timetable;
-				var expected;
-				var delayNorth = 0;
-				var delaySouth = 0;
-				var siteid = trains[0].SiteId;
-				// console.log(trains[0].SiteId);
-				if(trains.length > 0) {
-					for (var j = 0; j < trains.length; j++) {
-						timetable = new Date(trains[j].TimeTabledDateTime);
-						expected = new Date(trains[j].ExpectedDateTime);
-						var tempDelay = expected.getTime() - timetable.getTime(); 
-						if (tempDelay > 0) {
-							if (trains[j].JourneyDirection == 1) {
-								delaySouth += tempDelay;
-							} else if (trains[j].JourneyDirection == 2){
-								delayNorth += tempDelay;
-							} else {
-								console.log("Journey direction missmatch");
-							}
-						}
-					}
-					console.log(siteid + " " + delayNorth + " " + delaySouth);
-					addDelayData({
-						siteid: siteid,
-						delayNorth: delayNorth,
-						delaySouth: delaySouth
-					});
-				} else {
-					console.log(siteid + " has no departues");
+	function getRealTimeData(siteid) {
+		var d = data['id_' + siteid];
+		if (d !== undefined) {
+			for (var i = 0; i < d.length; i++) {
+				if (d[i].time === currentMinute) {
+					return d[i].data;
 				}
 			}
-		});
+		}
+		return "Error: no data found";
+	}
+
+	module.exports.requestRealTimeData = function(siteid) {
+	};
+
+	module.exports.getDelaysFrom = function(siteid) {
+		var d = getRealTimeData(siteid);
+		var lineNumbers = ["35", "36", "37"];
+		var lines = [];
+
+		for (var i = 0; i < lineNumbers.length; i++) {
+			lines['J' + lineNumbers[i]] = [];
+		}
+
+		for (var i = 0; i < d.length; i++) {
+			if (lineNumbers.indexOf(d[i].LineNumber) > -1) {
+				lines['J' + d[i].LineNumber].push(d[i]);
+			}
+		}
+
+		for (var i = 0; i < lineNumbers.length; i++) {
+
+		}
 	};
 
 	module.exports.getDelayDataSiteid = function(siteid) {
@@ -91,13 +100,52 @@ var sl = new SL({
 	};
 
 	module.exports.getRealTimeData = function(siteid) {
-		for (var i = 0; i < data.length; i++) {
-			if (data[i][0].SiteId == siteid) {
-				return data[i];
-			}
-		}
-		return "No data found";
+		return getRealTimeData(siteid);
 	};
+
+	module.exports.setCurrentMinute = function(n) {
+		currentMinute = n;
+	};
+
+  module.exports.getNextTrainFrom = function(siteid) {
+    var d = getRealTimeData(siteid);
+    // var isInLine = [];
+    var values = {
+      "time": currentMinute,
+      "south": null,
+      "north": null
+    };
+
+    for (var i = 0; i < d.length; i++) {
+      if (d[i].JourneyDirection === 1 && values.south === null) {
+        values.south = d[i];
+      }
+      else if (d[i].JourneyDirection === 2 && values.north === null) {
+        values.north = d[i];
+      }
+    }
+
+    if (values.south === null) {
+      values.south = "No train going south";
+    }
+    if (values.north === null) {
+      values.north = "No train going north";
+    }
+
+    return values;
+
+   // TODO: return for all the directions on y-shaped stations.
+    // Go trough all the lines to find the line we need to look at and
+    // the direction it's going.
+    // for (var i = 0; i < lineids.length; i++) {
+    //   // If fid and tid is in lineids[i]
+    //   if (lineids[i].indexOf(fid) > -1 && lineids[i].indexOf(tid) > -1) {
+    //     isInLine.push(lineNames[i]);
+    //   }
+    // }
+
+    // Figure out the supposed direction of the train.
+  }
 }());
 
 // Location data
@@ -123,6 +171,10 @@ var sl = new SL({
 	};
 }());
 
-
-
-
+(function() {
+	module.exports.requestTrip = function(originId, destId) {
+		sl.tripPlanner.trip({originId: originId, destId: destId}, function(err, results) {
+			console.log(results);
+		});
+	};
+}());
