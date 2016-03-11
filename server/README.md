@@ -97,3 +97,61 @@ could return...
   }
 }
 ```
+
+## Next departures from time
+
+```
+/datafromtime/<MINUTES>
+```
+returns an object with all the stations and their upcoming departures.
+
+#### Example
+
+```
+/datafromtime/1000
+```
+
+returns...
+
+```javascript
+{
+  "id_9000": {
+    "time": 1000,
+    "south": {
+      "JourneyDirection": 1,
+      "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+      "StopAreaName": "Stockholms central",
+      "StopAreaNumber": 5011,
+      "StopPointNumber": 5013,
+      "StopPointDesignation": "S",
+      "TimeTabledDateTime": "2016-03-08T16:42:00",
+      "ExpectedDateTime": "2016-03-08T16:42:00",
+      "DisplayTime": "1 min",
+      "Deviations": [
+        {
+          "Text": "Stannar ej i Tr\u00e5ngsund, Skog\u00e5s, Jordbro.",
+          "Consequence": "INFORMATION",
+          "ImportanceLevel": 5
+        }
+      ],
+      "TransportMode": "TRAIN",
+      "LineNumber": "35",
+      "Destination": "Nyn\u00e4shamn",
+      "SiteId": 9000
+    },
+    "north": {
+      ...
+    }
+  },
+  "id_9510": {
+    "time": 1000,
+    "south": {
+      ...
+    },
+    "north": {
+      ...
+    }
+  },
+	...
+}
+```

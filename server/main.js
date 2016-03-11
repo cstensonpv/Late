@@ -15,6 +15,10 @@ app.get('/realtimedata/:siteid', function(req, res) {
 	res.jsonp(httprequest.getRealTimeData(req.params.siteid));
 });
 
+app.get('/datafromtime/:minutes', function(req, res) {
+	res.jsonp(httprequest.getDataFromTime(parseInt(req.params.minutes)));
+});
+
 app.get('/realtime/next/:siteid', function(req, res) {
 	res.jsonp(httprequest.getNextTrainFrom(req.params.siteid));
 });

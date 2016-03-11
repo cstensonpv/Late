@@ -62,6 +62,47 @@ var sl = new SL({
 		return "Error: no data found";
 	}
 
+  function getData(minutes, siteid) {
+    var d = data['id_' + siteid];
+    // console.log(d);
+    if (d !== undefined) {
+      for (var i = 0; i < d.length; i++) {
+        if (d[i].time === minutes) {
+          return d[i].data;
+        }
+      }
+    }
+    return "Error: no data found";
+  }
+
+  function getNextTrainFrom(minutes, siteid) {
+    var d = getData(minutes, siteid);
+    // var isInLine = [];
+    var values = {
+      "time": minutes,
+      "south": null,
+      "north": null
+    };
+
+    for (var i = 0; i < d.length; i++) {
+      if (d[i].JourneyDirection === 1 && values.south === null) {
+        values.south = d[i];
+      }
+      else if (d[i].JourneyDirection === 2 && values.north === null) {
+        values.north = d[i];
+      }
+    }
+
+    if (values.south === null) {
+      values.south = "No train going south";
+    }
+    if (values.north === null) {
+      values.north = "No train going north";
+    }
+
+    return values;
+  }
+
 	module.exports.requestRealTimeData = function(siteid) {
 	};
 
@@ -107,34 +148,17 @@ var sl = new SL({
 		currentMinute = n;
 	};
 
+  module.exports.getDataFromTime = function(minutes) {
+    var d = {};
+    for (var i = 0; i < siteids.length; i++) {
+      d['id_' + siteids[i]] = getNextTrainFrom(minutes, siteids[i]);
+    }
+    return d;
+  };
+
   module.exports.getNextTrainFrom = function(siteid) {
-    var d = getRealTimeData(siteid);
-    // var isInLine = [];
-    var values = {
-      "time": currentMinute,
-      "south": null,
-      "north": null
-    };
-
-    for (var i = 0; i < d.length; i++) {
-      if (d[i].JourneyDirection === 1 && values.south === null) {
-        values.south = d[i];
-      }
-      else if (d[i].JourneyDirection === 2 && values.north === null) {
-        values.north = d[i];
-      }
-    }
-
-    if (values.south === null) {
-      values.south = "No train going south";
-    }
-    if (values.north === null) {
-      values.north = "No train going north";
-    }
-
-    return values;
-
-   // TODO: return for all the directions on y-shaped stations.
+    return getNextTrainFrom(currentMinute, siteid);
+    // TODO: return for all the directions on y-shaped stations.
     // Go trough all the lines to find the line we need to look at and
     // the direction it's going.
     // for (var i = 0; i < lineids.length; i++) {
