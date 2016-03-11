@@ -50,6 +50,7 @@
 <script type="text/javascript" src="lib/d3.slider.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
+var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
 
 var timer_ret_val = false;
 var continueTimerVal = false;
@@ -186,9 +187,9 @@ d3.json("data/pendeltag.json", function(error, social) {
   */
   for(var i = 0; i < social.nodes.length; i++)
   {
-    console.log(x(social.nodes[i].x));
+    /*console.log(x(social.nodes[i].x));
     console.log(y(social.nodes[i].y));
-    console.log("#station_"+social.nodes[i].id);
+    console.log("#station_"+social.nodes[i].id);*/
     var one = x(social.nodes[i].x);
     var two = y(social.nodes[i].y);
     stationNode("#station_"+social.nodes[i].id, x(social.nodes[i].x) , y(social.nodes[i].y), social.nodes[i].name);
@@ -210,65 +211,33 @@ function getMinOfArray(numArray) {
   return Math.min.apply(null, numArray);
 }
 
-/*
-$.ajax({
-  url: "http://localhost:3000/delaydata/",
-  dataType: "jsonp",
-  success: function(result){
-    console.log(result);
-      for(res in result){
 
-        var stationId = result[res].siteid;
-        var count = 0;
-
-        //to get stations that are not Stockholm C or Marsta
-        if(result[res].siteid != 9500 && result[res].siteid != 9000){
-          console.log(result[res].siteid);
-          var str = "" + result[res].siteid;
-
-          var isNorthMoving = null;//is the delay to the north or to the south.
-
-          if(result[count].delayNorth > result[count].delaySouth)
-            isNorthMoving = true;
-          else
-            isNorthMoving = false;
-          //second parameter is about scaling the movement. Absolute value of the delay between north and
-          //the south.
-          console.log(result[count]);
-          startTransition(str,Math.abs(result[res].delayNorth-result[res].delaySouth),isNorthMoving);
-
+function getData(minutes){
+  $.ajax({
+    url: "http://localhost:3000/datafromtime/"+minutes,
+    dataType: "jsonp",
+    success: function(result){
+      //console.log(result);
+      update(result);
+  },
+  error:function(jqXHR,status,error){
+        if (jqXHR.status === 0) {
+            console.log('Not connect.\n Verify Network.');
+        } else if (jqXHR.status == 404) {
+            console.log('Requested page not found. [404]');
+        } else if (jqXHR.status == 500) {
+            console.log('Internal Server Error [500].');
+        } else if (exception === 'parsererror') {
+            console.log('Requested JSON parse failed.');
+        } else if (exception === 'timeout') {
+            console.log('Time out error.');
+        } else if (exception === 'abort') {
+            console.log('Ajax request aborted.');
+        } else {
+            console.log('Uncaught Error.\n' + jqXHR.responseText);
         }
-        //to get stations that are not Stockholm C or Marsta
-        while(result[count].siteid == 9500 || result[count].siteid == 9000)
-        {
-          count++;
-        }
-
-      }
-
-
-
-},
-error:function(jqXHR,status,error){
-      if (jqXHR.status === 0) {
-          console.log('Not connect.\n Verify Network.');
-      } else if (jqXHR.status == 404) {
-          console.log('Requested page not found. [404]');
-      } else if (jqXHR.status == 500) {
-          console.log('Internal Server Error [500].');
-      } else if (exception === 'parsererror') {
-          console.log('Requested JSON parse failed.');
-      } else if (exception === 'timeout') {
-          console.log('Time out error.');
-      } else if (exception === 'abort') {
-          console.log('Ajax request aborted.');
-      } else {
-          console.log('Uncaught Error.\n' + jqXHR.responseText);
-      }
-}});
-*/
-
-
+  }});
+}
 
 startTransition(9504,122000,false,213);
 /*startTransition(9503,122000,true);
@@ -288,7 +257,7 @@ function startAnimate(){
   timer_ret_val = false;
   isContinue = true;
   //console.log("last:" + last);
-  var cntVal = d3.select("#path_9502_9511").attr("T");
+  var cntVal = parseFloat(d3.select("#path_9502_9511").attr("T"));
   startTransition(9504,122000,false,cntVal);
   //console.log("push start: "  + timerCurrentValue);
 }
@@ -306,16 +275,24 @@ function percentageToMinutes(percentage){
   return percentage*14.4;
 }
 
+function minutesToPercentage(minutes){
+  return minutes/14.4;
+}
+
 function animationUpdate(value,isDragged){
 
   var calculatedTimeValue = 0;
 
   if(!isDragged)
     calculatedTimeValue = percentageToMinutes(value);
-  else
+  else{
     calculatedTimeValue = value*60;
+    console.log("in else " + calculatedTimeValue);
+  }
 
   d3.select('#slider3text').text(calculatedTimeValue);//*60);
+
+  getData(calculatedTimeValue.toFixed(0));
 
   //console.log("value: " + value);
   var selectPath = d3.select("#path_9502_9511");
@@ -343,23 +320,30 @@ function animationUpdate(value,isDragged){
       .style("stroke-opacity","."+tmp2)
       .attr("T",calculatedTimeValue);
   }
-
-
-
-
-  //console.log("called it. " + tmp);
-  /*selectPath
-    .transition()
-    .duration(0)
-    .style("stroke",strokeStr);*/
 }
 var currentPositionOfSlider = 0;
 
-var globalVar = [];
-function assignGlobal(pathHtmlId,delayTime)
-{
-  globalVar.push({"pathid":pathHtmlId,"delay":delayTime});
-
+function update(data){
+  for(var key in data)
+  {
+    //console.log(data[key]);
+    if(typeof data[key].north === 'object')
+    {
+      var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
+      var expectedDate = parseDate(data[key].north.ExpectedDateTime);
+      var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
+      if(pendeltagDelay != 0)
+      {
+        var id = key.substring(3);
+        d3.select("#station_"+id).style("fill","rgb(162,26,"+pendeltagDelay*10 + ")");
+        console.log(pendeltagDelay + " *---* " + id);
+      }
+      else
+      {
+        d3.select("#station_"+id).style("fill","rgb(26,115,0)");
+      }
+    }
+  }
 }
 
 function startTransition(clicked_id,delayTime,isMovingNorth,timerCur)
@@ -373,15 +357,15 @@ function startTransition(clicked_id,delayTime,isMovingNorth,timerCur)
 
 function continueTimer(elapsed)
 {
-  var normalTime = currentPositionOfSlider/14.4;
+  var normalTime = minutesToPercentage(currentPositionOfSlider);
   var x = elapsed/maxScaleofSlider;
-  var test = +currentPositionOfSlider + +x;
+  var actualSliderPercentage = parseFloat(normalTime) + parseFloat(x);
 
-  console.log(currentPositionOfSlider + " ----- " + x);
+  console.log(elapsed + " ----- " + normalTime + " ----- " + x + " ------ " + actualSliderPercentage);
 
-  sliderHandle.transition().duration(0).style("left",test+"%");
-  animationUpdate(test,false);
-  timerCurrentValue = test;
+  sliderHandle.transition().duration(0).style("left",actualSliderPercentage+"%");
+  animationUpdate(actualSliderPercentage,false);
+  timerCurrentValue = actualSliderPercentage;
 
   return timer_ret_val;
 }
@@ -433,83 +417,6 @@ function timerTick(elapsed)
 
     return timer_ret_val;
 }*/
-
-
-function update(x,selected,isMovingNorth) {
-
-  var slct = "#station_" + selected;
-
-  //console.log("Updates "+ selected);
-
-  d3.select(".stations").remove();
-  var stations = svg.selectAll(".station")
-    .data(data.nodes)
-    .enter()
-    .append("g")
-    .attr("id",function(d,i){
-      return "station_" + d.nodes[0].id;
-    })
-    .classed("station", true);
-
-  var station = svg.select(slct);
-
-  var xCircle,yCircle = 0;
-
-  if(!isMovingNorth)//change direction of the circle moving
-    x *= -1;
-
-  station.select("circle")
-    .attr("class", "node")
-    .attr("r", function(d) { return 8; })
-    .attr("cx", function(d) { xCircle = d.x;return d.x; })
-    .attr("cy", function(d) { yCircle = d.y;return d.y+x; });
-
-   /*station.select("#poly")
-    .attr("points",generatePolygonPoints(50,50,xCircle,yCircle));*/
-
-  var label = station.select("text")
-    .attr("class", "word")
-    .attr("dy", function(d) {return d.y+x})
-    .attr("dx", function(d) {return d.x + 10})
-    .text( function(d) {
-    return d.nodes[0].name + " : " + d.nodes[0].id;
-  });
-
-  for(station in data.nodes) {
-    //console.log(data.nodes[station].nodes[0].id);
-    if(data.nodes[station].nodes[0].id == selected){
-      var northLink = $("#"+data.nodes[station].nodes[0].north);
-      var southLink = $("#"+data.nodes[station].nodes[0].south);
-      if(!isMovingNorth){
-
-        var southPath = southLink.d;
-        //console.log("#"+data.nodes[station].nodes[0].south);
-        //southLink.attr("stroke","red");
-        southLink.attr("style","stroke-width: 8; stroke: red;");
-        southLink.attr("d", function(){return calcPath(southLink[0].__data__.source, southLink[0].__data__.target,x, "north");})
-
-        northLink.attr("d", function(){return calcPath(northLink[0].__data__.source, northLink[0].__data__.target,x, "south");})
-
-      }
-
-    }
-
-  }
-
-
-   //console.log(xCircle + " ------ " + yCircle);
-  //M 474 168 256 6
-  //M 474
-  //"M "+startX+" "+startY + " "+stopX+" "+stopY;
- /* var busyLine = svg.select("#busyLine")
-    .attr("d",function(d){
-      var stopx = xCircle + x;
-      var stopy = yCircle + x;
-
-      var str = "M " + xCircle + " " + yCircle + " " + stopy + " " + stopx;
-      return str;
-    });*/
-}
 
 function getStation(selected){
   for(station in data.nodes){
