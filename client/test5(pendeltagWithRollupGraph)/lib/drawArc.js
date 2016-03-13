@@ -32,9 +32,9 @@ function stationNode(id,cx,cy,name)
 		        .range(['green','red']);
 
 
-		console.log("cx:",cx);
-		console.log("cy:",cy);
-		console.log("translate("+cx+","+ cy+")");
+		// console.log("cx:",cx);
+		// console.log("cy:",cy);
+		// console.log("translate("+cx+","+ cy+")");
 
 		var field = svg.select(id)
 			.data(fields)

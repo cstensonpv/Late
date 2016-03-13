@@ -1,0 +1,15 @@
+body {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .25;
+}
+
+.axis path,
+.axis line {
+  display: none;
+}
