@@ -31,24 +31,12 @@ app.get('/timetable/between/:siteid/:start/:stop', function(req, res) {
 	res.jsonp(httprequest.getTimetableBetween(req.params.siteid, req.params.start, req.params.stop));
 });
 
-app.get('/locationdata', function(req, res) {
-	res.jsonp(httprequest.getLocationData(res.query.siteid));
+app.get('/miscdata/:siteid', function(req, res) {
+	res.jsonp(httprequest.getMiscData(req.params.siteid));
 });
 
-app.get('/delaydata', function(req, res) {
-	if (req.query.siteid) {
-		res.jsonp(httprequest.getDelayDataSiteid(req.query.siteid));
-	} else {
-		res.jsonp(httprequest.getDelayData());
-	}
-});
-
-app.get('/delaydatafrom', function(req, res) {
-	if (req.query.siteid) {
-		res.jsonp(httprequest.getDelaysFrom(req.query.siteid));
-	} else {
-		res.jsonp("No siteid");
-	}
+app.get('/getdelayperhour/:siteid', function(req, res) {
+	res.jsonp(httprequest.getDelayPerHour(req.params.siteid));
 });
 
 var cm = -1;
