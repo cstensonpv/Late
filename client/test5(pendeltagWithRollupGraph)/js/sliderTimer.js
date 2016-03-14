@@ -5,6 +5,7 @@ var continueTimerVal = false;
 var isContinue = false;
 var timerCurrentValue = 0;
 var last = 0;
+var lastCalledMinute;
 
 var maxScaleofSlider = 1400;
 var currentPositionOfSlider = 0;
@@ -14,6 +15,33 @@ var sliderHandle = d3.select("#handle-one");
 
 
 //Functions
+
+function update(data, currTimeMin){
+  for(var key in data) {
+    if(typeof data[key].north === 'object') {
+      var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
+      var id = key.substring(3);
+      var expectedDate = parseDate(data[key].north.ExpectedDateTime);
+      var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
+      // Update timers of next 
+
+      console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
+      
+
+      // Changes color if there is a delay.
+      if(pendeltagDelay != 0) {
+        
+        d3.select("#station_"+id).style("fill","rgb(162,26,"+pendeltagDelay*10 + ")");
+        // console.log(pendeltagDelay + " *---* " + id);
+      }
+      else {
+        d3.select("#station_"+id).style("fill","rgb(26,115,0)");
+      }
+    }
+  }
+}
+
+
 function stop(){
   timer_ret_val = true;
   continueTimerVal = true;
@@ -25,7 +53,6 @@ function stop(){
 function startAnimate(){
   timer_ret_val = false;
   isContinue = true;
-  console.log(d3.select('#slider6'));
   var cntVal = parseFloat(d3.select("#path_9502_9511").attr("T"));//Can't it be cahnged to the value from slider?
   startTransition(cntVal);
   //console.log("push start: "  + timerCurrentValue);
@@ -37,7 +64,7 @@ function getDataForCurrentMinute(minutes){
   dataType: "jsonp",
   success: function(result){
     //console.log(result);
-    update(result);
+    update(result, minutes);
   },
   error:function(jqXHR,status,error){
       if (jqXHR.status === 0) {
@@ -68,6 +95,24 @@ function minutesToPercentage(minutes){
   return minutes/14.4;
 }
 
+function minutesToTime(minutes){
+  var hour = Math.floor((minutes/60)).toString();
+  if(hour.length < 2){
+    hour = "0" + hour;
+  }
+  var min = (minutes % 60).toString();
+  if(min.length < 2){
+    min = "0" + min;
+  }
+  return  hour + ":" + min;
+}
+
+function dateToMinutes(date) {
+  var hour = date.getHours();
+  var min= date.getMinutes();
+  return (hour*60) + min;
+}
+
 function updateFromSliderValue(value,isDragged){
   var calculatedTimeValue = 0;
   if(!isDragged){
@@ -76,10 +121,14 @@ function updateFromSliderValue(value,isDragged){
   else{
     calculatedTimeValue = value*60;
   }
+  var currentMinute = calculatedTimeValue.toFixed(0);
 
-  d3.select('#slider3text').text(calculatedTimeValue.toFixed(0));//*60);
-
-  getDataForCurrentMinute(calculatedTimeValue.toFixed(0));
+  d3.select('#slider3text').text(minutesToTime(currentMinute));//*60);
+  if(currentMinute != lastCalledMinute){
+    getDataForCurrentMinute(currentMinute);
+    lastCalledMinute = currentMinute;
+  }
+  
 
   //console.log("value: " + value);
   var selectPath = d3.select("#path_9502_9511");
@@ -142,23 +191,7 @@ function timerTick(elapsed) {
   return timer_ret_val;
 }
 
-function update(data){
-  for(var key in data) {
-    if(typeof data[key].north === 'object') {
-      var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
-      var expectedDate = parseDate(data[key].north.ExpectedDateTime);
-      var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
-      if(pendeltagDelay != 0) {
-        var id = key.substring(3);
-        d3.select("#station_"+id).style("fill","rgb(162,26,"+pendeltagDelay*10 + ")");
-        // console.log(pendeltagDelay + " *---* " + id);
-      }
-      else {
-        d3.select("#station_"+id).style("fill","rgb(26,115,0)");
-      }
-    }
-  }
-}
+
 
 /*function timerTick(elapsed,clicked_id,isMovingNorth,isPaused){
 console.log("elapsed: " + timerCurrentValue);
