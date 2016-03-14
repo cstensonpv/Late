@@ -27,18 +27,76 @@ var sl = new SL({
   for (var i = 0; i < lineNames.length; i++) {
     lineids[lineNames[i]] = JSON.parse(fs.readFileSync('./json/' + lineNames[i] + '.json', 'utf8'));
   }
+
+  // Add ID to all the trains
+  var d = [];
+  var currentTime;
+  var direction;
+  for(var i = 0; i < siteids.length; i++) {
+    d = data['id_' + siteids[i]];
+    if(d !== undefined) {
+      var tableTimesNorth = [];
+      var tableTimesSouth = [];
+      var southID = 0;
+      var northID = 0;
+      var minData;
+      for(var j = 0; j < d.length; j++) {
+        minData = d[j].data;
+        for (var k = 0; k < minData.length; k++) {
+          currentTime = new Date(minData[k].TimeTabledDateTime).getTime();
+          direction = minData[k].JourneyDirection;
+          // 1 = south, 2 = north
+          var indexOfSouth = -1;
+          for (var l = 0; l < tableTimesSouth.length; l++) {
+            // console.log(l);
+            if (tableTimesSouth[l].time === currentTime) {
+              indexOfSouth = l;
+            }
+          }
+          var indexOfNorth = -1;
+          for (var l = 0; l < tableTimesNorth.length; l++) {
+            if (tableTimesNorth[l].time === currentTime) {
+              indexOfNorth = l;
+            }
+          }
+          // if currentTime is in the timetable array south and the direction is to the south.
+          if (indexOfSouth !== -1 && direction === 1) {
+            data['id_' + siteids[i]][j].data[k].id = tableTimesSouth[indexOfSouth].id;
+          } else if (direction === 1){
+            tableTimesSouth.push({
+              "time": currentTime,
+              "id": southID
+            });
+            data['id_' + siteids[i]][j].data[k].id = southID;
+            southID++;
+          }
+          // If it's not in timeTableTimesNorth and the direction is to the north
+          else if (indexOfNorth > -1 && direction === 2) {
+            data['id_' + siteids[i]][j].data[k].id = tableTimesNorth[indexOfNorth].id;
+          } else if (direction === 2) {
+            tableTimesNorth.push({
+              "time": currentTime,
+              "id": northID
+            });
+            data['id_' + siteids[i]][j].data[k].id = northID;
+            northID++;
+          }
+        }
+      }
+    }
+  }
 	console.log("done.");
 
-	function addRealtimeData(d) {
-		for (var i = 0; i < data.length; i++) {
-			if (data[i][0].SiteId == d[0].SiteId) {
-				console.log("Same station " + data[i][0].SiteId + " " + d[0].SiteId);
-				data[i] = d;
-				return;
-			}
-		}
-		data.push(d);
-	}
+	// function addRealtimeData(d) {
+	// 	for (var i = 0; i < data.length; i++) {
+	// 		if (data[i][0].SiteId == d[0].SiteId) {
+	// 			console.log("Same station " + data[i][0].SiteId + " " + d[0].SiteId);
+	// 			data[i] = d;
+	// 			return;
+	// 		}
+	// 	}
+	// 	data.push(d);
+	// }
 
 	function addDelayData(d) {
 		for (var i = 0; i < totalDelays.length; i++) {
@@ -169,7 +227,64 @@ var sl = new SL({
     // }
 
     // Figure out the supposed direction of the train.
-  }
+  };
+
+  module.exports.getTimetableUntil = function(minutes, siteid) {
+    var d = data['id_' + siteid];
+    var returnVar = {
+      "south": [],
+      "north": []
+    };
+    var first = true;
+    var day;
+    for (var i = 0; i < d.length; i++) {
+      for (var j = 0; j < d[i].data.length; j++) {
+        var currentDate = new Date(d[i].data[j].TimeTabledDateTime);
+        if (first) {
+          day = currentDate.getDay();
+          first = false;
+        }
+
+        var currentTime = currentDate.getUTCHours() * 60 + currentDate.getMinutes();
+        var currentDay = currentDate.getDay();
+        if (currentDay !== day) {
+          currentTime += 24 * 60;
+        }
+        var currentID = d[i].data[j].id;
+        var currentDirection = d[i].data[j].JourneyDirection;
+        // 1 = south, 2 = north
+
+        if (currentTime <= minutes) {
+          // Check if the train already is in returnVar
+          var newTrain = true;
+          if (currentDirection === 1) {
+            for (var k = 0; k < returnVar.south.length; k++) {
+              if (currentID === returnVar.south[k].id) {
+                returnVar.south[k] = d[i].data[j];
+                newTrain = false;
+              }
+            }
+          } else if (currentDirection === 2) {
+            for (var k = 0; k < returnVar.north.length; k++) {
+              if (currentID === returnVar.north[k].id) {
+                returnVar.north[k] = d[i].data[j];
+                newTrain = false;
+              }
+            }
+          }
+
+          if (newTrain) {
+            if (currentDirection === 1) {
+              returnVar.south.push(d[i].data[j]);
+            } else if (currentDirection === 2) {
+              returnVar.north.push(d[i].data[j]);
+            }
+          }
+        }
+      }
+    }
+    return returnVar;
+  };
 }());
 
 // Location data
