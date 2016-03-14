@@ -1,15 +1,40 @@
 body {
   font-family: sans-serif;
   font-size: 10px;
+  background-color:lightblue;
+}
+
+img{
+	width:150px;
+	float: right;
+	margin-right: 40px;
+	display:inline-block;
+}
+
+h2 {
+	font-size: 32px;
+	color:white;
+}
+
+button {
+	width: 100px;
+	height:40px;
 }
 
 .link {
   fill: none;
-  stroke: #000;
-  stroke-opacity: .25;
+  stroke: white;
+  stroke-opacity: 1;
 }
 
 .axis path,
 .axis line {
   display: none;
+}
+
+.word{
+	font-size: 14px;
+	font-weight: bold;
+	fill:black;
+
 }

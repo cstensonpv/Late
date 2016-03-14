@@ -161,6 +161,63 @@ var sl = new SL({
     return values;
   }
 
+  function getTimetableBetween(siteid, start, stop) {
+    var d = data['id_' + siteid];
+    var returnVar = {
+      "south": [],
+      "north": []
+    };
+    var first = true;
+    var day;
+    for (var i = 0; i < d.length; i++) {
+      for (var j = 0; j < d[i].data.length; j++) {
+        var currentDate = new Date(d[i].data[j].TimeTabledDateTime);
+        if (first) {
+          day = currentDate.getDay();
+          first = false;
+        }
+
+        var currentTime = currentDate.getUTCHours() * 60 + currentDate.getMinutes();
+        var currentDay = currentDate.getDay();
+        if (currentDay !== day) {
+          currentTime += 24 * 60;
+        }
+        var currentID = d[i].data[j].id;
+        var currentDirection = d[i].data[j].JourneyDirection;
+        // 1 = south, 2 = north
+
+        if (currentTime >= start && currentTime <= stop) {
+          // Check if the train already is in returnVar
+          var newTrain = true;
+          if (currentDirection === 1) {
+            for (var k = 0; k < returnVar.south.length; k++) {
+              if (currentID === returnVar.south[k].id) {
+                returnVar.south[k] = d[i].data[j];
+                newTrain = false;
+              }
+            }
+          } else if (currentDirection === 2) {
+            for (var k = 0; k < returnVar.north.length; k++) {
+              if (currentID === returnVar.north[k].id) {
+                returnVar.north[k] = d[i].data[j];
+                newTrain = false;
+              }
+            }
+          }
+
+          if (newTrain) {
+            if (currentDirection === 1) {
+              returnVar.south.push(d[i].data[j]);
+            } else if (currentDirection === 2) {
+              returnVar.north.push(d[i].data[j]);
+            }
+          }
+        }
+      }
+    }
+    return returnVar;
+  }
+
 	module.exports.requestRealTimeData = function(siteid) {
 	};
 
@@ -230,60 +287,11 @@ var sl = new SL({
   };
 
   module.exports.getTimetableUntil = function(minutes, siteid) {
-    var d = data['id_' + siteid];
-    var returnVar = {
-      "south": [],
-      "north": []
-    };
-    var first = true;
-    var day;
-    for (var i = 0; i < d.length; i++) {
-      for (var j = 0; j < d[i].data.length; j++) {
-        var currentDate = new Date(d[i].data[j].TimeTabledDateTime);
-        if (first) {
-          day = currentDate.getDay();
-          first = false;
-        }
+    return getTimetableBetween(siteid, 0, minutes);
+  };
 
-        var currentTime = currentDate.getUTCHours() * 60 + currentDate.getMinutes();
-        var currentDay = currentDate.getDay();
-        if (currentDay !== day) {
-          currentTime += 24 * 60;
-        }
-        var currentID = d[i].data[j].id;
-        var currentDirection = d[i].data[j].JourneyDirection;
-        // 1 = south, 2 = north
-
-        if (currentTime <= minutes) {
-          // Check if the train already is in returnVar
-          var newTrain = true;
-          if (currentDirection === 1) {
-            for (var k = 0; k < returnVar.south.length; k++) {
-              if (currentID === returnVar.south[k].id) {
-                returnVar.south[k] = d[i].data[j];
-                newTrain = false;
-              }
-            }
-          } else if (currentDirection === 2) {
-            for (var k = 0; k < returnVar.north.length; k++) {
-              if (currentID === returnVar.north[k].id) {
-                returnVar.north[k] = d[i].data[j];
-                newTrain = false;
-              }
-            }
-          }
-
-          if (newTrain) {
-            if (currentDirection === 1) {
-              returnVar.south.push(d[i].data[j]);
-            } else if (currentDirection === 2) {
-              returnVar.north.push(d[i].data[j]);
-            }
-          }
-        }
-      }
-    }
-    return returnVar;
+  module.exports.getTimetableBetween = function(siteid, start, stop) {
+    return getTimetableBetween(siteid, start, stop);
   };
 }());
 

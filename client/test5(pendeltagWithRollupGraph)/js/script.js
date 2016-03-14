@@ -28,7 +28,8 @@ var svg = d3.select("body").append("svg")
   .attr("height", height + margin.top + margin.bottom)
   .attr("id","outerSvg")
   .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")"+"rotate("+0+","+350+","+450+")")
+
 
 
 var data = null;
@@ -65,7 +66,7 @@ function printCommuterMap(){
           stopY = y(parseFloat(target.y).toFixed(0));
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
-      .style("stroke-width", function(d) { return 4; });
+      .style("stroke-width", function(d) { return 10; });
 
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
