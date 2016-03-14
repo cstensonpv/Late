@@ -98,7 +98,7 @@ could return...
 }
 ```
 
-## Next departures from time
+### Next departures from time
 
 ```
 /datafromtime/<MINUTES>
@@ -153,5 +153,144 @@ returns...
     }
   },
 	...
+}
+```
+
+### Timetable from 00:00 to...
+
+```
+/timetable/until/<SITEID>/<MINUTES>
+```
+returns all the trains that departs from the station during the time 00:00 to <MINUTES>
+
+#### Example
+
+```
+/timetable/until/9000/1000
+```
+
+returns...
+
+```javascript
+{
+  "south": [
+    {
+      "JourneyDirection": 1,
+      "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+      "StopAreaName": "Stockholms central",
+      "StopAreaNumber": 5011,
+      "StopPointNumber": 5013,
+      "StopPointDesignation": "S",
+      "TimeTabledDateTime": "2016-03-08T00:04:00",
+      "ExpectedDateTime": "2016-03-08T00:04:00",
+      "DisplayTime": "Nu",
+      "Deviations": null,
+      "TransportMode": "TRAIN",
+      "LineNumber": "35",
+      "Destination": "Nyn\u00e4shamn",
+      "SiteId": 9000,
+      "id": 0
+    },
+		...
+	],
+  "north": [
+    {
+      "JourneyDirection": 2,
+      "SecondaryDestinationName": "Arlanda C",
+      "StopAreaName": "Stockholms central",
+      "StopAreaNumber": 5011,
+      "StopPointNumber": 5014,
+      "StopPointDesignation": "N",
+      "TimeTabledDateTime": "2016-03-08T00:09:00",
+      "ExpectedDateTime": "2016-03-08T00:09:00",
+      "DisplayTime": "Nu",
+      "Deviations": [
+        {
+          "Text": "Resa f\u00f6rbi Arlanda C kr\u00e4ver b\u00e5de UL- och SL- biljett.",
+          "Consequence": "INFORMATION",
+          "ImportanceLevel": 5
+        }
+      ],
+      "TransportMode": "TRAIN",
+      "LineNumber": "38",
+      "Destination": "Uppsala C",
+      "SiteId": 9000,
+      "id": 0
+    },
+		...
+	]
+}
+
+```
+
+### Timetable between time
+
+```
+/timetable/between/<SITEID>/<STARTMINUTES>/<STOPMINUTES>
+```
+returns all the trains between <STARTMINUTES> and <STOPMINUTES>
+
+#### Example
+```
+/timetable/until/9000/500/600
+```
+
+returns...
+```javascript
+{
+  "south": [
+    {
+      "JourneyDirection": 1,
+      "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+      "StopAreaName": "Stockholms central",
+      "StopAreaNumber": 5011,
+      "StopPointNumber": 5013,
+      "StopPointDesignation": "S",
+      "TimeTabledDateTime": "2016-03-08T08:23:00",
+      "ExpectedDateTime": "2016-03-08T08:28:00",
+      "DisplayTime": "Nu",
+      "Deviations": [
+        {
+          "Text": "T\u00e5gk\u00f6",
+          "Consequence": "INFORMATION",
+          "ImportanceLevel": 5
+        }
+      ],
+      "TransportMode": "TRAIN",
+      "LineNumber": "38",
+      "Destination": "Tumba",
+      "SiteId": 9000,
+      "id": 42
+    },
+
+		...
+
+		{
+      "JourneyDirection": 1,
+      "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+      "StopAreaName": "Stockholms central",
+      "StopAreaNumber": 5011,
+      "StopPointNumber": 5013,
+      "StopPointDesignation": "S",
+      "TimeTabledDateTime": "2016-03-08T09:49:00",
+      "ExpectedDateTime": "2016-03-08T09:49:00",
+      "DisplayTime": "Nu",
+      "Deviations": null,
+      "TransportMode": "TRAIN",
+      "LineNumber": "35",
+      "Destination": "V\u00e4sterhaninge",
+      "SiteId": 9000,
+      "id": 58
+    }
+  ],
+  "north": [
+    {
+			...
+		},
+		...
+		{
+			...
+		}
+	]
 }
 ```

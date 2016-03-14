@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<title>Circle shit</title>
+</head>
+<style>
+html, body {
+  font: 10px sans-serif;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+  // var data = [];
+//  d3.csv("data.csv", function(data){
+//    data = data.map(function(d){ return d; })
+//    console.log(data);
+//    });
+//time variables
+  //var second = 1000;
+  //var minute = 60 * second;
+  //var hour = 60 * minute;
+  //var day = 24 * hour;
+  var currentStation = 9504;
+
+  var currentDate = new Date();
+  var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
+
+  function getDelayTime (id) {
+    var url = "http://localhost:3000/timetable/"+id+"/"+ currentTime;
+    $.ajax({
+                 type: "GET",
+                 dataType: 'jsonp',
+                 cache: false,
+                 url: url,
+                 success: function (data) {
+                    console.log(data)
+                    console.log( currentTime)
+                    //var delaytime = new Date(data.south.ExpectedDateTime) - new Date(data.south.TimeTabledDateTime)
+                    //var expectTime = new Date(data.south.ExpectedDateTime)
+                    //var expecTime = (expectTime.getHours()*60*60) + (expectTime.getMinutes()*60) + (expectTime.getSeconds());
+                    //var previousTrains = ;
+                    //var upcomingTrains = ;
+                    var actualTime = (new Date().getHours()*60*60) + (new Date().getHours()*60) + (new Date().getHours());
+                    //console.log("expect"+expectTime, "actual"+actualTime)
+                    // var expectedSeconds;
+                    // console.log(expectedSeconds)
+                    //var timeToArrival = new Date(data.south.ExpectedDateTime) - new Date()
+                    update(data);
+                    
+                  }
+    });
+}
+
+  getDelayTime(currentStation);
+
+  
+  var solna = {
+  "south": [{
+    "JourneyDirection": 1,
+    "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5013,
+    "StopPointDesignation": "S",
+    "TimeTabledDateTime": "2016-03-07T20:34:00",
+    "ExpectedDateTime": "2016-03-07T20:38:00",
+    "DisplayTime": "8 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "V\u00e4sterhaninge",
+    "SiteId": 9000
+  },
+  {
+    "JourneyDirection": 1,
+    "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5013,
+    "StopPointDesignation": "S",
+    "TimeTabledDateTime": "2016-03-07T19:34:00",
+    "ExpectedDateTime": "2016-03-07T19:38:00",
+    "DisplayTime": "8 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "V\u00e4sterhaninge",
+    "SiteId": 9000
+  }],
+  "north": {
+    "JourneyDirection": 2,
+    "SecondaryDestinationName": null,
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5014,
+    "StopPointDesignation": "N",
+    "TimeTabledDateTime": "2016-03-07T00:28:00",
+    "ExpectedDateTime": "2016-03-07T00:28:00",
+    "DisplayTime": "2 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "B\u00e5lsta",
+    "SiteId": 9000
+  }
+
+  }
+
+  var south = solna["south"];
+
+  console.log(south);
+
+
+  var data = [
+  {
+    "name": "A",
+    "delay": 0,
+    "hour" : 19,
+    "minute" :  30
+  },
+  {
+    "name": "B",
+    "delay": 5,
+    "hour" : 19,
+    "minute" :  40
+  },
+  {
+    "name": "C",
+    "delay": 3,
+    "hour" : 18,
+    "minute" : 55
+  },
+  {
+    "name": "D",
+    "delay": 2,
+    "hour" : 19,
+    "minute" :  19
+  },
+  {
+    "name": "E",
+    "delay": 0,
+    "hour" : 20,
+    "minute" : 01 
+    
+  }
+];
+
+/*var fields = [
+  //{value: 300, size: 300, label: "s", update: function(date) { 
+//    console.log(date.getTime());
+  {value: 24, size: 24, label: "h", update: function(date) { return date.getHours(); }}
+  return date.getTime(); }}
+];
+*/
+
+var width = 500;
+var height = 500;     
+      
+function update(data){  
+  var svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background", "#f0f0f0") 
+    
+  var radius = 200;
+  var cx = 250;
+  var cy = 250;
+  
+  
+  function dateToMins(expected, table){
+    var diffMinutes = parseInt(expected.substring(14,16))-parseInt(table.substring(14,16))
+    var diffHours = parseInt(expected.substring(11,13))-parseInt(table.substring(11,13))
+    var diff = diffHours*60+diffMinutes;
+    console.log(diff);
+  }
+
+  var circle = svg.append("circle")
+    .attr("cx", cx)
+    .attr("cy", cy)
+    .attr("r", radius)
+    .attr("fill", "lightgreen")
+    .attr("stroke", "green")
+    .attr("stroke-width", "1px")
+    
+  var innerWidth = window.innerWidth * width/100;
+  var innerHeight = window.innerHeight * height/100;
+        
+  var lines = svg.selectAll("line")
+      .data(data["south"])
+    .enter().append("line")
+      .attr("x1", cx)
+      .attr("x2", cx)
+      .attr("y1", (cy - radius))
+      .attr("y2", function(d){
+           // console.log(d);
+            return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+          .style("stroke", "green")
+          .style("stroke-width","1px")
+          .attr("transform", function(d) { 
+            
+            svg.append("circle")
+              .attr("cx", cx)
+            .attr("cy", (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8))
+            .attr("r", 2)
+            .attr("fill", "green")
+            .attr("transform", function(){
+              //console.log(d);             
+              hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+              minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+              return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})     
+            
+        hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+        minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+        console.log("hour: " + hour + "minute: " + minute)
+          
+          return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+ }
+            
+   
+</script>
+</body>
+</html>
