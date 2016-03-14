@@ -3,7 +3,7 @@ var express = require('express');
 var httprequest = require('./httprequest');
 var app = express();
 
-var fetchInterval = 1000;
+var fetchInterval = 60000;
 var currentDate = new Date();
 
 // ];
