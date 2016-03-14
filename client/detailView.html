@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<title>Circle shit</title>
+</head>
+<style>
+
+html, body {
+  font: 10px sans-serif;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+	// var data = [];
+// 	d3.csv("data.csv", function(data){
+// 		data = data.map(function(d){ return d; })
+// 		console.log(data);
+// 		});
+
+//time variables
+	//var second = 1000;
+	//var minute = 60 * second;
+	//var hour = 60 * minute;
+	//var day = 24 * hour;
+	
+	
+	var solna = [{
+  "south": {
+    "JourneyDirection": 1,
+    "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5013,
+    "StopPointDesignation": "S",
+    "TimeTabledDateTime": "2016-03-07T20:34:00",
+    "ExpectedDateTime": "2016-03-07T20:38:00",
+    "DisplayTime": "8 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "V\u00e4sterhaninge",
+    "SiteId": 9000
+  },
+  "north": {
+    "JourneyDirection": 2,
+    "SecondaryDestinationName": null,
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5014,
+    "StopPointDesignation": "N",
+    "TimeTabledDateTime": "2016-03-07T00:28:00",
+    "ExpectedDateTime": "2016-03-07T00:28:00",
+    "DisplayTime": "2 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "B\u00e5lsta",
+    "SiteId": 9000
+  }
+},
+{
+	"south": {
+    "JourneyDirection": 1,
+    "SecondaryDestinationName": "\u00c4lvsj\u00f6",
+    "StopAreaName": "Stockholms central",
+    "StopAreaNumber": 5011,
+    "StopPointNumber": 5013,
+    "StopPointDesignation": "S",
+    "TimeTabledDateTime": "2016-03-07T19:34:00",
+    "ExpectedDateTime": "2016-03-07T19:38:00",
+    "DisplayTime": "8 min",
+    "Deviations": null,
+    "TransportMode": "TRAIN",
+    "LineNumber": "35",
+    "Destination": "V\u00e4sterhaninge",
+    "SiteId": 9000
+  }
+  }]
+
+
+
+	var data = [
+  {
+    "name": "A",
+    "delay": 0,
+    "hour" : 19,
+    "minute" :  30
+  },
+  {
+    "name": "B",
+    "delay": 5,
+    "hour" : 19,
+    "minute" :  40
+  },
+  {
+    "name": "C",
+    "delay": 3,
+    "hour" : 18,
+    "minute" : 55
+  },
+  {
+    "name": "D",
+    "delay": 2,
+    "hour" : 19,
+    "minute" :  19
+  },
+  {
+    "name": "E",
+    "delay": 0,
+    "hour" : 20,
+    "minute" : 01 
+    
+  }
+
+];
+	var width = 500;
+	var height = 500;
+	
+				
+				
+			
+	
+
+	var svg = d3.select("body")
+		.append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.style("background", "#f0f0f0") 
+		
+	var radius = 100;
+	var cx = 250;
+	var cy = 250;
+	
+
+		
+	var circle = svg.append("circle")
+		.attr("cx", cx)
+		.attr("cy", cy)
+		.attr("r", radius)
+		.attr("fill", "lightgreen")
+		.attr("stroke", "green")
+		.attr("stroke-width", "1px")
+		
+	var innerWidth = window.innerWidth * width/100;
+	var innerHeight = window.innerHeight * height/100;
+				
+	var lines = svg.selectAll("line")
+			.data(solna)
+		.enter().append("line")
+			.attr("x1", cx)
+			.attr("x2", cx)
+			.attr("y1", (cy - radius))
+        	.attr("y2", function(d){
+        		console.log(d);
+
+        		return (cy - radius - (parseInt(d["south"]["ExpectedDateTime"].substring(14,16))-
+        			parseInt(d["south"]["TimeTabledDateTime"].substring(14,16)))*8); })
+        	.style("stroke", "green")
+        	.style("stroke-width","1px")
+        	.attr("transform", function(d) { 
+        		
+        		svg.append("circle")
+        			.attr("cx", cx)
+    				.attr("cy", (cy - radius - (parseInt(d["south"]["ExpectedDateTime"].substring(14,16))-
+        			parseInt(d["south"]["TimeTabledDateTime"].substring(14,16)))*8))
+    				.attr("r", 2)
+    				.attr("fill", "green")
+    				.attr("transform", function(){
+    						console.log(d);    					
+    						hour = parseInt(d["south"]["ExpectedDateTime"].substring(11,13));
+							minute = parseInt(d["south"]["ExpectedDateTime"].substring(14,16));
+							return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})     
+						
+				hour = parseInt(d["south"]["ExpectedDateTime"].substring(11,13));
+				minute = parseInt(d["south"]["ExpectedDateTime"].substring(14,16));
+				console.log("hour: " + hour + "minute: " + minute)
+			   	
+        	return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+        	//.attr("transform", function(d, i) { return "rotate(" + (i * 360 / data.length) + " " + cx + " " + cy + ")"; })
+        	//.attr("transform", function(d, i) {return "translate(" + (cy
+
+        	
+        		
+   /*var blobs = lines.append("circle")
+    	.data(data)
+    	.attr("cx", cx + "%")
+    	.attr("cy", parseInt(cy - 10) + "%")
+    	.attr("r", parseInt(radius/3) + "%")
+    	.attr("fill", "blue")
+        .attr("transform", function(d, i) { return "rotate(" + (i * 360 / data.length) + " " + innerWidth * cx/100 + " " + innerHeight * cy/100 + ")"; })*/
+
+</script>

@@ -3,7 +3,7 @@ var express = require('express');
 var httprequest = require('./httprequest');
 var app = express();
 
-var fetchInterval = 60000;
+var fetchInterval = 1000;
 var currentDate = new Date();
 
 // ];
@@ -21,6 +21,10 @@ app.get('/datafromtime/:minutes', function(req, res) {
 
 app.get('/realtime/next/:siteid', function(req, res) {
 	res.jsonp(httprequest.getNextTrainFrom(req.params.siteid));
+});
+
+app.get('/timetable/:siteid/:minutes', function(req, res) {
+	res.jsonp(httprequest.getTimetableUntil(req.params.minutes, req.params.siteid));
 });
 
 app.get('/locationdata', function(req, res) {
