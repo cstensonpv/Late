@@ -24,10 +24,10 @@ function update(data, currTimeMin){
       var expectedDate = parseDate(data[key].north.ExpectedDateTime);
       var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
       // Update timers of next 
-
+      timeToDeparture = dateToMinutes(expectedDate) - currTimeMin;
       console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
-      
 
+      updateStationNode("#station_"+id,timeToDeparture);
       // Changes color if there is a delay.
       if(pendeltagDelay != 0) {
         
