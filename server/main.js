@@ -23,8 +23,12 @@ app.get('/realtime/next/:siteid', function(req, res) {
 	res.jsonp(httprequest.getNextTrainFrom(req.params.siteid));
 });
 
-app.get('/timetable/:siteid/:minutes', function(req, res) {
+app.get('/timetable/until/:siteid/:minutes', function(req, res) {
 	res.jsonp(httprequest.getTimetableUntil(req.params.minutes, req.params.siteid));
+});
+
+app.get('/timetable/between/:siteid/:start/:stop', function(req, res) {
+	res.jsonp(httprequest.getTimetableBetween(req.params.siteid, req.params.start, req.params.stop));
 });
 
 app.get('/locationdata', function(req, res) {
