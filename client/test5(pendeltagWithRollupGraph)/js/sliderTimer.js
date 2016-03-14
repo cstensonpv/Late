@@ -25,7 +25,7 @@ function update(data, currTimeMin){
       var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
       // Update timers of next 
 
-      console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
+      //console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
       
 
       // Changes color if there is a delay.
@@ -53,8 +53,9 @@ function stop(){
 function startAnimate(){
   timer_ret_val = false;
   isContinue = true;
-  var cntVal = parseFloat(d3.select("#path_9502_9511").attr("T"));//Can't it be cahnged to the value from slider?
+  var cntVal = lastCalledMinute; //parseFloat(d3.select("#path_9502_9511").attr("T"));//Can't it be cahnged to the value from slider?
   startTransition(cntVal);
+  console.log(cntVal);
   //console.log("push start: "  + timerCurrentValue);
 }
 
@@ -115,11 +116,12 @@ function dateToMinutes(date) {
 
 function updateFromSliderValue(value,isDragged){
   var calculatedTimeValue = 0;
-  if(!isDragged){
-    calculatedTimeValue = percentageToMinutes(value);
+  if(isDragged){
+    stop(); // Stops the autoplaying
+    calculatedTimeValue = value*60;
   }
   else{
-    calculatedTimeValue = value*60;
+    calculatedTimeValue = percentageToMinutes(value);
   }
   var currentMinute = calculatedTimeValue.toFixed(0);
 
@@ -127,33 +129,6 @@ function updateFromSliderValue(value,isDragged){
   if(currentMinute != lastCalledMinute){
     getDataForCurrentMinute(currentMinute);
     lastCalledMinute = currentMinute;
-  }
-  
-
-  //console.log("value: " + value);
-  var selectPath = d3.select("#path_9502_9511");
-  selectPath.attr("T",calculatedTimeValue);
-  var strokeStr = "rgba(255,0,0," + (value/100) + ")";
-
-  var tmp = 0.25 + (value/100);
-  selectPath
-    .transition()
-    .duration(0)
-    .style("stroke","rgb(255,0,0)")
-    .style("stroke-opacity","."+tmp)
-    .attr("T",calculatedTimeValue);
-
-  var selectPath2 = d3.select("#path_9502_9501");
-  selectPath2.attr("T",calculatedTimeValue);
-  if(value >= 50){
-    var tmp2 = 0.25 + (value-50)/100;
-    selectPath2
-      .transition()
-      .delay(0)
-      .duration(0)
-      .style("stroke","rgb(255,0,0)")
-      .style("stroke-opacity","."+tmp2)
-      .attr("T",calculatedTimeValue);
   }
 }
 
