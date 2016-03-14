@@ -21,6 +21,16 @@ button {
 	height:40px;
 }
 
+#startButton{
+	display:inline-block;
+	width:100px;
+}
+
+#stopButton {
+	display:inline-block;
+	width:100px;
+}
+
 .link {
   fill: none;
   stroke: white;
