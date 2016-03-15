@@ -66,7 +66,7 @@ svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
 var color = d3.scale.linear()
   .domain([0, 4])
-  .range(["green", "red"]);
+  .range(["#f5c959", "#c74f2f"]);
 
 var currentDate = new Date();
 var currentHour = currentDate.getHours();
@@ -112,7 +112,11 @@ function change(data) {
       if (currentHour <= d.data.id) {
         return "#dadada";
       } else {
-        return color(d.data.mean);
+        if (d.data.mean === 0) {
+          return "#6dbb56";
+        } else {
+          return color(d.data.mean);
+        }
       }
     })
     .style('stroke', 'white')
