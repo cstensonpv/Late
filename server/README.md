@@ -294,3 +294,8 @@ returns...
 	]
 }
 ```
+
+### Delays
+```
+/delayperhour/<SITEID>
+```

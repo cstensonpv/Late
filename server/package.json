@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
+    "progress": "^1.1.8",
     "sl-api": "^1.0.3"
   },
   "repository": {

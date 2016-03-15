@@ -2,6 +2,12 @@
 var SL = require('sl-api');
 var fs = require('fs');
 var siteids = require('./siteids');
+var ProgressBar = require('progress');
+
+var readingbar = new ProgressBar('reading data: [:bar] :percent', {
+  "total": siteids.length,
+  "incomplete": ' '
+});
 
 var sl = new SL({
   realtimeInformation: "a759eafc14934dd681cb2f542e99330b",
@@ -14,14 +20,17 @@ var sl = new SL({
 (function() {
 	var data = [];
 	var totalDelays = [];
+  var delaysPerHour = {};
+  var timetable = {};
 	var currentMinute = 0;
   var lineNames = ['J35', 'J36', 'J37'];
 	var lineids = [];
 
 	// Load the data
-	console.log("loading data...");
+	// console.log("loading data...");
 	for (var i = 0; i < siteids.length; i++) {
 		data['id_' + siteids[i]] = JSON.parse(fs.readFileSync('./data/' + siteids[i] + '.json', 'utf8'));
+    readingbar.tick();
 	}
 
   for (var i = 0; i < lineNames.length; i++) {
@@ -85,6 +94,16 @@ var sl = new SL({
       }
     }
   }
+  // console.log("init data...");
+  // Timetable
+  for (var i = 0; i < siteids.length; i++) {
+    timetable['id_' + siteids[i]] = getTimetable(siteids[i]);
+  }
+  // Delaydata
+  for (var i = 0; i < siteids.length; i++) {
+    delaysPerHour['id_' + siteids[i]] = getDelayPerHour(siteids[i]);
+  }
+
 	console.log("done.");
 
 	function addDelayData(d) {
@@ -150,12 +169,14 @@ var sl = new SL({
     return values;
   }
 
-  function getTimetableBetween(siteid, start, stop) {
+  function getTimetable(siteid) {
     var d = data['id_' + siteid];
     var returnVar = {
       "south": [],
       "north": []
     };
+    var start = 0;
+    var stop = 1440;
     var first = true;
     var day;
     for (var i = 0; i < d.length; i++) {
@@ -182,6 +203,7 @@ var sl = new SL({
             for (var k = 0; k < returnVar.south.length; k++) {
               if (currentID === returnVar.south[k].id) {
                 returnVar.south[k] = d[i].data[j];
+                returnVar.south[k].minutes = currentTime;
                 newTrain = false;
               }
             }
@@ -189,6 +211,7 @@ var sl = new SL({
             for (var k = 0; k < returnVar.north.length; k++) {
               if (currentID === returnVar.north[k].id) {
                 returnVar.north[k] = d[i].data[j];
+                returnVar.north[k].minutes = currentTime;
                 newTrain = false;
               }
             }
@@ -197,8 +220,10 @@ var sl = new SL({
           if (newTrain) {
             if (currentDirection === 1) {
               returnVar.south.push(d[i].data[j]);
+              returnVar.south[returnVar.south.length - 1].minutes = currentTime;
             } else if (currentDirection === 2) {
               returnVar.north.push(d[i].data[j]);
+              returnVar.north[returnVar.north.length - 1].minutes = currentTime;
             }
           }
         }
@@ -207,8 +232,32 @@ var sl = new SL({
     return returnVar;
   }
 
+  function getTimetableBetween(siteid, start, stop) {
+    var d = timetable['id_' + siteid];
+
+    var returnVar = {
+      "south": [],
+      "north": []
+    };
+
+    for (var i = 0; i < d.south.length; i++) {
+      console.log(d.south[i].minutes);
+      if (d.south[i].minutes >= start && d.south[i].minutes <= stop) {
+        returnVar.south.push(d.south[i]);
+      }
+    }
+
+    for (var i = 0; i < d.north.length; i++) {
+      if (d.north[i].minutes >= start && d.north[i].minutes <= stop) {
+        returnVar.north.push(d.north[i]);
+      }
+    }
+
+    return returnVar;
+  }
+
   function getDelayPerHour(siteid) {
-    var d = getTimetableBetween(siteid, 0, 1440);
+    var d = timetable['id_' + siteid];
     var hours = {
       "south": [],
       "north": []
@@ -313,35 +362,4 @@ var sl = new SL({
   module.exports.getDelayPerHour = function(siteid) {
     return getDelayPerHour(siteid);
   };
-}());
-
-// Location data
-(function() {
-	var siteid;
-
-	module.exports.requestLocationData = function(search) {
-		console.log(search);
-		sl.locationLookup({searchstring: search})
-		.then(function(data) {
-			data = JSON.parse(data);
-			console.log(data.ResponseData);
-			siteid = data.ResponseData[0].SiteId;
-			console.log("location data updated");
-			// console.log(siteid);
-		})
-		.fail(console.error)
-		.done();
-	};
-
-	module.exports.getLocationData = function() {
-		return siteid;
-	};
-}());
-
-(function() {
-	module.exports.requestTrip = function(originId, destId) {
-		sl.tripPlanner.trip({originId: originId, destId: destId}, function(err, results) {
-			console.log(results);
-		});
-	};
 }());
