@@ -7,7 +7,9 @@ var timerCurrentValue = 0;
 var last = 0;
 var lastCalledMinute;
 
-var maxScaleofSlider = 1400;
+var speed = 60 ;//times normal speed!
+
+var maxScaleofSlider = (3600*24)*10/speed;
 var currentPositionOfSlider = 0;
 
 var sliderPlace = d3.select('#slider6').call(slider);
@@ -25,11 +27,21 @@ function update(data, currTimeMin){
       var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
       // Update timers of next 
       timeToArrival = dateToMinutes(expectedDate) - currTimeMin;
-      console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
+      //console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
+      var stationId = "#station_"+id;
+      if(typeof allArcs[stationId] != 'object'){
+        console.log("Station id does nor exists: "+stationId);
+      }else{
+        allArcs[stationId].updateArc(timeToArrival*60);
+        if(allArcs[stationId].stopVar){
+          allArcs[stationId].start();
+        }
+      }
 
-      updateStationNode("#station_"+id,timeToArrival);
+      //updateStationNode("#station_"+id,timeToArrival);
       // Changes color if there is a delay.
       if(pendeltagDelay != 0) {
+
         
         d3.select("#station_"+id).style("fill","rgb(162,26,"+pendeltagDelay*10 + ")");
         // console.log(pendeltagDelay + " *---* " + id);
@@ -43,10 +55,17 @@ function update(data, currTimeMin){
 
 
 function stop(){
+  console.log("Stop!");
   timer_ret_val = true;
   continueTimerVal = true;
   last = timerCurrentValue;
   last *= 100;
+
+  //Stops all the arcs!
+  for(key in allArcs){
+    console.log(key);
+    allArcs[key].stop();
+  }
   //console.log("push stop: "  + timerCurrentValue);
 }
 
@@ -56,6 +75,11 @@ function startAnimate(){
   var cntVal = lastCalledMinute; //parseFloat(d3.select("#path_9502_9511").attr("T"));//Can't it be cahnged to the value from slider?
   startTransition(cntVal);
   console.log(cntVal);
+
+  //Starts all arcs
+  for(key in allArcs){
+    allArcs[key].start();
+  }  
   //console.log("push start: "  + timerCurrentValue);
 }
 

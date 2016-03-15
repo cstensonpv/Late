@@ -1,23 +1,31 @@
-var Arc = function(id, cx, cy, name){ 
-  var counter = 0;
-  var maxTime = 5*60;
+var Arc = function(id, cxArc, cyArc, name){
+  var _this = this;
+  this.name = name;
+  this.id = id;
+  this.cxArc = cxArc;
+  this.cyArc = cyArc;
+  console.log("created new arc"); 
+  this.counter = 0;
+  var maxTime = 60*10;
+  this.stopVar = true;
 
   var fields = [
     //{value: 24, size: 24, label: "h", update: function(date) { return date.getHours(); }},
     //{value: 60, size: 60, label: "m", update: function(date) { return date.getMinutes(); }},
-    {value: maxTime, size: maxTime, label: "s", update: function() { return increaseCounter(); }}
+    {name: this.name, value: maxTime, size: maxTime, label: "s", update: function() { return increaseCounter(); }}
   ];
 
   //trainLeavesAt-getDateRightNow
 
-  var width = 960;
-        height = 620;
-  // var svg = d3.select("body").append("svg")
+  var width = 90;
+        height = 30;
+  var svg = d3.select("#innerSvg").append("g")
+  // console.dir(svg);
   //       .attr("width", width)
   //       .attr("height", height);
   var arc = d3.svg.arc()
-      .innerRadius(width / 6.5-70)
-      .outerRadius(width / 6.5 - 5)
+      .innerRadius(4)
+      .outerRadius(12)
       .startAngle(0)
       .endAngle(function(d) { return (d.value / d.size) * 2 * Math.PI; });
 
@@ -27,8 +35,10 @@ var Arc = function(id, cx, cy, name){
   var field = svg.selectAll(".field")
       .data(fields)
     .enter().append("g")
-      .attr("transform", function(d, i) { return "translate("+cx+","+cy+")"})
+      .attr("transform", function(d, i) { return "translate("+cxArc+","+cyArc+")"})
       .attr("class", "field");
+
+  // console.dir(field);
 
   field.append("path")
       .attr("class", "path path--background")
@@ -37,13 +47,12 @@ var Arc = function(id, cx, cy, name){
   var path = field.append("path")
       .attr("class", "path path--foreground");
 
-  var label = field.append("text")
-      .attr("class", "label")
-      .attr("dy", ".35em");
+  // var label = field.append("text")
+  //     .attr("class", "label")
+  //     .attr("dy", ".35em");
 
-  update();
-
-  function update() {
+  this.update = function() {
+    //console.log("update arc)");
 
     field
         .each(function(d) { d.previous = d.value, d.value = d.update(); });
@@ -53,14 +62,19 @@ var Arc = function(id, cx, cy, name){
         .duration(1000)
         .attrTween("d", arcTween);
 
-    label
-        .text(function(d) { return d.value + d.label; });
+    // label
+    //     .text(function(d) { return d.name + (d.value + d.label) });
 
-    setTimeout(update, 1000);
+    if(!_this.stopVar){
+      setTimeout(_this.update, 1000);     
+    }
+ 
   };
 
+  this.update();
+
   function arcTween(b) {
-    if(b.previous != maxTime){
+    if(b.previous <= maxTime-60){
       var i = d3.interpolate({value: b.previous}, b);
       return function(t) {
         return arc(i(t));
@@ -70,15 +84,34 @@ var Arc = function(id, cx, cy, name){
   }
 
   function increaseCounter(){
-    if(counter >= maxTime){
-      return counter;
+    if(_this.counter >= maxTime){
+      _this.counter = 0;
+      _this.stop();
+      return _this.counter;
+    }else if(_this.counter >= maxTime-2*60){
+      _this.counter = maxTime;
     }else{
-      counter++;
+      _this.counter++;
     }
-    return counter;
+    //console.log(_this.name + ": "+_this.counter);
+    return _this.counter;
   }
 
-  this.updateArc = function(value){
-    counter = value;
+  this.updateArc = function(timeToDeparture){
+    if(maxTime >= timeToDeparture*60/speed){
+      _this.counter = maxTime - timeToDeparture*60/speed;
+    }
+    
+  }
+  this.stop = function() {
+    _this.stopVar = true;
+  }
+  this.start = function() {
+    console.log("start");
+    _this.stopVar = false;
+    _this.update();
+  }
+  this.getCurrentTimeLeft = function() {
+    return _this.counter;
   }
 }

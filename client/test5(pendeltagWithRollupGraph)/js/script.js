@@ -6,6 +6,7 @@ var slider = d3.slider().on("slide", function(event, value) {
     updateFromSliderValue(value,true);
   }).axis(true).min(0).max(24);
 
+var allArcs = {};
 var margin = {top: 90, right: 240, bottom: 90, left: 240},
     width = 960 - margin.left - margin.right,
     t = .5,
@@ -30,6 +31,7 @@ var svg = d3.select("body").append("svg")
   //.style("display", "block")
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")"+"rotate("+0+","+350+","+450+")")
+  .attr("id", "innerSvg");
 
 
 
@@ -46,6 +48,8 @@ window.onload = function() {
 function printCommuterMap(){
   d3.json("data/pendeltag.json", function(error, social) {
     if (error) throw error;
+
+    data = social;
 
     x.domain([getMinOfArray(social.nodes.map(fx)),getMaxOfArray(social.nodes.map(fx))])
     x.range([0, width]);
@@ -67,7 +71,8 @@ function printCommuterMap(){
           stopY = y(parseFloat(target.y).toFixed(0));
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
-      .style("stroke-width", function(d) { return 10; });
+      .style("stroke-width", function(d) { return 10; })
+      .on("mouseover", function(d){console.log(d.source + " : "+ d.target)});
 
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
@@ -82,8 +87,8 @@ function printCommuterMap(){
 
     var label = stations.append("text")
     .attr("class", "word")
-    .attr("dy", function(d) {return 5 })
-    .attr("dx", function(d) {return 10 })
+    .attr("dy", function(d) {return y(fy(d)) + 5 })
+    .attr("dx", function(d) {return x(fx(d)) + 10 })
     .attr("id", function(d) {return "text"+d.id })
     .text( function(d) {
       return d.name;
@@ -95,9 +100,11 @@ function printCommuterMap(){
     Third parameter is the name of the station
     */
     for(var i = 0; i < social.nodes.length; i++) {
-      var one = x(social.nodes[i].x);
-      var two = y(social.nodes[i].y);
-      stationNode("#station_"+social.nodes[i].id, x(social.nodes[i].x) , y(social.nodes[i].y), social.nodes[i].name);
+      var id = "#station_"+social.nodes[i].id;
+      var arc = new Arc(id, x(social.nodes[i].x) , y(social.nodes[i].y), social.nodes[i].name);
+      //arc.start();
+      allArcs[id] =arc;
+      //console.log(allArcs);
     }
 
 
@@ -137,8 +144,8 @@ function getMinOfArray(numArray) {
 
 
 
-// function getStation(selected){
-//   for(station in data.nodes){
+// function geta(selected){
+//   for(a in data.nodes){
 //     if(data.nodes[station].nodes[0].id == selected){
 //       return data.nodes[station].nodes[0];
 //     }

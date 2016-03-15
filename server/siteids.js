@@ -11,8 +11,8 @@ module.exports = [
 	9502, // Upplands väsby
 	9501, // Rosersberg
 	9500, // Märsta
-	// 9511, // Arlanda -- Maybe we should not include these two stations
-	// 6086, // Uppsala
+	9511, // Arlanda -- Maybe we should not include these two stations
+	6086, // Uppsala
 
 	9325, // Sundbyberg
 	9704, // Spånga
