@@ -54,6 +54,21 @@ h2 {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
 <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="test5(pendeltagWithRollupGraph)/lib/d3.slider.js"></script>
+<!--<img src="test5(pendeltagWithRollupGraph)/latelogo1.png">
+    <div>
+      <div><h2>Selected time: <span id="slider3text">0</span></h2></div>
+      <div id="startButton"><button type="button" onclick="startAnimate()">Start</button></div>
+      <div id="stopButton"><button type="button" onclick="stop()">Stop</button></div>
+    </div>
+    <div id="slider6"></div>-->
+
+    <!-- Import js scripts -->
+    <script src="test5(pendeltagWithRollupGraph)/lib/drawArc.js"></script>
+    <script src="test5(pendeltagWithRollupGraph)/lib/d3.min.js"></script>
+    <script src="test5(pendeltagWithRollupGraph)/lib/rollup.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
 
 <div id="tooltip"><!--
 	<p id="title" style="font-size: 40px;">T36 Märsta</p>
@@ -63,19 +78,27 @@ h2 {
 </div>
 
 <p id="mouseoverDisp"></p>
+<!--<script>
+    
+    var slider = d3.slider().on("slide", function(event, value) {
+    updateFromSliderValue(value,true);
+  }).axis(true).min(0).max(24);
 
+</script>
+
+<script src="test5(pendeltagWithRollupGraph)/js/sliderTimer.js"></script>-->
 <script>
 
 	
 
 
-	var currentStation = 9504;
+	var currentStation = 9000;
 
   	var currentDate = new Date();
   	var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
 
 	function getDelayTime (id) {
-    var url = "http://localhost:3000/timetable/until/"+id+"/"+ currentTime; //instead of until you can use between to get between 2 times
+    var url = "http://localhost:3000/timetable/until/"+id+"/"+ currentTime;//minutesToTime(currentMinute);//currentTime; //instead of until you can use between to get between 2 times
     $.ajax({
                  type: "GET",
                  dataType: 'jsonp',
@@ -150,8 +173,7 @@ h2 {
 			.attr("x1", cx)
 			.attr("x2", cx)
 			.attr("y1", (cy - radius))
-        	.attr("y2", function(d){
-        		return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+        	.attr("y2", (cy-radius))
         	.style("stroke-width","2px")
         	.attr("transform", function(d) {
 						
@@ -159,19 +181,27 @@ h2 {
 				minute = parseInt(d["ExpectedDateTime"].substring(14,16));
 			   	
         	return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+
+        lines.transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+            .attr("y2", function(d){
+                return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
         	
         svg.selectAll("g").append("circle")
         			.attr("class", "blob")
         			.attr("cx", cx)
-    				.attr("cy", function(d){
-    				return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8)})
+    				.attr("cy", cy-radius)
     				.attr("r", 5)
+                    .style("opacity",0)
     				.attr("transform", function(d){
     						hour = parseInt(d["ExpectedDateTime"].substring(11,13));
 							minute = parseInt(d["ExpectedDateTime"].substring(14,16));
 							return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})     
-        	//.attr("transform", function(d, i) { return "rotate(" + (i * 360 / data.length) + " " + cx + " " + cy + ")"; })
-        	//.attr("transform", function(d, i) {return "translate(" + (cy
+
+        d3.selectAll(".blob").transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+            .attr("cy", function(d){
+                return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+            .style("opacity",1)
+
     
     var trainz = svg.selectAll(".trainz")
 
@@ -190,13 +220,6 @@ h2 {
                 .style("opacity", "1")
                 .style("left", (d3.event.pageX - 75) + "px")     
                 .style("top", (d3.event.pageY - 40) + "px")
-
-            // d3.select(this).selectAll(".blob").transition()
-//              .duration(300)
-//              .attr("cy", function(d){
-//                  console.log("bajs")
-//                  return (cy - radius - (parseInt(d["south"]["ExpectedDateTime"].substring(14,16))-
-//                  parseInt(d["south"]["TimeTabledDateTime"].substring(14,16)))*24)})
         })
         .on("mousemove", function(d){
             d3.select("#mouseoverDisp")
@@ -214,7 +237,7 @@ h2 {
                 .style("stroke", "green")
 
             d3.select(this).transition()
-                .duration(200)
+                .duration(300)
                 .style("fill", "orange")
                 .style("stroke", "orange")
 
@@ -231,7 +254,7 @@ h2 {
            
 
    }
-
+   
     
 
 </script>
