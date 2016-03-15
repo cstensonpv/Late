@@ -87,17 +87,6 @@ var sl = new SL({
   }
 	console.log("done.");
 
-	// function addRealtimeData(d) {
-	// 	for (var i = 0; i < data.length; i++) {
-	// 		if (data[i][0].SiteId == d[0].SiteId) {
-	// 			console.log("Same station " + data[i][0].SiteId + " " + d[0].SiteId);
-	// 			data[i] = d;
-	// 			return;
-	// 		}
-	// 	}
-	// 	data.push(d);
-	// }
-
 	function addDelayData(d) {
 		for (var i = 0; i < totalDelays.length; i++) {
 			if (totalDelays[i].siteid == d.siteid) {
@@ -161,75 +150,7 @@ var sl = new SL({
     return values;
   }
 
-	module.exports.requestRealTimeData = function(siteid) {
-	};
-
-	module.exports.getDelaysFrom = function(siteid) {
-		var d = getRealTimeData(siteid);
-		var lineNumbers = ["35", "36", "37"];
-		var lines = [];
-
-		for (var i = 0; i < lineNumbers.length; i++) {
-			lines['J' + lineNumbers[i]] = [];
-		}
-
-		for (var i = 0; i < d.length; i++) {
-			if (lineNumbers.indexOf(d[i].LineNumber) > -1) {
-				lines['J' + d[i].LineNumber].push(d[i]);
-			}
-		}
-
-		for (var i = 0; i < lineNumbers.length; i++) {
-
-		}
-	};
-
-	module.exports.getDelayDataSiteid = function(siteid) {
-		for (var i = 0; i < totalDelays.length; i++) {
-			if (totalDelays[i].siteid == siteid) {
-				return totalDelays[i];
-			}
-		}
-		return "No data found";
-	};
-
-	module.exports.getDelayData = function() {
-		console.log(totalDelays);
-		return totalDelays;
-	};
-
-	module.exports.getRealTimeData = function(siteid) {
-		return getRealTimeData(siteid);
-	};
-
-	module.exports.setCurrentMinute = function(n) {
-		currentMinute = n;
-	};
-
-  module.exports.getDataFromTime = function(minutes) {
-    var d = {};
-    for (var i = 0; i < siteids.length; i++) {
-      d['id_' + siteids[i]] = getNextTrainFrom(minutes, siteids[i]);
-    }
-    return d;
-  };
-
-  module.exports.getNextTrainFrom = function(siteid) {
-    return getNextTrainFrom(currentMinute, siteid);
-    // TODO: return for all the directions on y-shaped stations.
-    // Go trough all the lines to find the line we need to look at and
-    // the direction it's going.
-    // for (var i = 0; i < lineids.length; i++) {
-    //   // If fid and tid is in lineids[i]
-    //   if (lineids[i].indexOf(fid) > -1 && lineids[i].indexOf(tid) > -1) {
-    //     isInLine.push(lineNames[i]);
-    //   }
-    // }
-
-    // Figure out the supposed direction of the train.
-  };
-
-  module.exports.getTimetableUntil = function(minutes, siteid) {
+  function getTimetableBetween(siteid, start, stop) {
     var d = data['id_' + siteid];
     var returnVar = {
       "south": [],
@@ -254,7 +175,7 @@ var sl = new SL({
         var currentDirection = d[i].data[j].JourneyDirection;
         // 1 = south, 2 = north
 
-        if (currentTime <= minutes) {
+        if (currentTime >= start && currentTime <= stop) {
           // Check if the train already is in returnVar
           var newTrain = true;
           if (currentDirection === 1) {
@@ -284,6 +205,113 @@ var sl = new SL({
       }
     }
     return returnVar;
+  }
+
+  function getDelayPerHour(siteid) {
+    var d = getTimetableBetween(siteid, 0, 1440);
+    var hours = {
+      "south": [],
+      "north": []
+    };
+
+    // init hours
+    for (var i = 0; i < 24; i++) {
+      hours.south.push({
+        "totalDelay": 0,
+        "delayedTrains": 0,
+        "totalTrains": 0,
+        "hour": i,
+        "meanDelay": 0
+      });
+      hours.north.push({
+        "totalDelay": 0,
+        "delayedTrains": 0,
+        "totalTrains": 0,
+        "hour": i,
+        "meanDelay": 0
+      });
+    }
+    var currentHour = 0;
+    for (var i = 0; i < d.south.length; i++) {
+      var expectedDate = new Date(d.south[i].ExpectedDateTime);
+      var timetableDate = new Date(d.south[i].TimeTabledDateTime);
+      var timetableHour = timetableDate.getUTCHours();
+      var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
+      var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
+      var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
+
+      if (tempDelay > 0) {
+        hours.south[timetableHour].totalDelay += tempDelay;
+        hours.south[timetableHour].delayedTrains++;
+        hours.south[timetableHour].totalTrains++;
+      } else {
+        hours.south[timetableHour].totalTrains++;
+      }
+    }
+    for (var i = 0; i < d.north.length; i++) {
+      var expectedDate = new Date(d.north[i].ExpectedDateTime);
+      var timetableDate = new Date(d.north[i].TimeTabledDateTime);
+      var timetableHour = timetableDate.getUTCHours();
+      var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
+      var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
+      var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
+
+      if (tempDelay > 0) {
+        hours.north[timetableHour].totalDelay += tempDelay;
+        hours.north[timetableHour].delayedTrains++;
+        hours.north[timetableHour].totalTrains++;
+      } else {
+        hours.north[timetableHour].totalTrains++;
+      }
+    }
+
+    for (var i = 0; i < 24; i++) {
+      if (hours.south[i].totalTrains !== 0) {
+        hours.south[i].meanDelay = hours.south[i].totalDelay / hours.south[i].totalTrains;
+      }
+      if (hours.north[i].totalTrains !== 0) {
+        hours.north[i].meanDelay = hours.north[i].totalDelay / hours.north[i].totalTrains;
+      }
+    }
+
+    return hours;
+  }
+
+	module.exports.getRealTimeData = function(siteid) {
+		return getRealTimeData(siteid);
+	};
+
+	module.exports.setCurrentMinute = function(n) {
+		currentMinute = n;
+	};
+
+  module.exports.getDataFromTime = function(minutes) {
+    var d = {};
+    for (var i = 0; i < siteids.length; i++) {
+      d['id_' + siteids[i]] = getNextTrainFrom(minutes, siteids[i]);
+    }
+    return d;
+  };
+
+  module.exports.getNextTrainFrom = function(siteid) {
+    return getNextTrainFrom(currentMinute, siteid);
+    // TODO: return for all the directions on y-shaped stations.
+  };
+
+  module.exports.getTimetableUntil = function(minutes, siteid) {
+    return getTimetableBetween(siteid, 0, minutes);
+  };
+
+  module.exports.getTimetableBetween = function(siteid, start, stop) {
+    return getTimetableBetween(siteid, start, stop);
+  };
+
+  module.exports.getMiscData = function(siteid) {
+    return getMiscData(siteid);
+  };
+
+  module.exports.getDelayPerHour = function(siteid) {
+    return getDelayPerHour(siteid);
   };
 }());
 

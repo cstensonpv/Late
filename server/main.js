@@ -3,7 +3,7 @@ var express = require('express');
 var httprequest = require('./httprequest');
 var app = express();
 
-var fetchInterval = 1000;
+var fetchInterval = 60000;
 var currentDate = new Date();
 
 // ];
@@ -23,28 +23,20 @@ app.get('/realtime/next/:siteid', function(req, res) {
 	res.jsonp(httprequest.getNextTrainFrom(req.params.siteid));
 });
 
-app.get('/timetable/:siteid/:minutes', function(req, res) {
+app.get('/timetable/until/:siteid/:minutes', function(req, res) {
 	res.jsonp(httprequest.getTimetableUntil(req.params.minutes, req.params.siteid));
 });
 
-app.get('/locationdata', function(req, res) {
-	res.jsonp(httprequest.getLocationData(res.query.siteid));
+app.get('/timetable/between/:siteid/:start/:stop', function(req, res) {
+	res.jsonp(httprequest.getTimetableBetween(req.params.siteid, req.params.start, req.params.stop));
 });
 
-app.get('/delaydata', function(req, res) {
-	if (req.query.siteid) {
-		res.jsonp(httprequest.getDelayDataSiteid(req.query.siteid));
-	} else {
-		res.jsonp(httprequest.getDelayData());
-	}
+app.get('/miscdata/:siteid', function(req, res) {
+	res.jsonp(httprequest.getMiscData(req.params.siteid));
 });
 
-app.get('/delaydatafrom', function(req, res) {
-	if (req.query.siteid) {
-		res.jsonp(httprequest.getDelaysFrom(req.query.siteid));
-	} else {
-		res.jsonp("No siteid");
-	}
+app.get('/getdelayperhour/:siteid', function(req, res) {
+	res.jsonp(httprequest.getDelayPerHour(req.params.siteid));
 });
 
 var cm = -1;
