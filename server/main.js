@@ -35,7 +35,7 @@ app.get('/miscdata/:siteid', function(req, res) {
 	res.jsonp(httprequest.getMiscData(req.params.siteid));
 });
 
-app.get('/getdelayperhour/:siteid', function(req, res) {
+app.get('/delayperhour/:siteid', function(req, res) {
 	res.jsonp(httprequest.getDelayPerHour(req.params.siteid));
 });
 

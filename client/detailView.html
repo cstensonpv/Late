@@ -38,35 +38,34 @@ h2 {
   position: absolute;
   opacity: 1;
 }
+
+.path--background {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.label {
+  font: 24px sans-serif;
+  text-anchor: middle;
+}
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
 <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-<div id="tooltip">
+<div id="tooltip"><!--
 	<p id="title" style="font-size: 40px;">T36 Märsta</p>
 	<p style="font-size: 20px;">Arrived at:</p>
 	<p id="dispArrival" style="font-size: 48px;">- 17:48 -</p>
-	<p style="font-size: 18px; color: red;"id="dispDelay">(2 min late)</p>
+	<p style="font-size: 18px; color: red;"id="dispDelay">(2 min late)</p>-->
 </div>
 
 <p id="mouseoverDisp"></p>
 
 <script>
 
-	// var data = [];
-// 	d3.csv("data.csv", function(data){
-// 		data = data.map(function(d){ return d; })
-// 		console.log(data);
-// 		});
-
-//time variables
-	//var second = 1000;
-	//var minute = 60 * second;
-	//var hour = 60 * minute;
-	//var day = 24 * hour;
-	
 	
 	var solna = [{
   "south": {
@@ -235,51 +234,13 @@ h2 {
     "SiteId": 9000
   }
   }]
-
-
-
-	var data = [
-  {
-    "name": "A",
-    "delay": 0,
-    "hour" : 19,
-    "minute" :  30
-  },
-  {
-    "name": "B",
-    "delay": 5,
-    "hour" : 19,
-    "minute" :  40
-  },
-  {
-    "name": "C",
-    "delay": 3,
-    "hour" : 18,
-    "minute" : 55
-  },
-  {
-    "name": "D",
-    "delay": 2,
-    "hour" : 19,
-    "minute" :  19
-  },
-  {
-    "name": "E",
-    "delay": 0,
-    "hour" : 20,
-    "minute" : 01 
-    
-  }
-
-];
-
 	var currentStation = 9504;
 
   	var currentDate = new Date();
   	var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
 
 	function getDelayTime (id) {
-    var url = "http://localhost:3000/timetable/"+id+"/"+ currentTime;
+    var url = "http://localhost:3000/timetable/until/"+id+"/"+ currentTime; //instead of until you can use between to get between 2 times
     $.ajax({
                  type: "GET",
                  dataType: 'jsonp',
@@ -298,7 +259,7 @@ h2 {
                     // var expectedSeconds;
                     // console.log(expectedSeconds)
                     //var timeToArrival = new Date(data.south.ExpectedDateTime) - new Date()
-                    update(data);
+                    drawData(data);
                     
                   }
     });
@@ -320,9 +281,10 @@ h2 {
 		.attr("height", height)
 		.style("background", "#f0f0f0") 
 		
-	var radius = 250;
+	
 	var cx = width/2;
 	var cy = height/2;
+    var radius = height/Math.PI;
 	
 	function dateToMins(expected, table){
     var diffMinutes = parseInt(expected.substring(14,16))-parseInt(table.substring(14,16))
@@ -330,7 +292,7 @@ h2 {
     var diff = diffHours*60+diffMinutes;
 	return diff;
   }
-		
+
 	var circle = svg.append("circle")
 		.attr("cx", cx)
 		.attr("cy", cy)
@@ -338,10 +300,13 @@ h2 {
 		.attr("fill", "rgba(50,200,50,0.11)")
 		.attr("stroke", "green")
 		.attr("stroke-width", "2px")
+        .attr("id", "bigCircle")
 		
 	
+     
+        
 		
-	function update(data){
+	function drawData(data){
 				
 	var lines = svg.selectAll("g")
 			.data(data["south"])
@@ -372,58 +337,71 @@ h2 {
 							return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})     
         	//.attr("transform", function(d, i) { return "rotate(" + (i * 360 / data.length) + " " + cx + " " + cy + ")"; })
         	//.attr("transform", function(d, i) {return "translate(" + (cy
-        	
-    }
-        
-	var trainz = svg.selectAll(".trainz")
+    
+    var trainz = svg.selectAll(".trainz")
 
-	var tooltip = d3.select("#tooltip")
-		.style("top", cy + "px")
-		.style("left", cx * 0.8 + "px")
-        	
+    var side = Math.sqrt(Math.pow((radius*2),2)/2);
+    var tooltip = d3.select("#tooltip")
+        .style("top", cy-side/2 + "px")
+        .style("left", cx-side/2  + "px")
+        .style("width", side+"px")
+        .style("height", side+"px")
+
+
     trainz
-    	.on("mouseover", function(d){
-    		d3.select("#mouseoverDisp")
-    			.text(d["ExpectedDateTime"])
-    			.style("opacity", "1")
-    			.style("left", (d3.event.pageX - 75) + "px")     
+        .on("mouseover", function(d){
+            d3.select("#mouseoverDisp")
+                .text(d["ExpectedDateTime"].substring(11,16))
+                .style("opacity", "1")
+                .style("left", (d3.event.pageX - 75) + "px")     
                 .style("top", (d3.event.pageY - 40) + "px")
-            // d3.select(this).selectAll(".blob").transition()
-//             	.duration(300)
-//             	.attr("cy", function(d){
-//             		console.log("bajs")
-//     				return (cy - radius - (parseInt(d["south"]["ExpectedDateTime"].substring(14,16))-
-//         			parseInt(d["south"]["TimeTabledDateTime"].substring(14,16)))*24)})
-    	})
-    	.on("mousemove", function(d){
-    		d3.select("#mouseoverDisp")
-    			.style("opacity", 1)
-    	})
-    	.on("mouseout", function(d){
-    		d3.select("#mouseoverDisp").transition()
-    			.duration(500)
-    			.style("opacity", 0)
-    	})
-    	.on("click", function(d){
-    		trainz.transition()
-    			.duration(200)
-    			.style("fill", "green")
-				.style("stroke", "green")
 
-    		d3.select(this).transition()
-    			.duration(200)
-    			.style("fill", "orange")
-    			.style("stroke", "orange")
-    			
-    		d3.select("#tooltip").transition()
-    			.duration(250)
-    			.style("opacity", "1")
-    	})
+            // d3.select(this).selectAll(".blob").transition()
+//              .duration(300)
+//              .attr("cy", function(d){
+//                  console.log("bajs")
+//                  return (cy - radius - (parseInt(d["south"]["ExpectedDateTime"].substring(14,16))-
+//                  parseInt(d["south"]["TimeTabledDateTime"].substring(14,16)))*24)})
+        })
+        .on("mousemove", function(d){
+            d3.select("#mouseoverDisp")
+                .style("opacity", 1)
+        })
+        .on("mouseout", function(d){
+            d3.select("#mouseoverDisp").transition()
+                .duration(500)
+                .style("opacity", 0)
+        })
+        .on("click", function(d){
+            trainz.transition()
+                .duration(200)
+                .style("fill", "green")
+                .style("stroke", "green")
+
+            d3.select(this).transition()
+                .duration(200)
+                .style("fill", "orange")
+                .style("stroke", "orange")
+
+            d3.select("#tooltip")
+                .html('<p id="title" style="font-size: '+side/11+'px;">Train to '+d["Destination"]+
+                    '</p><p style="font-size: '+side/20+'px;">Arrived at:</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+                    +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
+                    +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
+                
+            d3.select("#tooltip").transition()
+                .duration(250)
+                //.style("opacity", "0.5")
+            })
+           
+
+   }
+
     
 
 </script>
 
 
-
 </body>
 </html>
+
