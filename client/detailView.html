@@ -38,6 +38,17 @@ h2 {
   position: absolute;
   opacity: 1;
 }
+
+.path--background {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.label {
+  font: 24px sans-serif;
+  text-anchor: middle;
+}
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -223,7 +234,7 @@ h2 {
     "SiteId": 9000
   }
   }]
-	var currentStation = 9000;
+	var currentStation = 9504;
 
   	var currentDate = new Date();
   	var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
@@ -248,7 +259,7 @@ h2 {
                     // var expectedSeconds;
                     // console.log(expectedSeconds)
                     //var timeToArrival = new Date(data.south.ExpectedDateTime) - new Date()
-                    update(data);
+                    drawData(data);
                     
                   }
     });
@@ -270,9 +281,10 @@ h2 {
 		.attr("height", height)
 		.style("background", "#f0f0f0") 
 		
-	var radius = 250;
+	
 	var cx = width/2;
 	var cy = height/2;
+    var radius = height/Math.PI;
 	
 	function dateToMins(expected, table){
     var diffMinutes = parseInt(expected.substring(14,16))-parseInt(table.substring(14,16))
@@ -291,8 +303,10 @@ h2 {
         .attr("id", "bigCircle")
 		
 	
+     
+        
 		
-	function update(data){
+	function drawData(data){
 				
 	var lines = svg.selectAll("g")
 			.data(data["south"])
@@ -325,12 +339,15 @@ h2 {
         	//.attr("transform", function(d, i) {return "translate(" + (cy
     
     var trainz = svg.selectAll(".trainz")
-    console.log(trainz);
 
+    var side = Math.sqrt(Math.pow((radius*2),2)/2);
     var tooltip = d3.select("#tooltip")
-        .style("top", cy + "px")
-        .style("left", cx  + "px")
-            
+        .style("top", cy-side/2 + "px")
+        .style("left", cx-side/2  + "px")
+        .style("width", side+"px")
+        .style("height", side+"px")
+
+
     trainz
         .on("mouseover", function(d){
             d3.select("#mouseoverDisp")
@@ -366,10 +383,10 @@ h2 {
                 .style("fill", "orange")
                 .style("stroke", "orange")
 
-             d3.select("#tooltip")
-                .html('<p id="title" style="font-size: 40px;">Train to '+d["Destination"]+
-                    '</p><p style="font-size: 20px;">Arrived at:</p><p id="dispArrival" style="font-size: 48px;">'
-                    +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: 18px; color:'
+            d3.select("#tooltip")
+                .html('<p id="title" style="font-size: '+side/11+'px;">Train to '+d["Destination"]+
+                    '</p><p style="font-size: '+side/20+'px;">Arrived at:</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+                    +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
                     +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
                 
             d3.select("#tooltip").transition()
@@ -378,16 +395,13 @@ h2 {
             })
            
 
-
-
-    }
-        
+   }
 
     
 
 </script>
 
 
-
 </body>
 </html>
+
