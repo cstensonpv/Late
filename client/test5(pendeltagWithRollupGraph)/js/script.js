@@ -46,22 +46,22 @@ window.onload = function() {
 //End Main
 
 function printCommuterMap(){
-  d3.json("data/pendeltag.json", function(error, social) {
+  d3.json("data/pendeltag.json", function(error, pendeltag) {
     if (error) throw error;
 
-    data = social;
+    data = pendeltag;
 
-    x.domain([getMinOfArray(social.nodes.map(fx)),getMaxOfArray(social.nodes.map(fx))])
+    x.domain([getMinOfArray(pendeltag.nodes.map(fx)),getMaxOfArray(pendeltag.nodes.map(fx))])
     x.range([0, width]);
-    y.domain([getMaxOfArray(social.nodes.map(fy)),getMinOfArray(social.nodes.map(fy))]);
+    y.domain([getMaxOfArray(pendeltag.nodes.map(fy)),getMinOfArray(pendeltag.nodes.map(fy))]);
     y.range([0,height]);
 
     //Append the links between circles
     svg.selectAll(".link")
-      .data(social.links)
+      .data(pendeltag.links)
       .enter().append("path")
       .attr("class", "link")
-      .attr("id", function(d,i) {return "path_"+social.nodes[d.source].id+"_"+social.nodes[d.target].id;})
+      .attr("id", function(d,i) {return "path_"+pendeltag.nodes[d.source].id+"_"+pendeltag.nodes[d.target].id;})
       .attr("d", function(d,i) {
         var source = social.nodes[d.source];
         var target = social.nodes[d.target];
@@ -76,7 +76,7 @@ function printCommuterMap(){
 
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
-      .data(social.nodes)
+      .data(pendeltag.nodes)
       .enter()
       .append("g")
       .attr("id",function(d,i){
@@ -87,8 +87,16 @@ function printCommuterMap(){
 
     var label = stations.append("text")
     .attr("class", "word")
-    .attr("dy", function(d) {return y(fy(d)) + 5 })
-    .attr("dx", function(d) {return x(fx(d)) + 10 })
+    .attr("dy", function(d) {
+      return y(fy(d)) + d.labelY })
+    .attr("dx", function(d) {
+        if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
+            return x(fx(d)) -d.labelX   
+        }
+        else{
+            return x(fx(d)) + 15
+        }
+    })
     .attr("id", function(d) {return "text"+d.id })
     .text( function(d) {
       return d.name;
@@ -99,9 +107,9 @@ function printCommuterMap(){
     id of the station. Second paramter is the "cy" parameter.
     Third parameter is the name of the station
     */
-    for(var i = 0; i < social.nodes.length; i++) {
-      var id = "#station_"+social.nodes[i].id;
-      var arc = new Arc(id, x(social.nodes[i].x) , y(social.nodes[i].y), social.nodes[i].name);
+    for(var i = 0; i < pendeltag.nodes.length; i++) {
+      var id = "#station_"+pendeltag.nodes[i].id;
+      var arc = new Arc(id, x(pendeltag.nodes[i].x) , y(pendeltag.nodes[i].y), pendeltag.nodes[i].name);
       //arc.start();
       allArcs[id] =arc;
       //console.log(allArcs);

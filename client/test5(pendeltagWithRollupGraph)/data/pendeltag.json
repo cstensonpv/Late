@@ -4,6 +4,8 @@
       "name": "Märsta",
       "x" : "210",
       "y" : "15",
+      "labelX" : "65",
+      "labelY" : 5,
       "south" : 10
     },
 
@@ -11,6 +13,8 @@
       "name": "Rosersberg",
       "x" : "245",
       "y" : "12.5",
+      "labelX" : "100",
+      "labelY" : -5,
       "north" : 10,
       "south" : 9
     },
@@ -19,6 +23,7 @@
       "name": "Upplands Väsby",
       "x" : "320",
       "y" : "10.5",
+      "labelY" : -5,
       "north" : 9,
       "south" : 8
     },
@@ -27,6 +32,7 @@
       "name": "Rotebro",
       "x" : "290",
       "y" : "9",
+      "labelY" : 5,
       "north" : 8,
       "south" : 7
     },
@@ -35,6 +41,7 @@
       "name": "Norrviken",
       "x" : "275",
       "y" : "7.5",
+      "labelY" : -5,
       "north" : 7,
       "south" : 6
     },
@@ -43,6 +50,7 @@
       "name": "Häggvik",
       "x" : "245",
       "y" : "6",
+      "labelY" : 5,
       "north" : 6,
       "south" : 5
     },
@@ -51,6 +59,7 @@
       "name": "Sollentuna",
       "x" : "230",
       "y" : "4.5",
+      "labelY" : -5,
       "north" : 5,
       "south" : 4
     },
@@ -59,6 +68,7 @@
       "name": "Helenelund",
       "x" : "200",
       "y" : "3",
+      "labelY" : 5,
       "north" : 4,
       "south" : 3
     },
@@ -67,6 +77,7 @@
       "name": "Ulriksdal",
       "x" : "185",
       "y" : "1.5",
+      "labelY" : -5,
       "north" : 3,
       "south" : 2
     },
@@ -75,6 +86,7 @@
       "name": "Solna",
       "x" : "155",
       "y" : "0",
+      "labelY" : 5,
       "north" : 2,
       "south" : 1
     },
@@ -83,6 +95,7 @@
       "name": "Karlberg",
       "x" : "100",
       "y" : "-1.5",
+      "labelY" : 15,
       "north" : 1,
       "south" : 0
     },
@@ -91,6 +104,7 @@
         "name": "Stockholm C",
         "x" : "100",
         "y" : "-3",
+        "labelY" : 5,
         "north" : 0,
         "south" : -1
     },
@@ -98,6 +112,7 @@
       "name": "Stockholm södra",
       "x" : "100",
       "y" : "-4.5",
+      "labelY" : 15,
       "north" : -1,
       "south" : -2
     },
@@ -105,13 +120,15 @@
       "name": "Årstaberg",
       "x" : "100",
       "y" : "-6",
+      "labelY" : 5,
       "north" : -2,
       "south" : -3
     },
     {"id": 9529,
       "name": "Älvsjö",
       "x" : "100",
-      "y" : "-7",
+      "y" : "-7.5",
+      "labelY" : 15,
       "north" : -2,
       "south" : -3
     },
@@ -119,6 +136,8 @@
       "name": "Stuvsta",
       "x" : "45",
       "y" : "-9",
+      "labelX" : "70",
+      "labelY" : 5,
       "north" : -3,
       "south" : -4
     },
@@ -126,6 +145,8 @@
       "name": "Huddinge",
       "x" : "15",
       "y" : "-10.5",
+      "labelX" : "85",
+      "labelY" : 15,
       "north" : -4,
       "south" : -5
     },
@@ -133,6 +154,8 @@
       "name": "Flemmingsberg",
       "x" : "0",
       "y" : "-12",
+      "labelX" : "125",
+      "labelY" : 5,
       "north" : -5,
       "south" : -6
     },
@@ -140,6 +163,8 @@
       "name": "Tullinge",
       "x" : "-30",
       "y" : "-13.5",
+      "labelX" : "70",
+      "labelY" : 15,
       "north" : -6,
       "south" : -7
     },
@@ -147,6 +172,8 @@
       "name": "Tumba",
       "x" : "-45",
       "y" : "-15",
+      "labelX" : "60",
+      "labelY" : 5,
       "north" : -7,
       "south" : -8
     },
@@ -154,6 +181,8 @@
       "name": "Rönninge",
       "x" : "-75",
       "y" : "-16.5",
+      "labelX" : "85",
+      "labelY" : 15,
       "north" : -8,
       "south" : -9
     },
@@ -161,6 +190,8 @@
       "name": "Östertälje",
       "x" : "-90",
       "y" : "-18",
+      "labelX" : "85",
+      "labelY" : 5,
       "north" : -9,
       "south" : -10
     },
@@ -168,6 +199,8 @@
       "name": "Södertälje hamn",
       "x" : "-120",
       "y" : "-19.5",
+      "labelX" : "-15",
+      "labelY" : 15,
       "north" : -10,
       "south" : -11
     },
@@ -175,6 +208,8 @@
       "name": "Södertälje C ",
       "x" : "-270",
       "y" : "-19.5",
+      "labelX" : "100",
+      "labelY" : 15,
       "north" : -11,
       "south" : -12
     },
@@ -182,6 +217,8 @@
       "name": "Södertälje syd",
       "x" : "-135",
       "y" : "-21",
+      "labelX" : "115",
+      "labelY" : 5,
       "north" : -12,
       "south" : -13
     },
@@ -189,6 +226,8 @@
       "name": "Järna",
       "x" : "-165",
       "y" : "-22.5",
+      "labelX" : "55",
+      "labelY" : 15,
       "north" : -12,
       "south" : -13
     },
@@ -196,6 +235,8 @@
       "name": "Mölnbo",
       "x" : "-180",
       "y" : "-24",
+      "labelX" : "70",
+      "labelY" : 5,
       "north" : -13,
       "south" : -14
     },
@@ -203,6 +244,8 @@
       "name": "Gnesta",
       "x" : "-210",
       "y" : "-25.5",
+      "labelX" : "65",
+      "labelY" : 15,
       "north" : -14,
       "south" : -15
     },
@@ -210,6 +253,7 @@
       "name": "Farsta strand",
       "x" : "155",
       "y" : "-9",
+      "labelY" : 5,
       "north" : -3,
       "south" : -16
     },
@@ -217,6 +261,7 @@
       "name": "Trångsund",
       "x" : "185",
       "y" : "-10.5",
+      "labelY" : 15,
       "north" : -16,
       "south" : -17
     },
@@ -224,6 +269,7 @@
       "name": "Skogås",
       "x" : "200",
       "y" : "-12",
+      "labelY" : 5,
       "north" : -17,
       "south" : -18
     },
@@ -231,6 +277,7 @@
       "name": "Handen",
       "x" : "230",
       "y" : "-13.5",
+      "labelY" : 15,
       "north" : -18,
       "south" : -19
     },
@@ -238,6 +285,7 @@
       "name": "Jordbro",
       "x" : "245",
       "y" : "-15",
+      "labelY" : 5,
       "north" : -19,
       "south" : -20
     },
@@ -245,68 +293,78 @@
       "name": "Västerhaninge",
       "x" : "275",
       "y" : "-16.5",
+      "labelY" : 15,
       "north" : -20,
       "south" : -21
     },
     {"id": 9727,
       "name": "Krigslida",
-      "x" : "245",
-      "y" : "-13",
+      "x" : "290",
+      "y" : "-18",
+      "labelY" : 5,
       "north" : -20,
       "south" : -21
     },
     {"id": 9726,
       "name": "Tungelsta",
-      "x" : "245",
-      "y" : "-14",
+      "x" : "320",
+      "y" : "-19.5",
+      "labelY" : 15,
       "north" : -20,
       "south" : -21
     },
     {"id": 9725,
       "name": "Hemfosa",
-      "x" : "290",
-      "y" : "-18",
+      "x" : "335",
+      "y" : "-21",
+      "labelY" : 5,
       "north" : -21,
       "south" : -22
     },
     {"id": 9724,
       "name": "Segersäng",
-      "x" : "320",
-      "y" : "-19.5",
+      "x" : "365",
+      "y" : "-22.5",
+      "labelY" : 15,
       "north" : -22,
       "south" : -23
     },
     {"id": 9723,
       "name": "Ösmo",
-      "x" : "335",
-      "y" : "-21",
+      "x" : "380",
+      "y" : "-24",
+      "labelY" : 5,
       "north" : -23,
       "south" : -24
     },
     {"id": 9722,
       "name": "Nynäsgård",
-      "x" : "365",
-      "y" : "-22.5",
+      "x" : "410",
+      "y" : "-25.5",
+      "labelY" : 15,
       "north" : -24,
       "south" : -25
     },
     {"id": 9721,
       "name": "Gröndalsviken",
-      "x" : "380",
-      "y" : "-24",
+      "x" : "425",
+      "y" : "-27",
+      "labelY" : 5,
       "north" : -25,
       "south" : -26
     },
     {"id": 9720,
       "name": "Nynäshamn",
-      "x" : "410",
-      "y" : "-25.5",
+      "x" : "455",
+      "y" : "-28.5",
+      "labelY" : 15,
       "north" : -26
     },
     {"id":9511,
       "name": "Arlanda C",
       "x" : "365",
       "y" : "12",
+      "labelY" : 5,
       "north" : 10,
       "south" : 9
     },
@@ -314,30 +372,38 @@
       "name": "Knivsta",
       "x" : "395",
       "y" : "13.5",
+      "labelY" : -5,
       "south" : 10
     },
     {"id":6086,
       "name": "Uppsala C",
       "x" : "410",
       "y" : "15",
+      "labelY" : 5,
       "south" : 10
     },
     {"id":9325,
       "name": "Sundbyberg",
       "x" : "45",
       "y" : "0",
+      "labelX" : "105",
+      "labelY" : 5,
       "south" : 10
     },
     {"id":9704,
       "name": "Spånga",
       "x" : "15",
       "y" : "1.5",
+      "labelX" : "70",
+      "labelY" : -5,
       "south" : 10
     },
     {"id":9703,
       "name": "Barkarby",
       "x" : "0",
       "y" : "3",
+      "labelX" : "80",
+      "labelY" : 5,
       "north" : 10,
       "south" : 9
     },
@@ -345,18 +411,24 @@
       "name": "Jakobsberg C",
       "x" : "-30",
       "y" : "4.5",
+      "labelX" : "115",
+      "labelY" : -5,
       "south" : 10
     },
     {"id":9701,
       "name": "Kallhäll",
       "x" : "-45",
       "y" : "6",
+      "labelX" : "70",
+      "labelY" : 5,
       "south" : 10
     },
     {"id":9700,
       "name": "Kungsängen",
       "x" : "-75",
       "y" : "7.5",
+      "labelX" : "105",
+      "labelY" : -5,
       "north" : 10,
       "south" : 9
     },
@@ -364,12 +436,16 @@
       "name": "Bro",
       "x" : "-90",
       "y" : "9",
+      "labelX" : "40",
+      "labelY" : 5,
       "south" : 10
     },
     {"id":9710,
       "name": "Bålsta",
       "x" : "-120",
       "y" : "10.5",
+      "labelX" : "60",
+      "labelY" : -5,
       "south" : 10
     }
   ],
