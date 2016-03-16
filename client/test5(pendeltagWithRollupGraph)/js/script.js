@@ -24,23 +24,23 @@ var yAxis = d3.svg.axis()
   .scale(y)
   .orient("left");
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#one").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .attr("id","outerSvg")
-  //.style("display", "block")
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")"+"rotate("+0+","+350+","+450+")")
   .attr("id", "innerSvg");
 
-
+//svg.call(zoom.event);
 
 var data = null;
-
+active = d3.select(null);
+var isAStationClicked = false;
 
 //Main
 window.onload = function() {
-  printCommuterMap(); 
+  printCommuterMap();
   startTransition(0);
 };
 //End Main
@@ -48,8 +48,6 @@ window.onload = function() {
 function printCommuterMap(){
   d3.json("data/pendeltag.json", function(error, pendeltag) {
     if (error) throw error;
-
-    data = pendeltag;
 
     x.domain([getMinOfArray(pendeltag.nodes.map(fx)),getMaxOfArray(pendeltag.nodes.map(fx))])
     x.range([0, width]);
@@ -65,16 +63,15 @@ function printCommuterMap(){
       .attr("d", function(d,i) {
         var source = pendeltag.nodes[d.source];
         var target = pendeltag.nodes[d.target];
-        var startX = x(parseFloat(source.x)),
-          startY = y(parseFloat(source.y)),
-          stopX = x(parseFloat(target.x));
-          stopY = y(parseFloat(target.y));
+        var startX = x(parseFloat(source.x).toFixed(0)),
+          startY = y(parseFloat(source.y).toFixed(0)),
+          stopX = x(parseFloat(target.x).toFixed(0));
+          stopY = y(parseFloat(target.y).toFixed(0));
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return 10; })
-      .style("stroke", "grey")
-      //.on("mouseover", function(d){console.log(d.source + " : "+ d.target)});
-
+      .style("stroke", "grey");
+      data = pendeltag.nodes;
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
       .data(pendeltag.nodes)
@@ -84,24 +81,25 @@ function printCommuterMap(){
 
         return "station_" + d.id;
       })
+      .on("click",clicked)
       .classed("station", true);
 
-    var label = stations.append("text")
-    .attr("class", "word")
-    .attr("dy", function(d) {
-      return y(fy(d)) + d.labelY })
-    .attr("dx", function(d) {
-        if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
-            return x(fx(d)) -d.labelX   
-        }
-        else{
-            return x(fx(d)) + 15
-        }
-    })
-    .attr("id", function(d) {return "text"+d.id })
-    .text( function(d) {
-      return d.name;
-    });
+      var label = stations.append("text")
+      .attr("class", "word")
+      .attr("dy", function(d) {
+        return y(fy(d)) + d.labelY })
+      .attr("dx", function(d) {
+          if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
+              return x(fx(d)) -d.labelX
+          }
+          else{
+              return x(fx(d)) + 15
+          }
+      })
+      .attr("id", function(d) {return "text"+d.id })
+      .text( function(d) {
+        return d.name;
+      });
 
     /*
     This part adds the interactive circles to the "map". First parameter is the
@@ -149,38 +147,39 @@ function getMinOfArray(numArray) {
   return Math.min.apply(null, numArray);
 }
 
+function clicked(d,i)
+{
+  if(!isAStationClicked){
+    isAStationClicked = true;
+    if (active.node() === this){
+      return reset();
+    }
+    active.classed("active", false);
 
+    active = d3.select(this).classed("active", true);
 
+    var idOfSelected = d3.select(this).attr("id");
+    console.log(idOfSelected);//something like station_9710
 
+    var siteid = idOfSelected.substring(8,idOfSelected.length);
+    var detailView = new DetailView(siteid, "north");
 
-// function geta(selected){
-//   for(a in data.nodes){
-//     if(data.nodes[station].nodes[0].id == selected){
-//       return data.nodes[station].nodes[0];
-//     }
-//   }
-//   return "";
-// }
+    var text = d3.select(this).select("#text"+siteid);
+    text.style("fill","red");
+  }
+  else
+  {
+    reset();
+  }
+}
 
-// function getStationIndex(selected){
-//   for(station in data.nodes){
-//     if(data.nodes[station].nodes[0].id == selected){
-//       return station;
-//     }
-//   }
-//   return "";
-// }
+function reset(){
 
-// function calcPath(source,target,x,dir) {
-//   var startX = source.x.toFixed(0),
-//   startY = parseInt(source.y.toFixed(0)),
-//   stopX = target.x.toFixed(0);
-//   stopY = parseInt(target.y.toFixed(0));
-
-//   if(dir === "north"){
-//     stopY += x;
-//   }else if(dir === "south"){
-//     startY += x;
-//   }
-//   return "M "+startX+" "+startY + " "+stopX+" "+stopY;
-// }
+  //console.log("reset called: " + );
+  var text = active.select("#text"+active.attr("id").substring(8,active.attr("id").length));
+  text.style("fill","black");
+  active.classed("active", false);
+  active = d3.select(null);
+  d3.select("#detailView").remove();
+  isAStationClicked = false;
+}

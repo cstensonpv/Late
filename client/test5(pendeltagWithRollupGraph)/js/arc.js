@@ -10,6 +10,8 @@ var Arc = function(id, cxArc, cyArc, name){
   var maxTime = 60*10;
   this.stopVar = true;
 
+  var isArcClicked = false;
+
   var fields = [
     {name: this.name, value: maxTime, size: maxTime, label: "s", update: function() { return increaseCounter(); }}
   ];
@@ -28,7 +30,8 @@ var Arc = function(id, cxArc, cyArc, name){
       .data(fields)
     .enter().append("g")
       .attr("transform", function(d, i) { return "translate("+cxArc+","+cyArc+")"})
-      .attr("class", "field");
+      .attr("class", "field")
+      .attr("id","arc_"+id.substring(1,id.length));
 
   field.append("path")
       .attr("class", "path path--background")
@@ -52,7 +55,7 @@ var Arc = function(id, cxArc, cyArc, name){
        field
         .each(function(d) { d.previous = d.value, d.value = d.update(); });
 
-      setTimeout(_this.update, 1000/speed);   
+      setTimeout(_this.update, 1000/speed);
     }
   };
 
@@ -93,8 +96,8 @@ var Arc = function(id, cxArc, cyArc, name){
     }else{
       // console.log("time to departure not in range of arc for station " + _this.name);
     }
-    
-    
+
+
   }
   this.stop = function() {
     //console.log("stop");
@@ -108,4 +111,8 @@ var Arc = function(id, cxArc, cyArc, name){
   this.getCurrentTimeLeft = function() {
     return _this.counter;
   }
+
+
+
 }
+
