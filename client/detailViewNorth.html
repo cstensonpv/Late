@@ -214,7 +214,7 @@ function updateCircleData (siteid){
       var slices = [];
       for (var i = 0; i < 24; i++) {
         var slice = {
-          "mean": data.south[i].meanDelay,
+          "mean": data.north[i].meanDelay,
           "value": 1,
           "id": i,
           "zoom": false,
@@ -329,7 +329,7 @@ function changeCircle(data) {
 function drawData(data){
 
   var lines = svg.selectAll("g")
-		.data(data["south"])
+		.data(data["north"])
 	.enter().append("g").attr("class", "trainz")
 		.append("line")
 		.attr("x1", cx)
@@ -425,7 +425,7 @@ function stareIntoTheAbyss(data){
 function drawAll(data){
 
   var lines = svg.selectAll("g")
-    .data(data["south"])
+    .data(data["north"])
   .enter().append("g").attr("class", "trainz")
     .append("line")
     .attr("x1", cx)
