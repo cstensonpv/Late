@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<title>Circle shit</title>
+</head>
+<style>
+
+html, body {
+  font: 10px sans-serif;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  font-family: "Century Gothic";
+}
+
+h1 {
+  font-size: 36px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.trainz {
+  fill: green;
+  stroke: green;
+}
+
+#tooltip {
+  position: absolute;
+  text-align: center;
+  opacity: 1;
+  pointer-events: none;
+}
+
+#mouseoverDisp {
+  position: absolute;
+  opacity: 1;
+}
+
+.path--background {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.label {
+  font: 24px sans-serif;
+  text-anchor: middle;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="test5(pendeltagWithRollupGraph)/lib/d3.slider.js"></script>
+<!--<img src="test5(pendeltagWithRollupGraph)/latelogo1.png">
+    <div>
+      <div><h2>Selected time: <span id="slider3text">0</span></h2></div>
+      <div id="startButton"><button type="button" onclick="startAnimate()">Start</button></div>
+      <div id="stopButton"><button type="button" onclick="stop()">Stop</button></div>
+    </div>
+    <div id="slider6"></div>-->
+
+    <!-- Import js scripts -->
+    <script src="test5(pendeltagWithRollupGraph)/lib/drawArc.js"></script>
+    <script src="test5(pendeltagWithRollupGraph)/lib/d3.min.js"></script>
+    <script src="test5(pendeltagWithRollupGraph)/lib/rollup.js"></script>
+
+
+<div id="tooltip"><!--
+	<p id="title" style="font-size: 40px;">T36 Märsta</p>
+	<p style="font-size: 20px;">Arrived at:</p>
+	<p id="dispArrival" style="font-size: 48px;">- 17:48 -</p>
+	<p style="font-size: 18px; color: red;"id="dispDelay">(2 min late)</p>-->
+</div>
+
+<p id="mouseoverDisp"></p>
+<!--<script>
+
+    var slider = d3.slider().on("slide", function(event, value) {
+    updateFromSliderValue(value,true);
+  }).axis(true).min(0).max(24);
+
+</script>
+
+<script src="test5(pendeltagWithRollupGraph)/js/sliderTimer.js"></script>-->
+<script>
+
+
+
+
+var currentStation = 9504;
+
+var currentDate = new Date();
+var currentHour = currentDate.getHours();
+var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
+
+var pie = d3.layout.pie()
+  .sort(null)
+  .value(function(d) {
+    // console.log(d);
+    return d.value;
+  });
+
+var color = d3.scale.linear()
+  .domain([0, 4])
+  .range(["#f5c959", "#c74f2f"]);
+
+function getDelayTime (id) {
+  var url = "http://localhost:3000/timetable/until/"+id+"/"+ currentTime;//minutesToTime(currentMinute);//currentTime; //instead of until you can use between to get between 2 times
+  $.ajax({
+    type: "GET",
+    dataType: 'jsonp',
+    cache: false,
+    url: url,
+    success: function (data) {
+      console.log(data)
+      console.log( currentTime)
+      //var delaytime = new Date(data.south.ExpectedDateTime) - new Date(data.south.TimeTabledDateTime)
+      //var expectTime = new Date(data.south.ExpectedDateTime)
+      //var expecTime = (expectTime.getHours()*60*60) + (expectTime.getMinutes()*60) + (expectTime.getSeconds());
+      //var previousTrains = ;
+      //var upcomingTrains = ;
+      var actualTime = (new Date().getHours()*60*60) + (new Date().getHours()*60) + (new Date().getHours());
+      //console.log("expect"+expectTime, "actual"+actualTime)
+      // var expectedSeconds;
+      // console.log(expectedSeconds)
+      //var timeToArrival = new Date(data.south.ExpectedDateTime) - new Date()
+      drawData(data);
+
+    }
+  });
+}
+getDelayTime(currentStation);
+
+function getAllTime (id) {
+  var url = "http://localhost:3000/timetable/until/"+id+"/"+ 24*60;//minutesToTime(currentMinute);//currentTime; //instead of until you can use between to get between 2 times
+  $.ajax({
+    type: "GET",
+    dataType: 'jsonp',
+    cache: false,
+    url: url,
+    success: function (data) {
+      console.log(data)
+  //    drawAll(data);
+    }
+  });
+}
+getAllTime(currentStation);
+
+
+
+
+var widthPercent = 100;
+var heightPercent = 100;
+
+var width = window.innerWidth * widthPercent/100;
+var height = window.innerHeight * heightPercent/100;
+console.log("w: " + innerWidth + " h: " + innerHeight)
+var cx = width/2;
+var cy = height/2;
+var radius = height/Math.PI;
+
+var svg = d3.select("body")
+	.append("svg")
+	.attr("width", width)
+	.attr("height", height)
+	.style("background", "#f0f0f0")
+
+svg.append("g")
+  .attr("class", "slices")
+  .attr("transform", "translate(" + cx + "," + cy + ")");
+
+
+
+var arc = d3.svg.arc()
+  .outerRadius(radius * 1)
+  .innerRadius(radius * 0.6);
+
+// var outerArc = d3.svg.arc()
+//   .innerRadius(radius)
+//   .outerRadius(radius);
+
+
+
+function dateToMins(expected, table){
+  var diffMinutes = parseInt(expected.substring(14,16))-parseInt(table.substring(14,16))
+  var diffHours = parseInt(expected.substring(11,13))-parseInt(table.substring(11,13))
+  var diff = diffHours*60+diffMinutes;
+return diff;
+}
+
+// var circle = svg.append("circle")
+// 	.attr("cx", cx)
+// 	.attr("cy", cy)
+// 	.attr("r", radius)
+// 	.attr("fill", "rgba(50,200,50,0.11)")
+// 	.attr("stroke", "green")
+// 	.attr("stroke-width", "2px")
+//       .attr("id", "bigCircle")
+
+
+function updateCircleData (siteid){
+  var url = "http://localhost:3000/delayperhour/" + siteid;
+  $.ajax({
+    type: "GET",
+    dataType: 'jsonp',
+    cache: false,
+    url: url,
+    success: function (data) {
+      var slices = [];
+      for (var i = 0; i < 24; i++) {
+        var slice = {
+          "mean": data.north[i].meanDelay,
+          "value": 1,
+          "id": i,
+          "zoom": false,
+          "zoomable": (currentHour > i)
+        };
+        slices.push(slice);
+      }
+      changeCircle(slices);
+    }
+  });
+}
+updateCircleData(currentStation);
+
+function changeCircle(data) {
+
+  /* ------- PIE SLICES -------*/
+  var slice = svg.select(".slices").selectAll("path.slice")
+    .data(pie(data));
+    if(data[0].value === 1 && data[1].value === 1){      
+    }
+    else{
+        for(var i = 0; i < 24; i++){
+          if(data[i].value === 1){
+            var selectedHour = i;
+          }
+        }
+
+      }
+
+  d3.select("#tooltip").html("");
+  
+  if(selectedHour){
+    d3.selectAll(".trainz")
+      .transition()
+      .ease("linear")
+      .duration(1000)
+      .attr("transform", function(d) {
+        hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+        minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+        if(hour == selectedHour){
+          var angleDiff = minute/60*360 - (hour*60 + minute) / (24*60) * 360;
+          console.log("anglediff: " + angleDiff)
+          console.log("cx: " + cx + " cy: " + cy)
+          console.log(data.zoom)
+          return "rotate(" + angleDiff + " " + cx + " " + cy + ")"; }
+
+        else{ 
+           d3.select(this).style("opacity", 0)
+          return "rotate(" + 0 + " " + cx + " " + cy + ")";}
+        })
+  }
+  else if(selectedHour == null){
+    d3.selectAll(".trainz").remove()
+    getDelayTime(currentStation);
+  }
+
+  slice.enter()
+    .insert("path")
+    .style("fill", function(d) {
+      if (currentHour <= d.data.id) {
+        return "#dadada";
+      } else {
+        if (d.data.mean === 0) {
+          return "#6dbb56";
+        } else {
+          return color(d.data.mean);
+        }
+      }
+    })
+    .style('stroke', 'white')
+    .style('stroke-width', '1')
+    .attr("class", "slice")
+    .on('click', function(d) {
+      if (d.data.zoomable) {
+        if (d.data.zoom) {
+          d.data.zoom = false;
+          selectedHour = null;
+          for (var i = 0; i < 24; i++) {
+            data[i].value = 1;
+          }
+        } else {
+          d.data.zoom = true;
+          for (var i = 0; i < 24; i++) {
+            if (data[i].id === d.data.id) {
+              data[i].value = 1;
+            } else {
+              data[i].value = 0;
+            }
+          }
+        }
+        changeCircle(data);
+      }
+    });
+
+  slice
+    .transition().duration(1000)
+    .attrTween("d", function(d) {
+      this._current = this._current || d;
+      var interpolate = d3.interpolate(this._current, d);
+      this._current = interpolate(0);
+      return function(t) {
+        return arc(interpolate(t));
+      };
+    })
+
+  slice.exit()
+    .remove();
+
+}
+
+
+function drawData(data){
+
+  var lines = svg.selectAll("g")
+		.data(data["north"])
+	.enter().append("g").attr("class", "trainz")
+		.append("line")
+		.attr("x1", cx)
+		.attr("x2", cx)
+		.attr("y1", (cy - radius))
+      	.attr("y2", (cy-radius))
+      	.style("stroke-width","2px")
+      	.attr("transform", function(d) {
+
+			hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+			minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+
+      	return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+
+      lines.transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("y2", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+
+      svg.selectAll("g").append("circle")
+      			.attr("class", "blob")
+      			.attr("cx", cx)
+  				.attr("cy", cy-radius)
+  				.attr("r", 5)
+            .style("opacity",0)
+  				.attr("transform", function(d){
+  						hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+						minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+						return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})
+
+      d3.selectAll(".blob").transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("cy", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+          .style("opacity",1)
+
+
+  var trainz = svg.selectAll(".trainz")
+
+  var side = Math.sqrt(Math.pow((radius*2),2)/2);
+  var tooltip = d3.select("#tooltip")
+      .style("top", cy-side/3 + "px")
+      .style("left", cx-side/2  + "px")
+      .style("width", side+"px")
+      .style("height", side+"px")
+
+
+  trainz
+      /*.on("mouseover", function(d){
+          d3.select("#mouseoverDisp")
+              .text(d["ExpectedDateTime"].substring(11,16))
+              .style("opacity", "1")
+              .style("left", (d3.event.pageX - 75) + "px")
+              .style("top", (d3.event.pageY - 40) + "px")
+      })
+      .on("mousemove", function(d){
+          d3.select("#mouseoverDisp")
+              .style("opacity", 1)
+      })
+      .on("mouseout", function(d){
+          d3.select("#mouseoverDisp").transition()
+              .duration(500)
+              .style("opacity", 0)
+      })*/
+      .on("click", function(d){
+          trainz.transition()
+              .duration(200)
+              .style("fill", "green")
+              .style("stroke", "green")
+
+          d3.select(this).transition()
+              .duration(300)
+              .style("fill", "orange")
+              .style("stroke", "orange")
+
+          d3.select("#tooltip")
+              .html('<p id="title" style="font-size: '+side/16+'px;">Train to '+d["Destination"]+
+                  '</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+                  +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
+                  +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
+
+          d3.select("#tooltip").transition()
+              .duration(250)
+              //.style("opacity", "0.5")
+          })
+
+
+}
+
+function stareIntoTheAbyss(data){
+
+
+}
+
+function drawAll(data){
+
+  var lines = svg.selectAll("g")
+    .data(data["north"])
+  .enter().append("g").attr("class", "trainz")
+    .append("line")
+    .attr("x1", cx)
+    .attr("x2", cx)
+    .attr("y1", (cy - radius))
+        .attr("y2", (cy-radius))
+        .style("stroke-width","2px")
+        .attr("transform", function(d) {
+
+      hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+      minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+
+        return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+
+      lines.transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("y2", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+
+      svg.selectAll("g").append("circle")
+            .attr("class", "blob")
+            .attr("cx", cx)
+          .attr("cy", cy-radius)
+          .attr("r", 5)
+            .style("opacity",0)
+          .attr("transform", function(d){
+              hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+            minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+            return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})
+
+      d3.selectAll(".blob").transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("cy", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+          .style("opacity",1)
+
+
+  var trainz = svg.selectAll(".trainz")
+
+  var side = Math.sqrt(Math.pow((radius*2),2)/2);
+  var tooltip = d3.select("#tooltip")
+      .style("top", cy-side/3 + "px")
+      .style("left", cx-side/2  + "px")
+      .style("width", side+"px")
+      .style("height", side+"px")
+
+
+  trainz
+      /*.on("mouseover", function(d){
+          d3.select("#mouseoverDisp")
+              .text(d["ExpectedDateTime"].substring(11,16))
+              .style("opacity", "1")
+              .style("left", (d3.event.pageX - 75) + "px")
+              .style("top", (d3.event.pageY - 40) + "px")
+      })
+      .on("mousemove", function(d){
+          d3.select("#mouseoverDisp")
+              .style("opacity", 1)
+      })
+      .on("mouseout", function(d){
+          d3.select("#mouseoverDisp").transition()
+              .duration(500)
+              .style("opacity", 0)
+      })*/
+      .on("click", function(d){
+          trainz.transition()
+              .duration(200)
+              .style("fill", "green")
+              .style("stroke", "green")
+
+          d3.select(this).transition()
+              .duration(300)
+              .style("fill", "orange")
+              .style("stroke", "orange")
+
+          d3.select("#tooltip")
+              .html('<p id="title" style="font-size: '+side/16+'px;">Train to '+d["Destination"]+
+                  '</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+                  +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
+                  +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
+
+          d3.select("#tooltip").transition()
+              .duration(250)
+              //.style("opacity", "0.5")
+          })
+
+
+}
+
+</script>
+
+
+</body>
+</html>
