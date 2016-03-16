@@ -280,36 +280,40 @@ var sl = new SL({
       });
     }
     var currentHour = 0;
-    for (var i = 0; i < d.south.length; i++) {
-      var expectedDate = new Date(d.south[i].ExpectedDateTime);
-      var timetableDate = new Date(d.south[i].TimeTabledDateTime);
-      var timetableHour = timetableDate.getUTCHours();
-      var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
-      var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
-      var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
+    if (d.south !== undefined) {
+      for (var i = 0; i < d.south.length; i++) {
+        var expectedDate = new Date(d.south[i].ExpectedDateTime);
+        var timetableDate = new Date(d.south[i].TimeTabledDateTime);
+        var timetableHour = timetableDate.getUTCHours();
+        var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
+        var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
+        var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
 
-      if (tempDelay > 0) {
-        hours.south[timetableHour].totalDelay += tempDelay;
-        hours.south[timetableHour].delayedTrains++;
-        hours.south[timetableHour].totalTrains++;
-      } else {
-        hours.south[timetableHour].totalTrains++;
+        if (tempDelay > 0) {
+          hours.south[timetableHour].totalDelay += tempDelay;
+          hours.south[timetableHour].delayedTrains++;
+          hours.south[timetableHour].totalTrains++;
+        } else {
+          hours.south[timetableHour].totalTrains++;
+        }
       }
     }
-    for (var i = 0; i < d.north.length; i++) {
-      var expectedDate = new Date(d.north[i].ExpectedDateTime);
-      var timetableDate = new Date(d.north[i].TimeTabledDateTime);
-      var timetableHour = timetableDate.getUTCHours();
-      var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
-      var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
-      var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
+    if (d.north !== undefined) {
+      for (var i = 0; i < d.north.length; i++) {
+        var expectedDate = new Date(d.north[i].ExpectedDateTime);
+        var timetableDate = new Date(d.north[i].TimeTabledDateTime);
+        var timetableHour = timetableDate.getUTCHours();
+        var timetableSeconds = timetableHour * 60 * 60 + timetableDate.getMinutes() * 60 + timetableDate.getSeconds();
+        var expectedSeconds = expectedDate.getUTCHours() * 60 * 60 + expectedDate.getMinutes() * 60 + expectedDate.getSeconds();
+        var tempDelay = Math.round((expectedSeconds - timetableSeconds) / 60);
 
-      if (tempDelay > 0) {
-        hours.north[timetableHour].totalDelay += tempDelay;
-        hours.north[timetableHour].delayedTrains++;
-        hours.north[timetableHour].totalTrains++;
-      } else {
-        hours.north[timetableHour].totalTrains++;
+        if (tempDelay > 0) {
+          hours.north[timetableHour].totalDelay += tempDelay;
+          hours.north[timetableHour].delayedTrains++;
+          hours.north[timetableHour].totalTrains++;
+        } else {
+          hours.north[timetableHour].totalTrains++;
+        }
       }
     }
 
