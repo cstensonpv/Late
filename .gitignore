@@ -1,3 +1,4 @@
 **/node_modules
 **.zip
 client/test5(pendeltagWithRollupGraph)/CalleArcTest.html
+client/test5(pendeltagWithRollupGraph)/js/testArc.html

@@ -65,10 +65,10 @@ function printCommuterMap(){
       .attr("d", function(d,i) {
         var source = social.nodes[d.source];
         var target = social.nodes[d.target];
-        var startX = x(parseFloat(source.x).toFixed(0)),
-          startY = y(parseFloat(source.y).toFixed(0)),
-          stopX = x(parseFloat(target.x).toFixed(0));
-          stopY = y(parseFloat(target.y).toFixed(0));
+        var startX = x(parseFloat(source.x)),
+          startY = y(parseFloat(source.y)),
+          stopX = x(parseFloat(target.x));
+          stopY = y(parseFloat(target.y));
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return 10; })

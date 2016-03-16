@@ -20,7 +20,7 @@ var sliderHandle = d3.select("#handle-one");
 
 function update(data, currTimeMin){
   for(var key in data) {
-    if(typeof data[key].north === 'object') {
+    if(typeof data[key].north != 'string') {
       var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
       var id = key.substring(3);
       var expectedDate = parseDate(data[key].north.ExpectedDateTime);
@@ -30,7 +30,7 @@ function update(data, currTimeMin){
       //console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
       var stationId = "#station_"+id;
       if(typeof allArcs[stationId] != 'object'){
-        console.log("Station id does nor exists: "+stationId);
+        // console.log("Station id does nor exists: "+stationId);
       }else{
         allArcs[stationId].updateArc(timeToArrival*60);
         if(allArcs[stationId].stopVar){
