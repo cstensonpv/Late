@@ -88,7 +88,14 @@ function printCommuterMap(){
     var label = stations.append("text")
     .attr("class", "word")
     .attr("dy", function(d) {return y(fy(d)) + 5 })
-    .attr("dx", function(d) {return x(fx(d)) + 10 })
+    .attr("dx", function(d) {
+        if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
+            return x(fx(d)) -50 
+        }
+        else{
+            return x(fx(d)) + 15
+        }
+    })
     .attr("id", function(d) {return "text"+d.id })
     .text( function(d) {
       return d.name;
