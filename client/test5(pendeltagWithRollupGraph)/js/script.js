@@ -63,8 +63,8 @@ function printCommuterMap(){
       .attr("class", "link")
       .attr("id", function(d,i) {return "path_"+pendeltag.nodes[d.source].id+"_"+pendeltag.nodes[d.target].id;})
       .attr("d", function(d,i) {
-        var source = social.nodes[d.source];
-        var target = social.nodes[d.target];
+        var source = pendeltag.nodes[d.source];
+        var target = pendeltag.nodes[d.target];
         var startX = x(parseFloat(source.x)),
           startY = y(parseFloat(source.y)),
           stopX = x(parseFloat(target.x));
