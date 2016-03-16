@@ -72,7 +72,8 @@ function printCommuterMap(){
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return 10; })
-      .on("mouseover", function(d){console.log(d.source + " : "+ d.target)});
+      .style("stroke", "grey")
+      //.on("mouseover", function(d){console.log(d.source + " : "+ d.target)});
 
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
