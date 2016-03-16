@@ -112,7 +112,7 @@ function printCommuterMap(){
       var id = "#station_"+pendeltag.nodes[i].id;
       var arc = new Arc(id, x(pendeltag.nodes[i].x) , y(pendeltag.nodes[i].y), pendeltag.nodes[i].name);
       //arc.start();
-      allArcs[id] =arc;
+      allArcs[id] = arc;
       //console.log(allArcs);
     }
 

@@ -35,7 +35,8 @@ var Arc = function(id, cxArc, cyArc, name){
       .attr("d", arc);
 
   var path = field.append("path")
-      .attr("class", "path path--foreground");
+      .attr("class", "path path--foreground")
+      .attr("id", "stationPath_" + id.substring(9));
 
   this.update = function(stop) {
     if(typeof stop == 'boolean'){
@@ -90,17 +91,17 @@ var Arc = function(id, cxArc, cyArc, name){
         _this.counter = timeToDeparture;
       }
     }else{
-      console.log("time to departure not in range of arc for station " + _this.name);
+      // console.log("time to departure not in range of arc for station " + _this.name);
     }
     
     
   }
   this.stop = function() {
-    console.log("stop");
+    //console.log("stop");
     _this.stopVar = true;
   }
   this.start = function() {
-    console.log("start");
+    //console.log("start");
     _this.stopVar = false;
     _this.update();
   }

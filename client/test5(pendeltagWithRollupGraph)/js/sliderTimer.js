@@ -24,13 +24,13 @@ function update(data, currTimeMin){
       var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
       var id = key.substring(3);
       var expectedDate = parseDate(data[key].north.ExpectedDateTime);
-      var pendeltagDelay = Math.abs(timeTabledDate - expectedDate)/60000;
+      var pendeltagDelay = Math.abs(timeTabledDate - expectedDate);
       // Update timers of next
       timeToArrival = dateToMinutes(expectedDate) - currTimeMin;
       //console.log("Time till departure: "+  (dateToMinutes(expectedDate) - currTimeMin));
       var stationId = "#station_"+id;
       if(typeof allArcs[stationId] != 'object'){
-        // console.log("Station id does nor exists: "+stationId);
+        console.log("Station id does nor exists: "+stationId);
       }else{
         allArcs[stationId].updateArc(timeToArrival*60);
         if(allArcs[stationId].stopVar){
@@ -41,13 +41,15 @@ function update(data, currTimeMin){
       //updateStationNode("#station_"+id,timeToArrival);
       // Changes color if there is a delay.
       if(pendeltagDelay != 0) {
+        console.log(id);
+        // console.log(("#stationPath_"+id));
+        // console.log(d3.select("#stationPath_"+id));
 
-
-        d3.select("#station_"+id).style("fill","rgb(162,26,"+pendeltagDelay*10 + ")");
+        d3.select("#stationPath_"+id).attr("fill","red");
         // console.log(pendeltagDelay + " *---* " + id);
       }
       else {
-        d3.select("#station_"+id).style("fill","rgb(26,115,0)");
+        d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
       }
     }
   }
@@ -63,7 +65,7 @@ function stop(){
 
   //Stops all the arcs!
   for(key in allArcs){
-    console.log(key);
+    //console.log(key);
     allArcs[key].stop();
   }
   //console.log("push stop: "  + timerCurrentValue);
