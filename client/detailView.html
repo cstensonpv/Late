@@ -32,6 +32,7 @@ h2 {
   position: absolute;
   text-align: center;
   opacity: 1;
+  pointer-events: none;
 }
 
 #mouseoverDisp {
@@ -67,7 +68,6 @@ h2 {
     <script src="test5(pendeltagWithRollupGraph)/lib/drawArc.js"></script>
     <script src="test5(pendeltagWithRollupGraph)/lib/d3.min.js"></script>
     <script src="test5(pendeltagWithRollupGraph)/lib/rollup.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
 
 <div id="tooltip"><!--
@@ -92,7 +92,7 @@ h2 {
 
 
 
-var currentStation = 9000;
+var currentStation = 9504;
 
 var currentDate = new Date();
 var currentHour = currentDate.getHours();
@@ -135,6 +135,22 @@ function getDelayTime (id) {
   });
 }
 getDelayTime(currentStation);
+
+function getAllTime (id) {
+  var url = "http://localhost:3000/timetable/until/"+id+"/"+ 24*60;//minutesToTime(currentMinute);//currentTime; //instead of until you can use between to get between 2 times
+  $.ajax({
+    type: "GET",
+    dataType: 'jsonp',
+    cache: false,
+    url: url,
+    success: function (data) {
+      console.log(data)
+  //    drawAll(data);
+    }
+  });
+}
+getAllTime(currentStation);
+
 
 
 
@@ -217,6 +233,43 @@ function changeCircle(data) {
   /* ------- PIE SLICES -------*/
   var slice = svg.select(".slices").selectAll("path.slice")
     .data(pie(data));
+    if(data[0].value === 1 && data[1].value === 1){      
+    }
+    else{
+        for(var i = 0; i < 24; i++){
+          if(data[i].value === 1){
+            var selectedHour = i;
+          }
+        }
+
+      }
+
+  d3.select("#tooltip").html("");
+  
+  if(selectedHour){
+    d3.selectAll(".trainz")
+      .transition()
+      .ease("linear")
+      .duration(1000)
+      .attr("transform", function(d) {
+        hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+        minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+        if(hour == selectedHour){
+          var angleDiff = minute/60*360 - (hour*60 + minute) / (24*60) * 360;
+          console.log("anglediff: " + angleDiff)
+          console.log("cx: " + cx + " cy: " + cy)
+          console.log(data.zoom)
+          return "rotate(" + angleDiff + " " + cx + " " + cy + ")"; }
+
+        else{ 
+           d3.select(this).style("opacity", 0)
+          return "rotate(" + 0 + " " + cx + " " + cy + ")";}
+        })
+  }
+  else if(selectedHour == null){
+    d3.selectAll(".trainz").remove()
+    getDelayTime(currentStation);
+  }
 
   slice.enter()
     .insert("path")
@@ -238,6 +291,7 @@ function changeCircle(data) {
       if (d.data.zoomable) {
         if (d.data.zoom) {
           d.data.zoom = false;
+          selectedHour = null;
           for (var i = 0; i < 24; i++) {
             data[i].value = 1;
           }
@@ -299,7 +353,7 @@ function drawData(data){
       			.attr("cx", cx)
   				.attr("cy", cy-radius)
   				.attr("r", 5)
-                  .style("opacity",0)
+            .style("opacity",0)
   				.attr("transform", function(d){
   						hour = parseInt(d["ExpectedDateTime"].substring(11,13));
 						minute = parseInt(d["ExpectedDateTime"].substring(14,16));
@@ -315,14 +369,14 @@ function drawData(data){
 
   var side = Math.sqrt(Math.pow((radius*2),2)/2);
   var tooltip = d3.select("#tooltip")
-      .style("top", cy-side/2 + "px")
+      .style("top", cy-side/3 + "px")
       .style("left", cx-side/2  + "px")
       .style("width", side+"px")
       .style("height", side+"px")
 
 
   trainz
-      .on("mouseover", function(d){
+      /*.on("mouseover", function(d){
           d3.select("#mouseoverDisp")
               .text(d["ExpectedDateTime"].substring(11,16))
               .style("opacity", "1")
@@ -337,7 +391,7 @@ function drawData(data){
           d3.select("#mouseoverDisp").transition()
               .duration(500)
               .style("opacity", 0)
-      })
+      })*/
       .on("click", function(d){
           trainz.transition()
               .duration(200)
@@ -350,8 +404,8 @@ function drawData(data){
               .style("stroke", "orange")
 
           d3.select("#tooltip")
-              .html('<p id="title" style="font-size: '+side/11+'px;">Train to '+d["Destination"]+
-                  '</p><p style="font-size: '+side/20+'px;">Arrived at:</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+              .html('<p id="title" style="font-size: '+side/16+'px;">Train to '+d["Destination"]+
+                  '</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
                   +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
                   +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
 
@@ -363,7 +417,101 @@ function drawData(data){
 
 }
 
+function stareIntoTheAbyss(data){
 
+
+}
+
+function drawAll(data){
+
+  var lines = svg.selectAll("g")
+    .data(data["south"])
+  .enter().append("g").attr("class", "trainz")
+    .append("line")
+    .attr("x1", cx)
+    .attr("x2", cx)
+    .attr("y1", (cy - radius))
+        .attr("y2", (cy-radius))
+        .style("stroke-width","2px")
+        .attr("transform", function(d) {
+
+      hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+      minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+
+        return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")"; })
+
+      lines.transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("y2", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+
+      svg.selectAll("g").append("circle")
+            .attr("class", "blob")
+            .attr("cx", cx)
+          .attr("cy", cy-radius)
+          .attr("r", 5)
+            .style("opacity",0)
+          .attr("transform", function(d){
+              hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+            minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+            return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";})
+
+      d3.selectAll(".blob").transition().ease("elastic").duration(1000).delay(function(d,i) {return (i-25)*10;})
+          .attr("cy", function(d){
+              return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8); })
+          .style("opacity",1)
+
+
+  var trainz = svg.selectAll(".trainz")
+
+  var side = Math.sqrt(Math.pow((radius*2),2)/2);
+  var tooltip = d3.select("#tooltip")
+      .style("top", cy-side/3 + "px")
+      .style("left", cx-side/2  + "px")
+      .style("width", side+"px")
+      .style("height", side+"px")
+
+
+  trainz
+      /*.on("mouseover", function(d){
+          d3.select("#mouseoverDisp")
+              .text(d["ExpectedDateTime"].substring(11,16))
+              .style("opacity", "1")
+              .style("left", (d3.event.pageX - 75) + "px")
+              .style("top", (d3.event.pageY - 40) + "px")
+      })
+      .on("mousemove", function(d){
+          d3.select("#mouseoverDisp")
+              .style("opacity", 1)
+      })
+      .on("mouseout", function(d){
+          d3.select("#mouseoverDisp").transition()
+              .duration(500)
+              .style("opacity", 0)
+      })*/
+      .on("click", function(d){
+          trainz.transition()
+              .duration(200)
+              .style("fill", "green")
+              .style("stroke", "green")
+
+          d3.select(this).transition()
+              .duration(300)
+              .style("fill", "orange")
+              .style("stroke", "orange")
+
+          d3.select("#tooltip")
+              .html('<p id="title" style="font-size: '+side/16+'px;">Train to '+d["Destination"]+
+                  '</p><p id="dispArrival" style="font-size: '+side/8+'px;">'
+                  +'- '+d["ExpectedDateTime"].substring(11,16)+' -</p><p style="font-size: '+side/16+'px; color:'
+                  +' red;"id="dispDelay">('+dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])+' min late)</p>')
+
+          d3.select("#tooltip").transition()
+              .duration(250)
+              //.style("opacity", "0.5")
+          })
+
+
+}
 
 </script>
 
