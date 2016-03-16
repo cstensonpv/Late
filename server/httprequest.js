@@ -241,7 +241,6 @@ var sl = new SL({
     };
 
     for (var i = 0; i < d.south.length; i++) {
-      console.log(d.south[i].minutes);
       if (d.south[i].minutes >= start && d.south[i].minutes <= stop) {
         returnVar.south.push(d.south[i]);
       }
