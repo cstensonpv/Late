@@ -147,9 +147,12 @@ function getMinOfArray(numArray) {
   return Math.min.apply(null, numArray);
 }
 
-function changeColorOfStationNameText(d3Object, siteid, colorName){
+function changeColorOfStationNameText(d3Object, siteid, colorName, arcRgb){
   var text = d3Object.select("#text"+siteid);
   text.style("fill",colorName);
+
+  var selectedArc = d3.select("#stationPath_"+siteid);
+  selectedArc.attr("fill",arcRgb);
 }
 
 function drawDetailView(domid,direction){
@@ -164,7 +167,8 @@ function clicked(d,i)
   if(active == null) // if no selection was made
   {
     drawDetailView(idOfSelected,"north");
-    changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),"red");
+    changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
+      "red", "rgb(108, 7, 107)");
     active = d3.select(this);
   }
   else{
@@ -175,13 +179,16 @@ function clicked(d,i)
     if(idOfSelected == idOfactive){ //same node clicked. Remove the drawn detail.
       console.log("same clicked");
 
-      changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),"black");
+      changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),
+        "black","rgb(26,115,0)");
       active = null;
     }
     else{
       console.log("diff clicked " + idOfactive);
-      changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),"black");
-      changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),"red");
+      changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),
+        "black","rgb(26,115,0)");
+      changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
+        "red","rgb(108, 7, 107)");
       drawDetailView(idOfSelected,"north");
       active = d3.select(this);
     }
