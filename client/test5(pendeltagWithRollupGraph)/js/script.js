@@ -70,7 +70,7 @@ function printCommuterMap(){
         return "M "+startX+" "+startY + " "+stopX+" "+stopY;
       })
       .style("stroke-width", function(d) { return 10; })
-      .style("stroke", "grey");
+      .style("stroke", "black");
       data = pendeltag.nodes;
     // Append nodes (circles)
     var stations = svg.selectAll(".station")
