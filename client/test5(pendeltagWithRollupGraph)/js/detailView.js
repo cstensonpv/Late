@@ -63,7 +63,7 @@ var DetailView = function(siteid, dir) {
   	.append("svg")
   	.attr("width", width)
   	.attr("height", height)
-  	.style("background", "#006699")
+  	.style("background", "white")
 
   resetSvg();
 
@@ -170,10 +170,11 @@ var DetailView = function(siteid, dir) {
       .insert("path")
       .style("fill", function(d) {
         if (currentHour <= d.data.id) {
-          return "#dadada";
+          d3.select(this).style("display", "none")
+          return "#006699";
         } else {
           if (d.data.mean === 0) {
-            return "#6dbb56";
+            return "rgb(109, 187, 86)";
           } else {
             return color(d.data.mean);
           }
@@ -205,9 +206,9 @@ var DetailView = function(siteid, dir) {
                       .attr("alignment-baseline", "middle")
                       .attr("y", -60)
                       .text("Average delay for")
-                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-family","century gothic", "Helvetica, Arial, sans-serif")
                       .attr("font-size", "17px")
-                      .attr("fill", "#575757");
+                      .attr("fill", "#000");
 
                     tooltip
                       .append("text")
@@ -216,9 +217,9 @@ var DetailView = function(siteid, dir) {
                       .attr("alignment-baseline", "middle")
                       .attr("y", -30)
                       .text(i+":00 - "+i+":59")
-                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-family","century gothic", "Helvetica, Arial, sans-serif")
                       .attr("font-size", "17px")
-                      .attr("fill", "#575757");
+                      .attr("fill", "#000");
 
                     var wholeNumber = parseInt(data[i].mean.toString().substring(0,1));
                     var decimals = parseFloat(data[i].mean.toString().substring(2,4));
@@ -238,9 +239,9 @@ var DetailView = function(siteid, dir) {
                           return data[i].mean.toString().substr(0,1)+" minutes"
                         }
                       })
-                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-family","century gothic", "Helvetica, Arial, sans-serif")
                       .attr("font-size", "20px")
-                      .attr("fill", "#161616");
+                      .attr("fill", "#000");
 
 
                       //1.07 -> "1.07" -> "07" -> "0.07" -> 0.07
@@ -254,9 +255,9 @@ var DetailView = function(siteid, dir) {
                         .attr("alignment-baseline", "middle")
                         .text(modulus.toFixed(2)*(60)+" seconds")
                         .attr("y", 50)
-                        .attr("font-family", "Helvetica, Arial, sans-serif")
+                        .attr("font-family","century gothic", "Helvetica, Arial, sans-serif")
                         .attr("font-size", "20px")
-                        .attr("fill", "#161616");
+                        .attr("fill", "#000");
                     }
                     else if(data[i].mean>0 && isNaN(decimals)){ //numbers bigger than 0 without decimals (e.g. 1.00)
 
@@ -270,9 +271,9 @@ var DetailView = function(siteid, dir) {
                         .attr("alignment-baseline", "middle")
                         .text(data[i].mean.toFixed(2)*(60)+" seconds")//.toString().substring(3,5)+" seconds")
                         .attr("y", 50)
-                        .attr("font-family", "Helvetica, Arial, sans-serif")
+                        .attr("font-family","century gothic", "Helvetica, Arial, sans-serif")
                         .attr("font-size", "20px")
-                        .attr("fill", "#161616");
+                        .attr("fill", "#000");
                     }
                   }
 
@@ -311,10 +312,11 @@ var DetailView = function(siteid, dir) {
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "before-edge")
       .text(data[direction][0].StopAreaName)
-      .attr("font-family", "Helvetica, Arial, sans-serif")
+      .attr("font-family", "century gothic", "Helvetica, Arial, sans-serif")
       .attr("font-size", "30px")
       .attr("font-weight", "bold")
-      .attr("fill", "#ffffff");
+      .attr("y","60")
+      .attr("fill", "#000");
 
     var lines = svg.selectAll("g")
   		.data(data[direction])
@@ -414,9 +416,9 @@ var DetailView = function(siteid, dir) {
                 .attr("alignment-baseline", "middle")
                 .attr("y", -30)
                 .text(d["Destination"])
-                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-family", "century gothic", "Helvetica, Arial, sans-serif")
                 .attr("font-size", "14px")
-                .attr("fill", "#575757");
+                .attr("fill", "#000");
 
               tooltip
                 .append("text")
@@ -424,9 +426,9 @@ var DetailView = function(siteid, dir) {
                 .attr("text-anchor", "middle")
                 .attr("alignment-baseline", "middle")
                 .text(arrivalString)
-                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-family", "century gothic", "Helvetica, Arial, sans-serif")
                 .attr("font-size", "20px")
-                .attr("fill", "#161616");
+                .attr("fill", "#000");
 
               tooltip
                 .append("text")
@@ -434,9 +436,9 @@ var DetailView = function(siteid, dir) {
                 .attr("alignment-baseline", "middle")
                 .attr("y", 30)
                 .text("[ " + delay + " min late ]")
-                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-family", "century gothic", "Helvetica, Arial, sans-serif")
                 .attr("font-size", "14px")
-                .attr("fill", "#8a3636");
+                .attr("fill", "#000");
             })
     }
     trainzClick()

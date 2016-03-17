@@ -1,7 +1,7 @@
 var Arcs = function(trains, svg) {
   var arcs = {};
   var minute = 60000;
-  var speedMultiplier = 1;
+  var speedMultiplier = 100;
   var timeout;
   // console.log(svg);
   var direction = "north";
