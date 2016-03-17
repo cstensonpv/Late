@@ -125,6 +125,7 @@ var DetailView = function(siteid, dir) {
       .data(pie(data));
       for(var i = 0; i < 24; i++){
         if(data[0].value === 1 && data[1].value === 1){
+
         }
         else if (data[i].value===1){
             console.log(data[0].value)
@@ -138,7 +139,7 @@ var DetailView = function(siteid, dir) {
 
     //d3.select("g.tooltip").html("");
 
-    if(selectedHour){
+    if(selectedHour>-1){
       d3.selectAll(".trainz")
         .transition()
         .ease("linear")
@@ -302,6 +303,8 @@ var DetailView = function(siteid, dir) {
 
 
   function drawData(data){
+    var colorScale = chroma.scale(["green", "#FFF235","red"]).domain([0, 2, 8]);
+
     d3.select("g.detail-title")
       .append("text")
       .attr("text-anchor", "middle")
@@ -359,64 +362,92 @@ var DetailView = function(siteid, dir) {
 
 
 
-
+    
     var trainz = svg.selectAll(".trainz")
+    
+    function trainzClick(){  
+      trainz
+        .style("fill", function(d){
 
-    trainz
-      .style("fill", "green")
-      .style("stroke", "green");
+          return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+        })
+        .style("stroke", function(d){
 
-    var side = Math.sqrt(Math.pow((radius*2),2)/2);
+          return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+        })
+    
+    
+      var side = Math.sqrt(Math.pow((radius*2),2)/2);
 
-    trainz
-        .on("click", function(d){
-            trainz
-              .style("fill", "green")
-              .style("stroke", "green")
+      trainz
+          .on("click", function(d){
+              trainz
+                .style("fill", "#afafaf")
+                .style("stroke", "#afafaf")
 
-            d3.select(this)
-              .style("fill", "orange")
-              .style("stroke", "orange");
+              d3.select(this)
+                .style("fill", colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex())
+                .style("stroke", colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex())
+                .on("click", function(d){
+                  trainzClick()
+                  /*trainz
+                    .style("fill", function(d){
+                      return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+                    })
+                    .style("stroke", function(d){
 
-            var arrivalDate = new Date(d["ExpectedDateTime"]);
-            var arrivalString = ('0' + arrivalDate.getHours()).slice(-2) + ":" + ('0' + arrivalDate.getMinutes()).slice(-2);
-            var delay = dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]);
-            var tooltip = d3.select("g.tooltip");
+                      return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+                    })*/
+                })
 
-            tooltip.html("");
+              var arrivalDate = new Date(d["ExpectedDateTime"]);
+              var arrivalString = ('0' + arrivalDate.getHours()).slice(-2) + ":" + ('0' + arrivalDate.getMinutes()).slice(-2);
+              var delay = dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]);
+              var tooltip = d3.select("g.tooltip");
 
-            tooltip
-              .append("text")
-              .attr("class", "tooltip-title")
-              .attr("text-anchor", "middle")
-              .attr("alignment-baseline", "middle")
-              .attr("y", -30)
-              .text(d["Destination"])
-              .attr("font-family", "Helvetica, Arial, sans-serif")
-              .attr("font-size", "14px")
-              .attr("fill", "#575757");
+              tooltip.html("");
 
-            tooltip
-              .append("text")
-              .attr("class", "tooltip-time")
-              .attr("text-anchor", "middle")
-              .attr("alignment-baseline", "middle")
-              .text(arrivalString)
-              .attr("font-family", "Helvetica, Arial, sans-serif")
-              .attr("font-size", "20px")
-              .attr("fill", "#161616");
+              tooltip
+                .append("text")
+                .attr("class", "tooltip-title")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .attr("y", -30)
+                .text(d["Destination"])
+                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-size", "14px")
+                .attr("fill", "#575757");
 
-            tooltip
-              .append("text")
-              .attr("text-anchor", "middle")
-              .attr("alignment-baseline", "middle")
-              .attr("y", 30)
-              .text("[ " + delay + " min late ]")
-              .attr("font-family", "Helvetica, Arial, sans-serif")
-              .attr("font-size", "14px")
-              .attr("fill", "#8a3636");
-          });
+              tooltip
+                .append("text")
+                .attr("class", "tooltip-time")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .text(arrivalString)
+                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-size", "20px")
+                .attr("fill", "#161616");
 
+              tooltip
+                .append("text")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .attr("y", 30)
+                .text("[ " + delay + " min late ]")
+                .attr("font-family", "Helvetica, Arial, sans-serif")
+                .attr("font-size", "14px")
+                .attr("fill", "#8a3636");
+            })
+    }
+    trainzClick()
+
+   /* d3.selectAll()
+      .on("click", function(d){
+          var thisOne = d3.select(this)
+          if(this == trainz){
+            console.log("bugger off!")
+          }
+        }) */ 
 
   }
 
