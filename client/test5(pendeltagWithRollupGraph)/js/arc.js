@@ -11,6 +11,7 @@ var Arc = function(id, cxArc, cyArc, name){
   this.stopVar = true;
 
   var isArcClicked = false;
+  var active = null;
 
   var fields = [
     {name: this.name, value: maxTime, size: maxTime, label: "s", update: function() { return increaseCounter(); }}
@@ -31,7 +32,8 @@ var Arc = function(id, cxArc, cyArc, name){
     .enter().append("g")
       .attr("transform", function(d, i) { return "translate("+cxArc+","+cyArc+")"})
       .attr("class", "field")
-      .attr("id","arc_"+id.substring(1,id.length));
+      .attr("id","arc_"+id.substring(1,id.length))
+      .on("click",arcClicked);
 
   field.append("path")
       .attr("class", "path path--background")
@@ -112,7 +114,39 @@ var Arc = function(id, cxArc, cyArc, name){
     return _this.counter;
   }
 
+  function drawDetailed(selectedID,direction)
+  {
+    var siteid = selectedID.substring(12,selectedID.length);
+    var detailView = new DetailView(siteid, direction);
+  }
 
+  function arcClicked(d,i)
+  {
+    var selected_id = d3.select(this).attr("id"); //something like arc_station_9500
+
+    if(active == null)
+    { //not selected
+      d3.select("#detailView").remove();
+      console.log("clicked for the first time");
+      isArcClicked = true;
+      active = selected_id;
+      drawDetailed(selected_id,"north");
+    }
+    else{ //selected
+      console.log("arc already clicked");
+      if(active == selected_id)
+      {
+        console.log("same clicked");
+        d3.select("#detailView").remove();
+        active = null;
+      }
+      else
+      {
+        console.log("diff clicked");
+        d3.select("#detailView").remove();
+      }
+    }
+  }
 
 }
 
