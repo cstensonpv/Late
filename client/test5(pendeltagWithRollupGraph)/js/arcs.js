@@ -1,7 +1,7 @@
 var Arcs = function(trains, svg) {
   var arcs = {};
   var minute = 60000;
-  var speedMultiplier = 1;
+  var speedMultiplier = 100;
   var timeout;
   // console.log(svg);
   var direction = "north";
@@ -53,12 +53,22 @@ var Arcs = function(trains, svg) {
         var d = data["id_" + arc.id][direction];
         if (d !== "No train going " + direction) {
           var expectedDate = new Date(d.ExpectedDateTime);
+          var timeTableDate = new Date(d.TimeTabledDateTime);
+
           var expectedMinute = expectedDate.getUTCHours() * 60 + expectedDate.getMinutes();
+          var timeTabledMinute = timeTableDate.getUTCHours() * 60 + timeTableDate.getMinutes();
+
           var minutes = expectedMinute - currentMinute;
           if (minutes < 0) {
             minutes = 0;
           }
           arc.setTime(minutes);
+
+          var calculatedDelay = Math.abs(timeTabledMinute - expectedMinute)
+          if(calculatedDelay != 0)// there is a delay
+            arc.setColorOfArc("rgb(195,67,43)");
+          else //no delay
+            arc.setColorOfArc("rgb(109,187,86)");
         } else {
           arc.setTime("nan");
         }

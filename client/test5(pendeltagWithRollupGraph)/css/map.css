@@ -1,7 +1,7 @@
 body {
   font-family: "century gothic", "Helvetica", "Arial", "sans-serif";
   font-size: 10px;
-  background-color: #006699;
+  background-color: #f0f0f0;
   /*background:radial-gradient(circle,lightgrey,lightblue);*/
 }
 
@@ -46,7 +46,7 @@ button {
 .word{
 	font-size: 14px;
 	font-weight: bold;
-	fill:white;
+	fill:black;
 
 }
 
@@ -58,7 +58,7 @@ button {
 }
 
 #sliderTime span{
-  color:white;
+  color:black;
   font-size: 50pt;
 }
 
@@ -160,7 +160,7 @@ button {
   background-image: -webkit-linear-gradient(top, #9dd993, #65bd63);
   background-image: -moz-linear-gradient(top, #9dd993, #65bd63);
   background-image: -o-linear-gradient(top, #9dd993, #65bd63);
-  background-image: linear-gradient(to bottom, #00CCCC, #00CCCC);
+  background-image: linear-gradient(to bottom, "rgb(109, 187, 86)", "rgb(109, 187, 86)");
   background-image: linear-gradient(to bottom, #009900, #);
   -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
@@ -187,7 +187,7 @@ button {
   background-image: -webkit-linear-gradient(top, #4fc9ee, #3aa2d0);
   background-image: -moz-linear-gradient(top, #4fc9ee, #3aa2d0);
   background-image: -o-linear-gradient(top, #4fc9ee, #3aa2d0);
-  background-image: linear-gradient(to bottom, #00CCCC, #00CCCC);
+  background-image: linear-gradient(to bottom, #c74f2f, #c74f2f);
 }
 
 .northsouth .switch-input:checked + .switch-label-on ~ .switch-selection {
@@ -207,7 +207,7 @@ button {
 .startstopLabels span{
   font-size: 9pt;
   font-weight:bold;
-  color:white;
+  color:black;
 }
 
 .northsouthLabel{
@@ -222,5 +222,5 @@ button {
 .northsouthLabel span{
   font-size: 9pt;
   font-weight:bold;
-  color:white;
+  color:black;
 }
