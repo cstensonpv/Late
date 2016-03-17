@@ -131,4 +131,14 @@ var Arc = function(_id, _cx, _cy, _svg) {
   this.setSpeedMultiplier = function(sm) {
     speedMultiplier = sm;
   }
+
+  this.setColorOfArc = function(colorName){
+    var curSlice = d3.select("#slices_"+this.id).selectAll(".slice").style("fill",function(d){
+        if (d.data.id === 0) {
+          return colorName;
+        } else {
+          return "#c9c7c7"
+        }
+    });
+  }
 }
