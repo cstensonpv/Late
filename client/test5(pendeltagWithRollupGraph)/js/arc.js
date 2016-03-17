@@ -131,7 +131,7 @@ var Arc = function(id, cxArc, cyArc, name){
         console.log("something clicked: " + prevClicked.attr("id"));
         var prevClickedId = prevClicked.attr("id");
         changeColorOfStationNameText(d3.select("#"+prevClickedId),
-          prevClickedId.substring(8,prevClickedId.length),"black", "rgb(26,115,0)");
+          prevClickedId.substring(8,prevClickedId.length),"white", "rgb(26,115,0)");
       }
 
       if(active == null)
@@ -158,7 +158,7 @@ var Arc = function(id, cxArc, cyArc, name){
           d3.select("#detailView").remove();
           active = null;
           changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
-              "black", "rgb(26,115,0)");
+              "white", "rgb(26,115,0)");
           setActiveSelectedObject(null);
         }
       }

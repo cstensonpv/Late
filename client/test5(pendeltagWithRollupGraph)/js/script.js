@@ -190,13 +190,13 @@ function clicked(d,i)
       console.log("same clicked");
 
       changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),
-        "black","rgb(26,115,0)");
+        "white","rgb(26,115,0)");
       active = null;
     }
     else{
       console.log("diff clicked " + idOfactive);
       changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),
-        "black","rgb(26,115,0)");
+        "white","rgb(26,115,0)");
       changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
         "red","rgb(108, 7, 107)");
       drawDetailView(idOfSelected,"north");

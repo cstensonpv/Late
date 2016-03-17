@@ -51,7 +51,7 @@ var DetailView = function(siteid, dir) {
   var widthPercent = 100;
   var heightPercent = 100;
 
-  var width = 900;
+  var width = 700;
   var height = 700;
   console.log("w: " + innerWidth + " h: " + innerHeight)
   var cx = width/2;
@@ -63,7 +63,7 @@ var DetailView = function(siteid, dir) {
     .attr("width", width)
     .attr("height", height)
     .attr("id","detailView")
-    .style("background", "#91bada");
+    .style("background", "#006699");
 
   resetSvg();
 
@@ -90,7 +90,7 @@ var DetailView = function(siteid, dir) {
 
     svg.append("g")
       .attr("class", "detail-title")
-      .attr("transform", "translate(" + cx + ", 100)")
+      .attr("transform", "translate(" + cx + ", 20)")
 
   }
 
@@ -226,7 +226,7 @@ var DetailView = function(siteid, dir) {
       .attr("font-family", "Helvetica, Arial, sans-serif")
       .attr("font-size", "30px")
       .attr("font-weight", "bold")
-      .attr("fill", "#292929");
+      .attr("fill", "white");
 
     var lines = svg.selectAll("g")
         .data(data[direction])
