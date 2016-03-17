@@ -257,6 +257,11 @@ var sl = new SL({
 
   function getDelayPerHour(siteid) {
     var d = timetable['id_' + siteid];
+
+    if (d === undefined) {
+      return "Error: no data";
+    }
+
     var hours = {
       "south": [],
       "north": []

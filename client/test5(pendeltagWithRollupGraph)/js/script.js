@@ -2,11 +2,23 @@
 
 var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
 
+var currentDate = new Date();
+var currentMinute = currentDate.getHours() * 60 + currentDate.getMinutes();
+
+var sliderTimer = new SliderTimer(currentMinute);
+
+var arcs;
+
+
 var slider = d3.slider().on("slide", function(event, value) {
-    updateFromSliderValue(value,true);
+    sliderTimer.updateSliderValue(value,true);
   }).axis(true).min(0).max(24);
 
-var allArcs = {};
+var sliderPlace = d3.select('#slider6').call(slider);
+var sliderHandle = d3.select("#handle-one");
+
+sliderTimer.setSliderHandle(sliderHandle);
+
 var margin = {top: 90, right: 240, bottom: 90, left: 240},
     width = 960 - margin.left - margin.right,
     t = .5,
@@ -40,13 +52,16 @@ var data = null;
 
 //Main
 window.onload = function() {
-  printCommuterMap(); 
-  startTransition(0);
+  printCommuterMap();
+  // startTransition(0);
 };
 //End Main
 
 function printCommuterMap(){
   d3.json("data/pendeltag.json", function(error, pendeltag) {
+
+    sliderTimer.setTrainData(pendeltag.nodes);
+
     if (error) throw error;
 
     data = pendeltag;
@@ -92,7 +107,7 @@ function printCommuterMap(){
       return y(fy(d)) + d.labelY })
     .attr("dx", function(d) {
         if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
-            return x(fx(d)) -d.labelX   
+            return x(fx(d)) -d.labelX
         }
         else{
             return x(fx(d)) + 15
@@ -108,13 +123,15 @@ function printCommuterMap(){
     id of the station. Second paramter is the "cy" parameter.
     Third parameter is the name of the station
     */
-    for(var i = 0; i < pendeltag.nodes.length; i++) {
-      var id = "#station_"+pendeltag.nodes[i].id;
-      var arc = new Arc(id, x(pendeltag.nodes[i].x) , y(pendeltag.nodes[i].y), pendeltag.nodes[i].name);
-      //arc.start();
-      allArcs[id] = arc;
-      //console.log(allArcs);
-    }
+    arcs = new Arcs(pendeltag, svg);
+    // for(var i = 0; i < pendeltag.nodes.length; i++) {
+    //   var id = "#station_"+pendeltag.nodes[i].id;
+    //   // var arc = new Arc(id, x(pendeltag.nodes[i].x) , y(pendeltag.nodes[i].y), svg);
+    //
+    //   //arc.start();
+    //   // allArcs[id] = arc;
+    //   //console.log(allArcs);
+    // }
 
 
     svg.append("g")

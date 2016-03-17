@@ -5,7 +5,7 @@ var Arc = function(id, cxArc, cyArc, name){
   this.cxArc = cxArc;
   this.cyArc = cyArc;
 
-  console.log("created new arc"); 
+  console.log("created new arc");
   this.counter = 0;
   var maxTime = 60*10;
   this.stopVar = true;
@@ -52,7 +52,7 @@ var Arc = function(id, cxArc, cyArc, name){
        field
         .each(function(d) { d.previous = d.value, d.value = d.update(); });
 
-      setTimeout(_this.update, 1000/speed);   
+      setTimeout(_this.update, 1000/speed);
     }
   };
 
@@ -93,8 +93,8 @@ var Arc = function(id, cxArc, cyArc, name){
     }else{
       // console.log("time to departure not in range of arc for station " + _this.name);
     }
-    
-    
+
+
   }
   this.stop = function() {
     //console.log("stop");

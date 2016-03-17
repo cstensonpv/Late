@@ -200,7 +200,7 @@ var DetailView = function(siteid, dir) {
       });
 
     slice
-      .transition().duration(1000)
+      .transition().duration(6000).ease("linear")
       .attrTween("d", function(d) {
         this._current = this._current || d;
         var interpolate = d3.interpolate(this._current, d);
@@ -336,7 +336,6 @@ var DetailView = function(siteid, dir) {
   }
 
   function stareIntoTheAbyss(data){
-
 
   }
 
