@@ -240,3 +240,13 @@ function clicked(d,i)
     }
   }
 }
+
+changeDirection = function(dir){
+  detailView.setDirection(dir);
+  arcs.setDirection(dir);
+}
+
+changeSpeed = function(speed){
+  arcs.setSpeedMultiplier(speed);
+
+}
