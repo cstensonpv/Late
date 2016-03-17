@@ -1,4 +1,4 @@
-var DetailView = function(siteid, dir) {
+var DetailView = function(siteid, dir, ct) {
   var currentStation = siteid;
   var direction = dir;
   var initStep = true;
@@ -6,6 +6,7 @@ var DetailView = function(siteid, dir) {
   var currentDate = new Date();
   var currentHour = currentDate.getHours();
   var currentTime = currentDate.getHours()*60+currentDate.getMinutes();
+  currentTime = ct;
 
   var pie = d3.layout.pie()
     .sort(null)
@@ -28,6 +29,19 @@ var DetailView = function(siteid, dir) {
       success: function (data) {
         var actualTime = (new Date().getHours()*60*60) + (new Date().getHours()*60) + (new Date().getHours());
         drawData(data);
+      }
+    });
+  }
+
+  function getDelayTimeUpdate(id) {
+    var url = "http://localhost:3000/timetable/until/"+id+"/"+ currentTime;//minutesToTime(currentMinute);//currentTime; //instead of until you can use between to get between 2 times
+    $.ajax({
+      type: "GET",
+      dataType: 'jsonp',
+      cache: false,
+      url: url,
+      success: function (data) {
+        changeData(data);
       }
     });
   }
@@ -109,7 +123,7 @@ var DetailView = function(siteid, dir) {
             "value": 1,
             "id": i,
             "zoom": false,
-            "zoomable": (currentHour > i)
+            "zoomable": (currentMinute / 60 > i)
           };
           slices.push(slice);
         }
@@ -121,6 +135,7 @@ var DetailView = function(siteid, dir) {
 
   function changeCircle(data) {
 
+    svg.selectAll(".slice").remove();
     /* ------- PIE SLICES -------*/
     var slice = svg.select(".slices").selectAll("path.slice")
       .data(pie(data));
@@ -135,7 +150,6 @@ var DetailView = function(siteid, dir) {
               var selectedHour = i;
             }
           }
-
         }
 
     //d3.select("g.tooltip").html("");
@@ -162,7 +176,7 @@ var DetailView = function(siteid, dir) {
           })
     }
     else if(selectedHour == null){
-      d3.selectAll(".trainz").remove()
+      d3.selectAll(".trainz").remove();
       getDelayTime(currentStation);
     }
 
@@ -453,6 +467,127 @@ var DetailView = function(siteid, dir) {
 
   }
 
+  function changeData(data) {
+    var colorScale = chroma.scale(["green", "#FFF235","red"]).domain([0, 2, 8]);
+
+    svg.selectAll(".trainz").remove();
+
+    var lines = svg.selectAll("g")
+  		.data(data[direction])
+  	.enter().append("g").attr("class", "trainz")
+  		.append("line")
+  		.attr("x1", cx)
+  		.attr("x2", cx)
+  		.attr("y1", (cy - radius))
+      .attr("y2", function(d){
+        return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8)
+      })
+    	.style("stroke-width","2px")
+      // .style("stroke", "green")
+    	.attr("transform", function(d) {
+  			hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+  			minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+        return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";
+      });
+
+      svg.selectAll(".trainz").append("circle")
+    		.attr("class", "blob")
+    		.attr("cx", cx)
+        .attr("cy", function(d){
+          return (cy - radius - (dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]))*8)
+        })
+    		.attr("r", 5)
+        // .style("fill", "green")
+    		.attr("transform", function(d){
+    			hour = parseInt(d["ExpectedDateTime"].substring(11,13));
+    			minute = parseInt(d["ExpectedDateTime"].substring(14,16));
+    			return "rotate(" + (hour * 60 + minute) / (24 * 60) * 360 + " " + cx + " " + cy + ")";
+        });
+    var trainz = svg.selectAll(".trainz");
+
+    trainz
+      .style("fill", function(d){
+        return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+      })
+      .style("stroke", function(d){
+        return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+      });
+
+      function trainzClick(){
+        trainz
+          .style("fill", function(d){
+            return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+          })
+          .style("stroke", function(d){
+            return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+          })
+
+
+        var side = Math.sqrt(Math.pow((radius*2),2)/2);
+
+        trainz
+            .on("click", function(d){
+                trainz
+                  .style("fill", "#afafaf")
+                  .style("stroke", "#afafaf")
+
+                d3.select(this)
+                  .style("fill", colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex())
+                  .style("stroke", colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex())
+                  .on("click", function(d){
+                    trainzClick()
+                    /*trainz
+                      .style("fill", function(d){
+                        return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+                      })
+                      .style("stroke", function(d){
+
+                        return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
+                      })*/
+                  })
+
+                var arrivalDate = new Date(d["ExpectedDateTime"]);
+                var arrivalString = ('0' + arrivalDate.getHours()).slice(-2) + ":" + ('0' + arrivalDate.getMinutes()).slice(-2);
+                var delay = dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"]);
+                var tooltip = d3.select("g.tooltip");
+
+                tooltip.html("");
+
+                tooltip
+                  .append("text")
+                  .attr("class", "tooltip-title")
+                  .attr("text-anchor", "middle")
+                  .attr("alignment-baseline", "middle")
+                  .attr("y", -30)
+                  .text(d["Destination"])
+                  .attr("font-family", "Helvetica, Arial, sans-serif")
+                  .attr("font-size", "14px")
+                  .attr("fill", "#575757");
+
+                tooltip
+                  .append("text")
+                  .attr("class", "tooltip-time")
+                  .attr("text-anchor", "middle")
+                  .attr("alignment-baseline", "middle")
+                  .text(arrivalString)
+                  .attr("font-family", "Helvetica, Arial, sans-serif")
+                  .attr("font-size", "20px")
+                  .attr("fill", "#161616");
+
+                tooltip
+                  .append("text")
+                  .attr("text-anchor", "middle")
+                  .attr("alignment-baseline", "middle")
+                  .attr("y", 30)
+                  .text("[ " + delay + " min late ]")
+                  .attr("font-family", "Helvetica, Arial, sans-serif")
+                  .attr("font-size", "14px")
+                  .attr("fill", "#8a3636");
+              })
+      }
+      trainzClick()
+  }
+
   function stareIntoTheAbyss(data){
 
   }
@@ -470,6 +605,12 @@ var DetailView = function(siteid, dir) {
     direction = dir;
     resetSvg();
     updateCircleData(currentStation);
+  }
+
+  this.updateData = function(newTime) {
+    currentTime = newTime;
+    getDelayTimeUpdate(currentStation);
+    // updateCircleData(currentStation);
   }
 
   this.hide = function() {

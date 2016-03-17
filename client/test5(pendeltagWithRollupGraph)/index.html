@@ -81,13 +81,13 @@
         <div class="startstop">
             <div class="container1">
               <div class="switch">
-                <input type="radio" class="switch-input" name="view" value="stop" id="stop" onclick="changeSpeed(10000000000000000000)" checked>
+                <input type="radio" class="switch-input" name="view" value="stop" id="stop" onclick="setSpeedMultiplier(100)" checked>
                 <label for="stop" class="switch-label switch-label-stop">&#9612&#9612</label>
-                <input type="radio" class="switch-input" name="view" value="start" id="start" onclick="changeSpeed(1)">
+                <input type="radio" class="switch-input" name="view" value="start" id="start" onclick="setSpeedMultiplier(1)">
                 <label for="start" class="switch-label switch-label-play">&#9658</label>
-                <input type="radio" class="switch-input" name="view" value="fast" id="fast" onclick="changeSpeed(1/10)">
+                <input type="radio" class="switch-input" name="view" value="fast" id="fast" onclick="setSpeedMultiplier(1/10)">
                 <label for="fast" class="switch-label switch-label-fast">&#9658&#9658&#9612</label>
-                <input type="radio" class="switch-input" name="view" value="superfast" id="superfast" onclick="changeSpeed(1/100)">
+                <input type="radio" class="switch-input" name="view" value="superfast" id="superfast" onclick="setSpeedMultiplier(1/100)">
                 <label for="superfast" class="switch-label switch-label-superfast">&#9658&#9658&#9658&#9612</label>
                 <span class="switch-selection"></span>
              </div>
@@ -111,9 +111,9 @@
       <div class="northsouth">
           <div class="container2">
             <div class="switch northsouth">
-              <input type="radio" class="switch-input" name="view2" value="north" id="north" onclick="changeDirection('north')" checked>
+              <input type="radio" class="switch-input" name="view2" value="north" id="north" onclick="setDirection('north')" checked>
               <label for="north" class="switch-label switch-label-off">North</label>
-              <input type="radio" class="switch-input" name="view2" value="south" id="south" onclick="changeDirection('south')">
+              <input type="radio" class="switch-input" name="view2" value="south" id="south" onclick="setDirection('south')">
               <label for="south" class="switch-label switch-label-on">South</label>
               <span class="switch-selection"></span>
             </div>
@@ -138,9 +138,9 @@
 
 
 <!-- Import js scripts -->
-<script src="lib/drawArc.js"></script>
+<!-- <script src="lib/drawArc.js"></script> -->
 <script src="lib/d3.min.js"></script>
-<script src="lib/rollup.js"></script>
+<!-- <script src="lib/rollup.js"></script> -->
 <script type="text/javascript" src="lib/d3.slider.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
@@ -150,7 +150,7 @@
 <script src="js/sliderTimer.js"></script> -->
 
 <script src="js/chroma.js"></script>
-<script src="js/sliderTimer2.js"></script>
+<!-- <script src="js/sliderTimer2.js"></script> -->
 <script src="js/arc2.js"></script>
 <script src="js/arcs.js"></script>
 <script src="js/detailView.js"></script>

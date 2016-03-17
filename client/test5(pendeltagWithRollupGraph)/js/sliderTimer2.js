@@ -24,12 +24,7 @@ var SliderTimer = function(cm) {
     console.log(currentMinute);
   }
 
-  function updateSliderHandle() {
-    if (sliderHandle !== undefined) {
-      var percent = currentMinute / 1440 * 100;
-      sliderHandle.transition().duration(10).style("left",percent+"%");
-    }
-  }
+  
 
   this.setCurrentMinute = function(cm) {
     currentMinute = cm;

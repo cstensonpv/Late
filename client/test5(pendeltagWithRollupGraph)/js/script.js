@@ -4,21 +4,23 @@ var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
 
 var currentDate = new Date();
 var currentMinute = currentDate.getHours() * 60 + currentDate.getMinutes();
-
-var sliderTimer = new SliderTimer(currentMinute);
+var minuteasdf = 60000;
+var speedMultiplierasdf = 1;
+var timeout;
+var direction = "north";
+var detailSiteId = 9000;
+var mouseDown = false;
 
 var arcs;
-var detailView = new DetailView(9000, "north");
+var detailView = new DetailView(detailSiteId, direction, currentMinute);
 
 
 var slider = d3.slider().on("slide", function(event, value) {
-    sliderTimer.updateSliderValue(value,true);
+    updateSliderValue(value,true);
   }).axis(true).min(0).max(24);
 
 var sliderPlace = d3.select('#slider6').call(slider);
 var sliderHandle = d3.select("#handle-one");
-
-sliderTimer.setSliderHandle(sliderHandle);
 
 var widthPercent = 50;
 var heightPercent = 100;
@@ -62,15 +64,12 @@ var isAStationClicked = false;
 //Main
 window.onload = function() {
   printCommuterMap();
-  console.log(arcs);
 
 };
 //End Main
 
 function printCommuterMap(){
   d3.json("data/pendeltag.json", function(error, pendeltag) {
-
-    sliderTimer.setTrainData(pendeltag.nodes);
 
     if (error) throw error;
 
@@ -106,7 +105,7 @@ function printCommuterMap(){
 
         return "station_" + d.id;
       })
-      .on("click",function(d) {
+      .on("click", function(d) {
         var id = d3.select(this).attr("id");
 
         // active = d3.select(this).classed("active",true);
@@ -116,7 +115,8 @@ function printCommuterMap(){
         id = +id.substring("station_".length);
         // var test = d3.selectAll(".station").filter(".active");
         // console.log(test[0].attr("id"));
-        detailView.reset(id, "north");
+        detailSiteId = id;
+        detailView.reset(id, direction, currentMinute);
       })
       .classed("station", true);
 
@@ -148,7 +148,8 @@ function printCommuterMap(){
       .on("click", function(d) {
         var id = d3.select(this).attr("id");
         id = +id.substring("slices_".length);
-        detailView.reset(id, "north");
+        detailView.reset(id, direction, currentMinute);
+        detailSiteId = id;
       });
 
     svg.append("g")
@@ -157,6 +158,9 @@ function printCommuterMap(){
     svg.append("g")
       .attr("class", "y axis");
 
+    console.log("init interval");
+    arcs.setSpeedMultiplier(speedMultiplierasdf);
+    interval();
   });
 }
 
@@ -183,70 +187,44 @@ function getMinOfArray(numArray) {
   return Math.min.apply(null, numArray);
 }
 
-function changeColorOfStationNameText(d3Object, siteid, colorName, arcRgb){
-  var text = d3Object.select("#text"+siteid);
-  text.style("fill",colorName);
-
-  var selectedArc = d3.select("#stationPath_"+siteid);
-  selectedArc.attr("fill",arcRgb);
+function setSpeedMultiplier(sm) {
+  speedMultiplierasdf = sm;
+  arcs.setSpeedMultiplier(sm);
+  clearTimeout(timeout);
+  interval();
 }
 
-function drawDetailView(domid,direction){
-  var siteid = domid.substring(8,domid.length); //siteid will be 9xxx
-  var detailView = new DetailView(siteid, "north");
-}
-
-function setActiveSelectedObject(object)
-{
-  active = object;
-}
-
-function getActiveSelectedObject()
-{
-  return active;
-}
-
-function clicked(d,i)
-{
-  var idOfSelected = d3.select(this).attr("id"); //station_9xxx
-
-  if(active == null) // if no selection was made
-  {
-    drawDetailView(idOfSelected,"north");
-    changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
-      "red", "rgb(108, 7, 107)");
-    active = d3.select(this);
-  }
-  else{
-    var idOfactive = active.attr("id");
-
-    d3.select("#detailView").remove();
-
-    if(idOfSelected == idOfactive){ //same node clicked. Remove the drawn detail.
-      console.log("same clicked");
-
-      changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),
-        "white","rgb(26,115,0)");
-      active = null;
-    }
-    else{
-      console.log("diff clicked " + idOfactive);
-      changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),
-        "white","rgb(26,115,0)");
-      changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
-        "red","rgb(108, 7, 107)");
-      drawDetailView(idOfSelected,"north");
-      active = d3.select(this);
-    }
-  }
-}
-
-changeDirection = function(dir){
-  detailView.setDirection(dir);
+function setDirection(dir) {
+  direction = dir;
   arcs.setDirection(dir);
+  detailView.reset(detailSiteId, direction, currentMinute);
+  clearTimeout(timeout);
+  interval();
 }
 
-changeSpeed = function(speed){
-  arcs.setSpeedMultiplier(speed);
+function interval() {
+  arcs.setCurrentMinute(currentMinute);
+  arcs.getDelayData();
+  currentMinute++;
+  setSliderMinute(currentMinute);
+  timeout = setTimeout(interval, minuteasdf * speedMultiplierasdf);
+}
 
+function updateSliderHandle() {
+  if (sliderHandle !== undefined) {
+    var percent = currentMinute / 1440 * 100;
+    sliderHandle.transition().duration(10).style("left",percent+"%");
+  }
+}
+
+function setSliderMinute(cm) {
+  currentMinute = cm;
+  updateSliderHandle();
+}
+
+function updateSliderValue(value, isDragged) {
+  value *= 60;
+  currentMinute = value.toFixed(0);
+  detailView.updateData(currentMinute);
+  // console.log(currentMinute);
 }

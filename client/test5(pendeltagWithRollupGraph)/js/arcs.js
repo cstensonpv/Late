@@ -16,7 +16,7 @@ var Arcs = function(trains, svg) {
     arcs[id] = arc;
   }
 
-  function getDelayData() {
+  this.getDelayData = function() {
     $.ajax({
       url: "http://localhost:3000/datafromtime/" + currentMinute,
       dataType: "jsonp",
@@ -52,15 +52,11 @@ var Arcs = function(trains, svg) {
       if (data["id_" + arc.id] !== undefined) {
         var d = data["id_" + arc.id][direction];
         if (d !== "No train going " + direction) {
-
           var expectedDate = new Date(d.ExpectedDateTime);
           var expectedMinute = expectedDate.getUTCHours() * 60 + expectedDate.getMinutes();
           var minutes = expectedMinute - currentMinute;
           if (minutes < 0) {
             minutes = 0;
-          }
-          if (d.SiteId === 9727) {
-            console.log("Krigslida: " + minutes);
           }
           arc.setTime(minutes);
         } else {
@@ -76,20 +72,18 @@ var Arcs = function(trains, svg) {
     for (key in arcs) {
       arcs[key].setSpeedMultiplier(speedMultiplier);
     }
-    clearTimeout(timeout);
-    interval();
-  }
+    this.getDelayData();
+  };
 
   this.setDirection = function(dir) {
     direction = dir;
-    clearTimeout(timeout);
-    interval();
-  }
+    for (key in arcs) {
+      arcs[key].setDirection(dir);
+    }
+    this.getDelayData();
+  };
 
-  interval();
-  function interval() {
-    getDelayData();
-    currentMinute++;
-    timeout = setTimeout(interval, minute * speedMultiplier);
-  }
+  this.setCurrentMinute = function(cm) {
+    currentMinute = cm;
+  };
 }
