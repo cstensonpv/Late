@@ -8,7 +8,7 @@ var last = 0;
 var lastCalledMinute;
 var direction = "north";
 
-var speed = 10 ;//times normal speed!
+var speed = 100 ;//times normal speed!
 
 var maxScaleofSlider = (3600*24)*10/speed;
 var currentPositionOfSlider = 0;
