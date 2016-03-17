@@ -1,6 +1,7 @@
 var DetailView = function(siteid, dir) {
   var currentStation = siteid;
   var direction = dir;
+  var initStep = true;
 
   var currentDate = new Date();
   var currentHour = currentDate.getHours();
@@ -58,7 +59,7 @@ var DetailView = function(siteid, dir) {
   var cy = height/2;
   var radius = height/Math.PI;
 
-  var svg = d3.select("body")
+  var svg = d3.select("#two")
   	.append("svg")
   	.attr("width", width)
   	.attr("height", height)
@@ -286,7 +287,7 @@ var DetailView = function(siteid, dir) {
       });
 
     slice
-      .transition().duration(6000).ease("linear")
+      .transition().duration(1000)
       .attrTween("d", function(d) {
         this._current = this._current || d;
         var interpolate = d3.interpolate(this._current, d);
@@ -303,13 +304,13 @@ var DetailView = function(siteid, dir) {
 
 
   function drawData(data){
-    // var colorScale = chroma.scale(["green", "#FFF235","red"]).domain([0, 2, 8]);
+    var colorScale = chroma.scale(["green", "#FFF235","red"]).domain([0, 2, 8]);
 
     d3.select("g.detail-title")
       .append("text")
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "before-edge")
-      .text("Trains going " + direction + " from " + data[direction][0].StopAreaName)
+      .text(data[direction][0].StopAreaName)
       .attr("font-family", "Helvetica, Arial, sans-serif")
       .attr("font-size", "30px")
       .attr("font-weight", "bold")
@@ -368,7 +369,6 @@ var DetailView = function(siteid, dir) {
     function trainzClick(){
       trainz
         .style("fill", function(d){
-
           return colorScale(dateToMins(d["ExpectedDateTime"], d["TimeTabledDateTime"])).hex()
         })
         .style("stroke", function(d){
@@ -441,6 +441,8 @@ var DetailView = function(siteid, dir) {
     }
     trainzClick()
 
+
+
    /* d3.selectAll()
       .on("click", function(d){
           var thisOne = d3.select(this)
@@ -479,22 +481,3 @@ var DetailView = function(siteid, dir) {
     updateCircleData(currentStation);
   }
 }
-
-var siteid = 9000;
-var detailView = new DetailView(siteid, "north");
-
-$("#button-north").click(function() {
-  detailView.reset(siteid, "north");
-});
-
-$("#button-south").click(function() {
-  detailView.reset(siteid, "south");
-});
-
-$("#button-show").click(function() {
-  detailView.show();
-});
-
-$("#button-hide").click(function() {
-  detailView.hide();
-});

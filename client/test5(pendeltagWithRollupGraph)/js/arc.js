@@ -5,7 +5,7 @@ var Arc = function(id, cxArc, cyArc, name){
   this.cxArc = cxArc;
   this.cyArc = cyArc;
 
-  console.log("created new arc"); 
+  console.log("created new arc");
   this.counter = 0;
   var maxTime = 60*10;
   this.stopVar = true;
@@ -113,6 +113,9 @@ var Arc = function(id, cxArc, cyArc, name){
   this.getCurrentTimeLeft = function() {
     return _this.counter;
   }
+<<<<<<< HEAD
+}
+=======
 
   function drawDetailed(selectedID,direction)
   {
@@ -131,7 +134,7 @@ var Arc = function(id, cxArc, cyArc, name){
         console.log("something clicked: " + prevClicked.attr("id"));
         var prevClickedId = prevClicked.attr("id");
         changeColorOfStationNameText(d3.select("#"+prevClickedId),
-          prevClickedId.substring(8,prevClickedId.length),"black", "rgb(26,115,0)");
+          prevClickedId.substring(8,prevClickedId.length),"white", "rgb(26,115,0)");
       }
 
       if(active == null)
@@ -158,7 +161,7 @@ var Arc = function(id, cxArc, cyArc, name){
           d3.select("#detailView").remove();
           active = null;
           changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
-              "black", "rgb(26,115,0)");
+              "white", "rgb(26,115,0)");
           setActiveSelectedObject(null);
         }
       }
@@ -167,3 +170,4 @@ var Arc = function(id, cxArc, cyArc, name){
 
 }
 
+>>>>>>> 73c6abafddd779886387e10bf8ed1f92af3ecb75

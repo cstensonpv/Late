@@ -15,15 +15,21 @@
     margin: auto;
     padding: 10px;
     }
-    div#one {
-    width: 50%;
-    height: 900px;
 
-    float: left;
+    #container {
+      display: flex;
+    }
+
+    div#one {
+      width: 50%;
+      /*height: 900px;*/
+
+    /*float: left;*/
     }
     div#two {
-    margin-left: 30%;
-    height: 900px;
+      width: 50%;
+    /*margin-left: 30%;*/
+      /*height: 900px;*/
     }
 
     #tooltip {
@@ -125,7 +131,7 @@
 
 </section>
 
-<section>
+<section id="container">
   <div id="one"></div>
   <div id="two"></div>
 </section>
@@ -138,13 +144,17 @@
 <script type="text/javascript" src="lib/d3.slider.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
-
+<!--
 <script src="js/script.js"></script>
 <script src="js/arc.js"></script>
-<script src="js/sliderTimer.js"></script>
-<script src="js/detailedView.js"></script>
+<script src="js/sliderTimer.js"></script> -->
+
+<script src="js/chroma.js"></script>
+<script src="js/sliderTimer2.js"></script>
+<script src="js/arc2.js"></script>
+<script src="js/arcs.js"></script>
+<script src="js/detailView.js"></script>
+<script src="js/script.js"></script>
 
 </body>
 </html>
-
-

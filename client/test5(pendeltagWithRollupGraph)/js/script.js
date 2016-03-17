@@ -2,15 +2,34 @@
 
 var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
 
+var currentDate = new Date();
+var currentMinute = currentDate.getHours() * 60 + currentDate.getMinutes();
+
+var sliderTimer = new SliderTimer(currentMinute);
+
+var arcs;
+var detailView = new DetailView(9000, "north");
+
+
 var slider = d3.slider().on("slide", function(event, value) {
-    updateFromSliderValue(value,true);
+    sliderTimer.updateSliderValue(value,true);
   }).axis(true).min(0).max(24);
 
-var allArcs = {};
-var margin = {top: 90, right: 240, bottom: 90, left: 240},
-    width = 960 - margin.left - margin.right,
+var sliderPlace = d3.select('#slider6').call(slider);
+var sliderHandle = d3.select("#handle-one");
+
+sliderTimer.setSliderHandle(sliderHandle);
+
+var widthPercent = 50;
+var heightPercent = 100;
+
+var width = window.innerWidth * widthPercent/100;
+var height = 1000;
+
+var margin = {top: 90, right: 100, bottom: 90, left: 100},
+    width = width - margin.left - margin.right,
     t = .5,
-    height = 1000 - margin.top - margin.bottom;
+    height = height - margin.top - margin.bottom;
 
 var x = d3.scale.linear();
 var y = d3.scale.linear();
@@ -27,7 +46,7 @@ var yAxis = d3.svg.axis()
 var svg = d3.select("#one").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
-  .attr("id","outerSvg")
+  .attr("id", "outerSvg")
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")"+"rotate("+0+","+350+","+450+")")
   .attr("id", "innerSvg");
@@ -36,17 +55,23 @@ var svg = d3.select("#one").append("svg")
 
 var data = null;
 var active = null;
+var tmpActive = d3.select(null);
+
 var isAStationClicked = false;
 
 //Main
 window.onload = function() {
   printCommuterMap();
-  startTransition(0);
+  console.log(arcs);
+
 };
 //End Main
 
 function printCommuterMap(){
   d3.json("data/pendeltag.json", function(error, pendeltag) {
+
+    sliderTimer.setTrainData(pendeltag.nodes);
+
     if (error) throw error;
 
     x.domain([getMinOfArray(pendeltag.nodes.map(fx)),getMaxOfArray(pendeltag.nodes.map(fx))])
@@ -81,39 +106,50 @@ function printCommuterMap(){
 
         return "station_" + d.id;
       })
-      .on("click",clicked)
+      .on("click",function(d) {
+        var id = d3.select(this).attr("id");
+
+        // active = d3.select(this).classed("active",true);
+        // console.log(d3.selectAll(".station").selectAll("text").enter().attr("id"));
+        // d3.selectAll(".station").selectAll("text").attr("fill", "red");
+        // d3.select(this).select("text").attr("fill", "red");
+        id = +id.substring("station_".length);
+        // var test = d3.selectAll(".station").filter(".active");
+        // console.log(test[0].attr("id"));
+        detailView.reset(id, "north");
+      })
       .classed("station", true);
 
-      var label = stations.append("text")
-      .attr("class", "word")
-      .attr("dy", function(d) {
-        return y(fy(d)) + d.labelY })
-      .attr("dx", function(d) {
-          if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
-              return x(fx(d)) -d.labelX
-          }
-          else{
-              return x(fx(d)) + 15
-          }
-      })
-      .attr("id", function(d) {return "text"+d.id })
-      .text( function(d) {
-        return d.name;
-      });
+    var label = stations.append("text")
+    .attr("class", "word")
+    .attr("dy", function(d) {
+      return y(fy(d)) + d.labelY })
+    .attr("dx", function(d) {
+        if (d.x<100 || d.name==="Rosersberg" || d.name==="Märsta"){
+            return x(fx(d)) -d.labelX
+        }
+        else{
+            return x(fx(d)) + 15
+        }
+    })
+    .attr("id", function(d) {return "text"+d.id })
+    .text( function(d) {
+      return d.name;
+    });
 
     /*
     This part adds the interactive circles to the "map". First parameter is the
     id of the station. Second paramter is the "cy" parameter.
     Third parameter is the name of the station
     */
-    for(var i = 0; i < pendeltag.nodes.length; i++) {
-      var id = "#station_"+pendeltag.nodes[i].id;
-      var arc = new Arc(id, x(pendeltag.nodes[i].x) , y(pendeltag.nodes[i].y), pendeltag.nodes[i].name);
-      //arc.start();
-      allArcs[id] = arc;
-      //console.log(allArcs);
-    }
+    arcs = new Arcs(pendeltag, svg);
 
+    d3.selectAll(".slices")
+      .on("click", function(d) {
+        var id = d3.select(this).attr("id");
+        id = +id.substring("slices_".length);
+        detailView.reset(id, "north");
+      });
 
     svg.append("g")
       .attr("class", "x axis");
@@ -190,13 +226,13 @@ function clicked(d,i)
       console.log("same clicked");
 
       changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),
-        "black","rgb(26,115,0)");
+        "white","rgb(26,115,0)");
       active = null;
     }
     else{
       console.log("diff clicked " + idOfactive);
       changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),
-        "black","rgb(26,115,0)");
+        "white","rgb(26,115,0)");
       changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),
         "red","rgb(108, 7, 107)");
       drawDetailView(idOfSelected,"north");
@@ -204,4 +240,3 @@ function clicked(d,i)
     }
   }
 }
-
