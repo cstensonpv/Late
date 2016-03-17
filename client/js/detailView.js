@@ -123,10 +123,12 @@ var DetailView = function(siteid, dir) {
     /* ------- PIE SLICES -------*/
     var slice = svg.select(".slices").selectAll("path.slice")
       .data(pie(data));
-      if(data[0].value === 1 && data[1].value === 1){
-      }
-      else{
-          for(var i = 0; i < 24; i++){
+      for(var i = 0; i < 24; i++){
+        if(data[0].value === 1 && data[1].value === 1){
+        }
+        else if (data[i].value===1){
+            console.log(data[0].value)
+          
             if(data[i].value === 1){
               var selectedHour = i;
             }
@@ -134,7 +136,7 @@ var DetailView = function(siteid, dir) {
 
         }
 
-    d3.select("g.tooltip").html("");
+    //d3.select("g.tooltip").html("");
 
     if(selectedHour){
       d3.selectAll(".trainz")
@@ -146,13 +148,14 @@ var DetailView = function(siteid, dir) {
           minute = parseInt(d["ExpectedDateTime"].substring(14,16));
           if(hour == selectedHour){
             var angleDiff = minute/60*360 - (hour*60 + minute) / (24*60) * 360;
-            console.log("anglediff: " + angleDiff)
-            console.log("cx: " + cx + " cy: " + cy)
-            console.log(data.zoom)
+           // console.log("anglediff: " + angleDiff)
+            //console.log("cx: " + cx + " cy: " + cy)
+            //console.log(data.zoom)
             return "rotate(" + angleDiff + " " + cx + " " + cy + ")"; }
 
           else{
-             d3.select(this).style("opacity", 0)
+            d3.select(this)
+              .style("visibility","hidden")
             return "rotate(" + 0 + " " + cx + " " + cy + ")";}
           })
     }
@@ -182,6 +185,7 @@ var DetailView = function(siteid, dir) {
           if (d.data.zoom) {
             d.data.zoom = false;
             selectedHour = null;
+            d3.select("g.tooltip").html("");
             for (var i = 0; i < 24; i++) {
               data[i].value = 1;
             }
@@ -190,6 +194,87 @@ var DetailView = function(siteid, dir) {
             for (var i = 0; i < 24; i++) {
               if (data[i].id === d.data.id) {
                 data[i].value = 1;
+                  var tooltip = d3.select("g.tooltip")
+                  if (!(tooltip.html())){
+                    tooltip
+                      .append("text")
+                      .attr("class", "tooltip-title")
+                      .attr("text-anchor", "middle")
+                      .attr("alignment-baseline", "middle")
+                      .attr("y", -60)
+                      .text("Average delay for")
+                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-size", "17px")
+                      .attr("fill", "#575757");
+
+                    tooltip
+                      .append("text")
+                      .attr("class", "tooltip-title")
+                      .attr("text-anchor", "middle")
+                      .attr("alignment-baseline", "middle")
+                      .attr("y", -30)
+                      .text(i+":00 - "+i+":59")
+                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-size", "17px")
+                      .attr("fill", "#575757");
+
+                    var wholeNumber = parseInt(data[i].mean.toString().substring(0,1));
+                    var decimals = parseFloat(data[i].mean.toString().substring(2,4));
+                    var modulus = data[i].mean%wholeNumber;
+
+                    tooltip
+                      .append("text")
+                      .attr("class", "tooltip-time")
+                      .attr("text-anchor", "middle")
+                      .attr("alignment-baseline", "middle")
+                      .attr("y", 20)
+                      .text(function(){
+                        if(wholeNumber == 1){
+                          return data[i].mean.toString().substr(0,1)+" minute"
+                        }
+                        else{
+                          return data[i].mean.toString().substr(0,1)+" minutes"
+                        }
+                      })
+                      .attr("font-family", "Helvetica, Arial, sans-serif")
+                      .attr("font-size", "20px")
+                      .attr("fill", "#161616");
+
+                      
+                      //1.07 -> "1.07" -> "07" -> "0.07" -> 0.07
+                      console.log("wholeNumber: " +wholeNumber+" , meantofixed: "+data[i].mean+" , modulus: "+data[i].mean%wholeNumber+" , decimals: "+decimals+" , secondsFixed: "+ modulus.toFixed(2))
+
+                    if(data[i].mean>0 && wholeNumber>0 && isNaN(decimals)===false){ //numbers bigger than 1 and have decimals (e.g. 1.07)
+                      tooltip
+                        .append("text")
+                        .attr("class", "tooltip-time")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "middle")
+                        .text(modulus.toFixed(2)*(60)+" seconds")
+                        .attr("y", 50)
+                        .attr("font-family", "Helvetica, Arial, sans-serif")
+                        .attr("font-size", "20px")
+                        .attr("fill", "#161616");
+                    }
+                    else if(data[i].mean>0 && isNaN(decimals)){ //numbers bigger than 0 without decimals (e.g. 1.00)
+                       
+                    }
+
+                    else if(data[i].mean>0){
+                      tooltip
+                        .append("text")
+                        .attr("class", "tooltip-time")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "middle")
+                        .text(data[i].mean.toFixed(2)*(60)+" seconds")//.toString().substring(3,5)+" seconds")
+                        .attr("y", 50)
+                        .attr("font-family", "Helvetica, Arial, sans-serif")
+                        .attr("font-size", "20px")
+                        .attr("fill", "#161616");
+                    }
+                  }
+                 
+
               } else {
                 data[i].value = 0;
               }
