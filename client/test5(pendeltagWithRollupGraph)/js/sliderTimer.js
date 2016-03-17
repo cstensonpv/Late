@@ -6,8 +6,9 @@ var isContinue = false;
 var timerCurrentValue = 0;
 var last = 0;
 var lastCalledMinute;
+var direction = "north";
 
-var speed = 1 ;//times normal speed!
+var speed = 100 ;//times normal speed!
 
 var maxScaleofSlider = (3600*24)*10/speed;
 var currentPositionOfSlider = 0;
@@ -15,15 +16,25 @@ var currentPositionOfSlider = 0;
 var sliderPlace = d3.select('#slider6').call(slider);
 var sliderHandle = d3.select("#handle-one");
 
+function northClick(){
+  direction = "north"
+  update();
+}
+
+function southClick(){
+  direction = "south"
+  update();
+}
 
 //Functions
 
 function update(data, currTimeMin){
+  console.log(direction+" korea!")
   for(var key in data) {
-    if(typeof data[key].north != 'string') {
-      var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
+    if(typeof data[key][direction] != 'string') {
+      var timeTabledDate = parseDate(data[key][direction].TimeTabledDateTime);
       var id = key.substring(3);
-      var expectedDate = parseDate(data[key].north.ExpectedDateTime);
+      var expectedDate = parseDate(data[key][direction].ExpectedDateTime);
       var pendeltagDelay = Math.abs(timeTabledDate - expectedDate);
       // Update timers of next
       timeToArrival = dateToMinutes(expectedDate) - currTimeMin;
@@ -41,16 +52,43 @@ function update(data, currTimeMin){
       //updateStationNode("#station_"+id,timeToArrival);
       // Changes color if there is a delay.
       if(pendeltagDelay != 0) {
-        console.log(id);
-        // console.log(("#stationPath_"+id));
-        // console.log(d3.select("#stationPath_"+id));
+          if(getActiveSelectedObject() != null){
 
-        d3.select("#stationPath_"+id).attr("fill","red");
-        // console.log(pendeltagDelay + " *---* " + id);
-      }
-      else {
-        d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
-      }
+            var selectedObject = getActiveSelectedObject().attr("id");
+            var stationIdNumber = selectedObject.substring(8,selectedObject.length);
+
+            if(stationIdNumber == id)
+            {
+              d3.select("#stationPath_"+stationIdNumber).attr("fill","rgb(108, 7, 107)");
+            }
+            else
+            {
+              d3.select("#stationPath_"+id).attr("fill","red");
+            }
+          }
+          else{
+            d3.select("#stationPath_"+id).attr("fill","red");
+          }
+        }
+        else {
+          if(getActiveSelectedObject() != null){
+
+            var selectedObject = getActiveSelectedObject().attr("id");
+            var stationIdNumber = selectedObject.substring(8,selectedObject.length);
+
+           if(stationIdNumber == id)
+           {
+             d3.select("#stationPath_"+stationIdNumber).attr("fill","rgb(108, 7, 107)");
+           }
+           else
+           {
+             d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
+           }
+          }
+          else{
+            d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
+          }
+        }
     }
   }
 }

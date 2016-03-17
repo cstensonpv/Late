@@ -10,6 +10,9 @@ var Arc = function(id, cxArc, cyArc, name){
   var maxTime = 60*10;
   this.stopVar = true;
 
+  var isArcClicked = false;
+  var active = null;
+
   var fields = [
     {name: this.name, value: maxTime, size: maxTime, label: "s", update: function() { return increaseCounter(); }}
   ];
@@ -28,7 +31,9 @@ var Arc = function(id, cxArc, cyArc, name){
       .data(fields)
     .enter().append("g")
       .attr("transform", function(d, i) { return "translate("+cxArc+","+cyArc+")"})
-      .attr("class", "field");
+      .attr("class", "field")
+      .attr("id","arc_"+id.substring(1,id.length))
+      .on("click",arcClicked);
 
   field.append("path")
       .attr("class", "path path--background")
@@ -108,4 +113,61 @@ var Arc = function(id, cxArc, cyArc, name){
   this.getCurrentTimeLeft = function() {
     return _this.counter;
   }
+<<<<<<< HEAD
 }
+=======
+
+  function drawDetailed(selectedID,direction)
+  {
+    var siteid = selectedID.substring(12,selectedID.length);
+    var detailView = new DetailView(siteid, direction);
+  }
+
+  function arcClicked(d,i)
+  {
+      var selected_id = d3.select(this).attr("id"); //something like arc_station_9500
+      var selectedStationId = selected_id.substring(4,selected_id.length);
+      var stationIdNumber = selectedStationId.substring(8,selectedStationId.length);
+
+      var prevClicked = getActiveSelectedObject();
+      if(prevClicked != null){
+        console.log("something clicked: " + prevClicked.attr("id"));
+        var prevClickedId = prevClicked.attr("id");
+        changeColorOfStationNameText(d3.select("#"+prevClickedId),
+          prevClickedId.substring(8,prevClickedId.length),"white", "rgb(26,115,0)");
+      }
+
+      if(active == null)
+      { //not selected
+        console.log("def called");
+        d3.select("#detailView").remove();
+        active = selected_id;
+
+         //set the active node to the default clicked.
+        drawDetailed(selected_id,"north");
+        changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+            "red", "rgb(108, 7, 107)");
+        setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
+      }
+      else{ //selected
+        if(prevClicked == null){
+          drawDetailed(selected_id,"north");
+          changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+              "red", "rgb(108, 7, 107)");
+
+          setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
+        }
+        else{
+          d3.select("#detailView").remove();
+          active = null;
+          changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+              "white", "rgb(26,115,0)");
+          setActiveSelectedObject(null);
+        }
+      }
+
+  }
+
+}
+
+>>>>>>> 73c6abafddd779886387e10bf8ed1f92af3ecb75

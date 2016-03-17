@@ -1,19 +1,19 @@
 body {
-  font-family: sans-serif;
+  font-family: "century gothic", "Helvetica", "Arial", "sans-serif";
   font-size: 10px;
-  background-color: lightblue;
+  background-color: #006699;
   /*background:radial-gradient(circle,lightgrey,lightblue);*/
 }
 
 img{
-	width:150px;
+	width:100px;
 	float: right;
 	margin-right: 40px;
+  margin-top: 20px;
 	display:inline-block;
 }
 
 h2 {
-	font-size: 32px;
 	color:white;
 }
 
@@ -46,6 +46,189 @@ button {
 .word{
 	font-size: 14px;
 	font-weight: bold;
-	fill:black;
+	fill:white;
 
+}
+
+#sliderTime{
+  display: inline-block;
+  font-size: 50pt;
+  margin-right: 20px;
+  padding-top: -20px;
+}
+
+#sliderTime span{
+  color:white;
+  font-size: 50pt;
+}
+
+.buttons{
+  margin-bottom: 0px;
+  display: inline-block;
+}
+
+.startstop{
+  display:inline-block;
+  padding-top: 10px;
+}
+
+.northsouth{
+  display: inline-block;
+  margin-left: 20px;
+}
+
+/*Toggle switch*/
+
+.container1 {
+  width: 240px;
+}
+
+.container2 {
+  width: 120px;
+}
+
+.startstop .switch {
+  position: relative;
+  margin: 0px auto;
+  height: 34px;
+  width: 240px;
+  background: rgba(0, 0, 0, 1);
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.switch-label {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 58px;
+  font-weight: bold;
+  line-height: 26px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+
+.switch-label-off, .switch-label-stop, .switch-label-play, .switch-label-fast, .switch-label-on, .switch-label-superfast {
+  padding-right: 2px;
+  padding-top: 4px;
+}
+
+.switch-input {
+  display: none;
+}
+
+.switch-input:checked + .switch-label {
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.65);
+  text-shadow: 0 1px rgba(255, 255, 255, 0.25);
+  -webkit-transition: 0.15s ease-out;
+  -moz-transition: 0.15s ease-out;
+  -o-transition: 0.15s ease-out;
+  transition: 0.15s ease-out;
+}
+
+.switch-input:checked + .switch-label {
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.65);
+  text-shadow: 0 1px rgba(255, 255, 255, 0.25);
+  -webkit-transition: 0.15s ease-out;
+  -moz-transition: 0.15s ease-out;
+  -o-transition: 0.15s ease-out;
+  transition: 0.15s ease-out;
+}
+
+.switch-input:checked + .switch-label-play ~ .switch-selection {
+  /* Note: left: 50% doesn't transition in WebKit */
+  left: 60px;
+}
+
+.switch-input:checked + .switch-label-fast ~ .switch-selection {
+  /* Note: left: 50% doesn't transition in WebKit */
+  left: 120px;
+}
+
+.switch-input:checked + .switch-label-superfast ~ .switch-selection {
+  /* Note: left: 50% doesn't transition in WebKit */
+  left: 180px;
+}
+
+.switch-selection {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  left: 2px;
+  width: 58px;
+  height: 30px;
+  background: #65bd63;
+  border-radius: 3px;
+  background-image: -webkit-linear-gradient(top, #9dd993, #65bd63);
+  background-image: -moz-linear-gradient(top, #9dd993, #65bd63);
+  background-image: -o-linear-gradient(top, #9dd993, #65bd63);
+  background-image: linear-gradient(to bottom, #00CCCC, #00CCCC);
+  background-image: linear-gradient(to bottom, #009900, #);
+  -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
+  -webkit-transition: left 0.15s ease-out;
+  -moz-transition: left 0.15s ease-out;
+  -o-transition: left 0.15s ease-out;
+  transition: left 0.15s ease-out;
+}
+
+
+.northsouth .switch {
+  position: relative;
+  margin: -3px auto;
+  height: 34px;
+  width: 120px;
+  background: rgba(0, 0, 0, 1);
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.northsouth .switch-selection {
+  background: #3aa2d0;
+  background-image: -webkit-linear-gradient(top, #4fc9ee, #3aa2d0);
+  background-image: -moz-linear-gradient(top, #4fc9ee, #3aa2d0);
+  background-image: -o-linear-gradient(top, #4fc9ee, #3aa2d0);
+  background-image: linear-gradient(to bottom, #00CCCC, #00CCCC);
+}
+
+.northsouth .switch-input:checked + .switch-label-on ~ .switch-selection {
+  /* Note: left: 50% doesn't transition in WebKit */
+  left: 60px;
+}
+
+.startstopLabels{
+  width:240;
+}
+.startstopLabels div{
+  width:57px;
+  text-align: center;
+  display: inline-block;
+}
+.startstopLabels span{
+  font-size: 8pt;
+  font-weight:bold;
+  color:white;
+}
+
+.northsouthLabel{
+  width:120;
+}
+.northsouthLabel div{
+  width:120px;
+  text-align: center;
+  display: inline-block;
+}
+.northsouthLabel span{
+  font-size: 8pt;
+  font-weight:bold;
+  color:white;
 }

@@ -1,39 +1,160 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>PivotGraph (Rollup) Layout</title>
+<head>
+  <meta charset="utf-8">
+  <title>Late</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/d3.slider.css"/>
-    <link rel="stylesheet" href="css/arcstyle.css"/>
-    <link rel="stylesheet" href="css/map.css"/>
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/d3.slider.css"/>
+  <link rel="stylesheet" href="css/arcstyle.css"/>
+  <link rel="stylesheet" href="css/map.css"/>
+  <style type="text/css">
+    section {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    padding: 10px;
+    }
 
-    <!-- JS -->
+    #container {
+      display: flex;
+    }
 
-  </head>
-  <body>
-  <img src="latelogo1.png">
-    <div>
-      <div><h2>Selected time: <span id="slider3text">0</span></h2></div>
-      <div id="startButton"><button type="button" onclick="startAnimate()">Start</button></div>
-      <!-- <div id="rewindButton"><button type="button" onclick="rewind()">Rewind</button></div> -->
-      <div id="stopButton"><button type="button" onclick="stop()">Stop</button></div>
-    </div>
-    <div id="slider6"></div>
+    div#one {
+      width: 50%;
+      /*height: 900px;*/
 
-    <!-- Import js scripts -->
-    <script src="lib/drawArc.js"></script>
-    <script src="lib/d3.min.js"></script>
-    <script src="lib/rollup.js"></script>
-    <script type="text/javascript" src="lib/d3.slider.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    /*float: left;*/
+    }
+    div#two {
+      width: 50%;
+    /*margin-left: 30%;*/
+      /*height: 900px;*/
+    }
+
+    #tooltip {
+    position: absolute;
+    text-align: center;
+    opacity: 1;
+    }
+
+    h1 {
+    font-size: 36px;
+    }
+
+    h2 {
+    font-size: 18px;
+    }
+
+    .trainz {
+    fill: green;
+    stroke: green;
+    }
+
+    #tooltip {
+    position: absolute;
+    text-align: center;
+    opacity: 1;
+    pointer-events: none;
+    }
+
+    #mouseoverDisp {
+    position: absolute;
+    opacity: 1;
+    }
 
 
-    <script src="js/sliderTimer2.js"></script>
-    <script src="js/arc2.js"></script>
-    <script src="js/arcs.js"></script>
-    <script src="js/script.js"></script>
+    .label {
+    font: 24px sans-serif;
+    text-anchor: middle;
+    }
+  </style>
+  <!-- JS -->
 
-  </body>
+</head>
+<body>
+<img src="latelogo2.png">
+<section>
+  <div>
+    <div id="sliderTime"><span id="slider3text">0</span></div>
+    <div class="buttons">
+        <div class="startstop">
+            <div class="container1">
+              <div class="switch">
+                <input type="radio" class="switch-input" name="view" value="stop" id="stop" onclick="stop()" checked>
+                <label for="stop" class="switch-label switch-label-stop">&#9612&#9612</label>
+                <input type="radio" class="switch-input" name="view" value="start" id="start" onclick="startAnimate()">
+                <label for="start" class="switch-label switch-label-play">&#9658</label>
+                <input type="radio" class="switch-input" name="view" value="fast" id="fast" onclick="stop()">
+                <label for="fast" class="switch-label switch-label-fast">&#9658&#9658&#9612</label>
+                <input type="radio" class="switch-input" name="view" value="superfast" id="superfast" onclick="stop()">
+                <label for="superfast" class="switch-label switch-label-superfast">&#9658&#9658&#9658&#9612</label>
+                <span class="switch-selection"></span>
+             </div>
+          </div>
+          <div class=startstopLabels>
+            <div>
+              <span id="Pause">Pause</span>
+            </div>
+            <div>
+              <span id="Play">Play</span>
+            </div>
+            <div>
+              <span id="playx2">X10</span>
+            </div>
+            <div>
+              <span id="Playx10">X100</span>
+            </div>
+          </div>
+      </div>
+
+      <div class="northsouth">
+          <div class="container2">
+            <div class="switch northsouth">
+              <input type="radio" class="switch-input" name="view2" value="north" id="north" onclick="northClick()" checked>
+              <label for="north" class="switch-label switch-label-off">North</label>
+              <input type="radio" class="switch-input" name="view2" value="south" id="south" onclick="southClick()">
+              <label for="south" class="switch-label switch-label-on">South</label>
+              <span class="switch-selection"></span>
+            </div>
+          </div>
+           <div class=northsouthLabel>
+              <div>
+                <span id="traindirection">Direction of trains</span>
+              </div>
+            </div>
+      </div>
+  </div>
+
+</div>
+<div id="slider6"></div>
+
+</section>
+
+<section id="container">
+  <div id="one"></div>
+  <div id="two"></div>
+</section>
+
+
+<!-- Import js scripts -->
+<script src="lib/drawArc.js"></script>
+<script src="lib/d3.min.js"></script>
+<script src="lib/rollup.js"></script>
+<script type="text/javascript" src="lib/d3.slider.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<!--
+<script src="js/script.js"></script>
+<script src="js/arc.js"></script>
+<script src="js/sliderTimer.js"></script> -->
+
+<script src="js/chroma.js"></script>
+<script src="js/sliderTimer2.js"></script>
+<script src="js/arc2.js"></script>
+<script src="js/arcs.js"></script>
+<script src="js/detailView.js"></script>
+<script src="js/script.js"></script>
+
+</body>
 </html>
