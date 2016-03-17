@@ -160,6 +160,16 @@ function drawDetailView(domid,direction){
   var detailView = new DetailView(siteid, "north");
 }
 
+function setActiveSelectedObject(object)
+{
+  active = object;
+}
+
+function getActiveSelectedObject()
+{
+  return active;
+}
+
 function clicked(d,i)
 {
   var idOfSelected = d3.select(this).attr("id"); //station_9xxx

@@ -122,30 +122,44 @@ var Arc = function(id, cxArc, cyArc, name){
 
   function arcClicked(d,i)
   {
-    var selected_id = d3.select(this).attr("id"); //something like arc_station_9500
+      var selected_id = d3.select(this).attr("id"); //something like arc_station_9500
+      var selectedStationId = selected_id.substring(4,selected_id.length);
+      var stationIdNumber = selectedStationId.substring(8,selectedStationId.length);
 
-    if(active == null)
-    { //not selected
-      d3.select("#detailView").remove();
-      console.log("clicked for the first time");
-      isArcClicked = true;
-      active = selected_id;
-      drawDetailed(selected_id,"north");
-    }
-    else{ //selected
-      console.log("arc already clicked");
-      if(active == selected_id)
-      {
-        console.log("same clicked");
-        d3.select("#detailView").remove();
-        active = null;
+      var prevClicked = getActiveSelectedObject();
+      if(prevClicked != null){
+        console.log("something clicked: " + prevClicked.attr("id"));
+        var prevClickedId = prevClicked.attr("id");
+        changeColorOfStationNameText(d3.select("#"+prevClickedId),
+          prevClickedId.substring(8,prevClickedId.length),"black", "rgb(26,115,0)");
       }
-      else
-      {
-        console.log("diff clicked");
+
+      if(active == null)
+      { //not selected
+        console.log("def called");
         d3.select("#detailView").remove();
+        active = selected_id;
+
+         //set the active node to the default clicked.
+        drawDetailed(selected_id,"north");
+        changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+            "red", "rgb(108, 7, 107)");
       }
-    }
+      else{ //selected
+        if(prevClicked == null){
+          drawDetailed(selected_id,"north");
+          changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+              "red", "rgb(108, 7, 107)");
+        }
+        else{
+          d3.select("#detailView").remove();
+          active = null;
+          changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
+              "black", "rgb(26,115,0)");
+          setActiveSelectedObject(null);
+        }
+      }
+      setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
   }
 
 }
