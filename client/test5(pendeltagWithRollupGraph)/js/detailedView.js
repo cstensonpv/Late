@@ -63,7 +63,7 @@ var DetailView = function(siteid, dir) {
     .attr("width", width)
     .attr("height", height)
     .attr("id","detailView")
-    .style("background", "lightblue");
+    .style("background", "#91bada");
 
   resetSvg();
 
