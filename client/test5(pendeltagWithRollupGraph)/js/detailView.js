@@ -63,7 +63,7 @@ var DetailView = function(siteid, dir) {
   	.append("svg")
   	.attr("width", width)
   	.attr("height", height)
-  	.style("background", "white")
+  	.style("background", "#f0f0f0")
 
   resetSvg();
 
@@ -170,8 +170,7 @@ var DetailView = function(siteid, dir) {
       .insert("path")
       .style("fill", function(d) {
         if (currentHour <= d.data.id) {
-          d3.select(this).style("display", "none")
-          return "#006699";
+          return "#dadada";
         } else {
           if (d.data.mean === 0) {
             return "rgb(109, 187, 86)";
