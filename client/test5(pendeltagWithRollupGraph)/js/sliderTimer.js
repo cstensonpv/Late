@@ -52,16 +52,43 @@ function update(data, currTimeMin){
       //updateStationNode("#station_"+id,timeToArrival);
       // Changes color if there is a delay.
       if(pendeltagDelay != 0) {
-        console.log(id);
-        // console.log(("#stationPath_"+id));
-        // console.log(d3.select("#stationPath_"+id));
+          if(getActiveSelectedObject() != null){
 
-        d3.select("#stationPath_"+id).attr("fill","red");
-        // console.log(pendeltagDelay + " *---* " + id);
-      }
-      else {
-        d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
-      }
+            var selectedObject = getActiveSelectedObject().attr("id");
+            var stationIdNumber = selectedObject.substring(8,selectedObject.length);
+
+            if(stationIdNumber == id)
+            {
+              d3.select("#stationPath_"+stationIdNumber).attr("fill","rgb(108, 7, 107)");
+            }
+            else
+            {
+              d3.select("#stationPath_"+id).attr("fill","red");
+            }
+          }
+          else{
+            d3.select("#stationPath_"+id).attr("fill","red");
+          }
+        }
+        else {
+          if(getActiveSelectedObject() != null){
+
+            var selectedObject = getActiveSelectedObject().attr("id");
+            var stationIdNumber = selectedObject.substring(8,selectedObject.length);
+
+           if(stationIdNumber == id)
+           {
+             d3.select("#stationPath_"+stationIdNumber).attr("fill","rgb(108, 7, 107)");
+           }
+           else
+           {
+             d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
+           }
+          }
+          else{
+            d3.select("#stationPath_"+id).attr("fill","rgb(26,115,0)");
+          }
+        }
     }
   }
 }

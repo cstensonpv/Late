@@ -144,12 +144,15 @@ var Arc = function(id, cxArc, cyArc, name){
         drawDetailed(selected_id,"north");
         changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
             "red", "rgb(108, 7, 107)");
+        setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
       }
       else{ //selected
         if(prevClicked == null){
           drawDetailed(selected_id,"north");
           changeColorOfStationNameText(d3.select("#"+selectedStationId), stationIdNumber,
               "red", "rgb(108, 7, 107)");
+
+          setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
         }
         else{
           d3.select("#detailView").remove();
@@ -159,7 +162,7 @@ var Arc = function(id, cxArc, cyArc, name){
           setActiveSelectedObject(null);
         }
       }
-      setActiveSelectedObject(d3.select("#"+selectedStationId)); // set selection to the default selected.
+
   }
 
 }
