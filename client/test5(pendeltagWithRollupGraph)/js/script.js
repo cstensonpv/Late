@@ -35,7 +35,7 @@ var svg = d3.select("#one").append("svg")
 //svg.call(zoom.event);
 
 var data = null;
-active = d3.select(null);
+var active = null;
 var isAStationClicked = false;
 
 //Main
@@ -147,40 +147,44 @@ function getMinOfArray(numArray) {
   return Math.min.apply(null, numArray);
 }
 
-function clicked(d,i)
-{
-  if(!isAStationClicked){
-    isAStationClicked = true;
-    if (active.node() === this){
-      return reset();
-    }
-    active.classed("active", false);
-
-    active = d3.select(this).classed("active", true);
-
-    var idOfSelected = d3.select(this).attr("id");
-    console.log(idOfSelected);//something like station_9710
-
-    var siteid = idOfSelected.substring(8,idOfSelected.length);
-    var detailView = new DetailView(siteid, "north");
-
-    var text = d3.select(this).select("#text"+siteid);
-    text.style("fill","red");
-  }
-  else
-  {
-    reset();
-  }
+function changeColorOfStationNameText(d3Object, siteid, colorName){
+  var text = d3Object.select("#text"+siteid);
+  text.style("fill",colorName);
 }
 
-function reset(){
+function drawDetailView(domid,direction){
+  var siteid = domid.substring(8,domid.length); //siteid will be 9xxx
+  var detailView = new DetailView(siteid, "north");
+}
 
-  //console.log("reset called: " + );
-  var text = active.select("#text"+active.attr("id").substring(8,active.attr("id").length));
-  text.style("fill","black");
-  active.classed("active", false);
-  active = d3.select(null);
-  d3.select("#detailView").remove();
-  isAStationClicked = false;
+function clicked(d,i)
+{
+  var idOfSelected = d3.select(this).attr("id"); //station_9xxx
+
+  if(active == null) // if no selection was made
+  {
+    drawDetailView(idOfSelected,"north");
+    changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),"red");
+    active = d3.select(this);
+  }
+  else{
+    var idOfactive = active.attr("id");
+
+    d3.select("#detailView").remove();
+
+    if(idOfSelected == idOfactive){ //same node clicked. Remove the drawn detail.
+      console.log("same clicked");
+
+      changeColorOfStationNameText(active,idOfSelected.substring(8,idOfSelected.length),"black");
+      active = null;
+    }
+    else{
+      console.log("diff clicked " + idOfactive);
+      changeColorOfStationNameText(active,idOfactive.substring(8,idOfactive.length),"black");
+      changeColorOfStationNameText(d3.select(this),idOfSelected.substring(8,idOfSelected.length),"red");
+      drawDetailView(idOfSelected,"north");
+      active = d3.select(this);
+    }
+  }
 }
 
