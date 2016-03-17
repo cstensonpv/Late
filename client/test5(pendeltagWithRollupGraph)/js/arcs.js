@@ -54,7 +54,11 @@ var Arcs = function(trains, svg) {
         if (d !== "No train going " + direction) {
 
           var expectedDate = new Date(d.ExpectedDateTime);
+          var timeTableDate = new Date(d.TimeTabledDateTime);
+
           var expectedMinute = expectedDate.getUTCHours() * 60 + expectedDate.getMinutes();
+          var timeTabledMinute = timeTableDate.getUTCHours() * 60 + timeTableDate.getMinutes();
+
           var minutes = expectedMinute - currentMinute;
           if (minutes < 0) {
             minutes = 0;
@@ -63,6 +67,12 @@ var Arcs = function(trains, svg) {
             console.log("Krigslida: " + minutes);
           }
           arc.setTime(minutes);
+
+          var calculatedDelay = Math.abs(timeTabledMinute - expectedMinute)
+          if(calculatedDelay != 0)// there is a delay
+            arc.setColorOfArc("rgb(195,67,43)");
+          else //no delay
+            arc.setColorOfArc("rgb(109,187,86)");
         } else {
           arc.setTime("nan");
         }
