@@ -6,8 +6,9 @@ var isContinue = false;
 var timerCurrentValue = 0;
 var last = 0;
 var lastCalledMinute;
+var direction = "north";
 
-var speed = 1 ;//times normal speed!
+var speed = 10 ;//times normal speed!
 
 var maxScaleofSlider = (3600*24)*10/speed;
 var currentPositionOfSlider = 0;
@@ -15,15 +16,25 @@ var currentPositionOfSlider = 0;
 var sliderPlace = d3.select('#slider6').call(slider);
 var sliderHandle = d3.select("#handle-one");
 
+function northClick(){
+  direction = "north"
+  update();
+}
+
+function southClick(){
+  direction = "south"
+  update();
+}
 
 //Functions
 
 function update(data, currTimeMin){
+  console.log(direction+" korea!")
   for(var key in data) {
-    if(typeof data[key].north != 'string') {
-      var timeTabledDate = parseDate(data[key].north.TimeTabledDateTime);
+    if(typeof data[key][direction] != 'string') {
+      var timeTabledDate = parseDate(data[key][direction].TimeTabledDateTime);
       var id = key.substring(3);
-      var expectedDate = parseDate(data[key].north.ExpectedDateTime);
+      var expectedDate = parseDate(data[key][direction].ExpectedDateTime);
       var pendeltagDelay = Math.abs(timeTabledDate - expectedDate);
       // Update timers of next
       timeToArrival = dateToMinutes(expectedDate) - currTimeMin;

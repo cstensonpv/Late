@@ -13,7 +13,7 @@ img{
 }
 
 h2 {
-	font-size: 32px;
+	font-size: 32pt;
 	color:white;
 }
 
@@ -30,6 +30,15 @@ button {
 #stopButton {
 	display:inline-block;
 	width:100px;
+}
+
+#northButton{
+	margin-top: 50px;
+	display: inline-block;
+}
+
+#southButton{
+	display:inline-block;
 }
 
 .link {
