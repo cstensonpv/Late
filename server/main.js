@@ -47,6 +47,10 @@ app.get('/currentdate', function(req, res) {
 	res.jsonp(httprequest.getCurrentDate());
 });
 
+app.get('/rawtimetable/:siteid', function(req, res) {
+	res.jsonp(httprequest.getRawTimetable(req.params.siteid));
+});
+
 var cm = -1;
 var hours = currentDate.getHours();
 var minutes = currentDate.getMinutes();

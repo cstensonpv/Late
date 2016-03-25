@@ -381,5 +381,13 @@ var sl = new SL({
 
   module.exports.getCurrentDate = function() {
     return {date: new Date()}
-  }
+  };
+
+  module.exports.getRawTimetable = function(siteid) {
+    if (timetable['id_' + siteid] !== undefined) {
+      return timetable['id_' + siteid];
+    } else {
+      return {message: "Error, no data found"}
+    }
+  };
 }());
