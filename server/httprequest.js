@@ -370,4 +370,16 @@ var sl = new SL({
   module.exports.getDelayPerHour = function(siteid) {
     return getDelayPerHour(siteid);
   };
+
+  module.exports.getAllDataFor = function(siteid) {
+    if (data['id_' + siteid] !== undefined) {
+      return data['id_' + siteid];
+    } else {
+      return {message: "Error, no data found"}
+    }
+  };
+
+  module.exports.getCurrentDate = function() {
+    return {date: new Date()}
+  }
 }());

@@ -39,6 +39,14 @@ app.get('/delayperhour/:siteid', function(req, res) {
 	res.jsonp(httprequest.getDelayPerHour(req.params.siteid));
 });
 
+app.get('/alldata/:siteid', function(req, res) {
+	res.jsonp(httprequest.getAllDataFor(req.params.siteid));
+});
+
+app.get('/currentdate', function(req, res) {
+	res.jsonp(httprequest.getCurrentDate());
+});
+
 var cm = -1;
 var hours = currentDate.getHours();
 var minutes = currentDate.getMinutes();
